@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('lines', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('code')->unique();
+            $table->integer('shift')->default(1);
             $table->timestamps();
         });
     }
