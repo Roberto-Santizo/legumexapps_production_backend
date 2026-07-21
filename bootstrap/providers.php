@@ -7,6 +7,7 @@ use App\Providers\Lines\LinesProvider;
 use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
 use App\Providers\Permissions\PermissionProvider;
+use App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider;
 use App\Providers\Skus\SkusProvider;
 use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
@@ -20,6 +21,7 @@ return [
     PackingMaterialsProvider::class,
     PermissionProvider::class,
     SkusProvider::class,
+    SkuPackingMaterialsProvider::class,
     UserPermissionProvider::class,
     UserProvider::class,
 ];
