@@ -7,3 +7,4 @@ require_once __DIR__.'/lines.php';
 require_once __DIR__.'/clients.php';
 require_once __DIR__.'/skus.php';
 require_once __DIR__.'/bodega.php';
+require_once __DIR__.'/weeklyplans.php';
