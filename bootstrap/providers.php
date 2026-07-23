@@ -1,17 +1,33 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Auth\AuthProvider;
+use App\Providers\Clients\ClientsProvider;
+use App\Providers\Lines\LinesProvider;
+use App\Providers\LineSkus\LineSkusProvider;
+use App\Providers\PackingMaterials\PackingMaterialsProvider;
+use App\Providers\Permissions\PermissionProvider;
+use App\Providers\Positions\PositionsProvider;
+use App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider;
+use App\Providers\Skus\SkusProvider;
+use App\Providers\Users\UserPermissionProvider;
+use App\Providers\Users\UserProvider;
+use App\Providers\WeeklyPlanEmployees\WeeklyPlanEmployeesProvider;
+use App\Providers\WeeklyPlans\WeeklyPlansProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\Auth\AuthProvider::class,
-    App\Providers\Clients\ClientsProvider::class,
-    App\Providers\LineSkus\LineSkusProvider::class,
-    App\Providers\Lines\LinesProvider::class,
-    App\Providers\PackingMaterials\PackingMaterialsProvider::class,
-    App\Providers\Permissions\PermissionProvider::class,
-    App\Providers\Positions\PositionsProvider::class,
-    App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider::class,
-    App\Providers\Skus\SkusProvider::class,
-    App\Providers\Users\UserPermissionProvider::class,
-    App\Providers\Users\UserProvider::class,
-    App\Providers\WeeklyPlans\WeeklyPlansProvider::class,
+    AppServiceProvider::class,
+    AuthProvider::class,
+    ClientsProvider::class,
+    LineSkusProvider::class,
+    LinesProvider::class,
+    PackingMaterialsProvider::class,
+    PermissionProvider::class,
+    PositionsProvider::class,
+    SkuPackingMaterialsProvider::class,
+    SkusProvider::class,
+    UserPermissionProvider::class,
+    UserProvider::class,
+    WeeklyPlanEmployeesProvider::class,
+    WeeklyPlansProvider::class,
 ];
