@@ -14,6 +14,7 @@ use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
 use App\Providers\WeeklyPlanEmployees\WeeklyPlanEmployeesProvider;
 use App\Providers\WeeklyPlans\WeeklyPlansProvider;
+use App\Providers\WeeklyPlanTasks\WeeklyPlanTasksProvider;
 
 return [
     AppServiceProvider::class,
@@ -30,4 +31,5 @@ return [
     UserProvider::class,
     WeeklyPlanEmployeesProvider::class,
     WeeklyPlansProvider::class,
+    WeeklyPlanTasksProvider::class,
 ];
