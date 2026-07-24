@@ -10,6 +10,7 @@ use App\Providers\Permissions\PermissionProvider;
 use App\Providers\Positions\PositionsProvider;
 use App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider;
 use App\Providers\Skus\SkusProvider;
+use App\Providers\Timeouts\TimeoutsProvider;
 use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
 use App\Providers\WeeklyPlanEmployees\WeeklyPlanEmployeesProvider;
@@ -27,6 +28,7 @@ return [
     PositionsProvider::class,
     SkuPackingMaterialsProvider::class,
     SkusProvider::class,
+    TimeoutsProvider::class,
     UserPermissionProvider::class,
     UserProvider::class,
     WeeklyPlanEmployeesProvider::class,
