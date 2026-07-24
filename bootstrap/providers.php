@@ -8,6 +8,7 @@ use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
 use App\Providers\Permissions\PermissionProvider;
 use App\Providers\Positions\PositionsProvider;
+use App\Providers\RawMaterials\RawMaterialsProvider;
 use App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider;
 use App\Providers\Skus\SkusProvider;
 use App\Providers\Timeouts\TimeoutsProvider;
@@ -26,6 +27,7 @@ return [
     PackingMaterialsProvider::class,
     PermissionProvider::class,
     PositionsProvider::class,
+    RawMaterialsProvider::class,
     SkuPackingMaterialsProvider::class,
     SkusProvider::class,
     TimeoutsProvider::class,
