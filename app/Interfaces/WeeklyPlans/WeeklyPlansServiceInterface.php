@@ -7,4 +7,6 @@ interface WeeklyPlansServiceInterface
     public function getWeeklyPlans(?string $limit);
 
     public function getWeeklyPlanById(string $id);
+
+    public function getWeeklyPlanTasksByPlanId(string $id);
 }

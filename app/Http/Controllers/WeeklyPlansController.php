@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Resources\WeeklyPlans\PaginatedWeeklyPlansResource;
 use App\Http\Resources\WeeklyPlans\WeeklyPlanResource;
+use App\Http\Resources\WeeklyPlans\WeeklyPlanTasksForCalendarResource;
 use App\Interfaces\WeeklyPlans\WeeklyPlansServiceInterface;
 use Illuminate\Http\Request;
 
@@ -35,7 +36,18 @@ class WeeklyPlansController extends Controller
         try {
             $data = $service->getWeeklyPlanById($id);
 
-            return ResponseHandler::success(new WeeklyPlanResource($data), 'Plane Obtenido Correctamente', 200);
+            return ResponseHandler::success(new WeeklyPlanResource($data), 'Plan Obtenido Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function getTasksForCalendar(string $id, WeeklyPlansServiceInterface $service)
+    {
+        try {
+            $data = $service->getWeeklyPlanTasksByPlanId($id);
+
+            return ResponseHandler::success(new WeeklyPlanTasksForCalendarResource($data), 'Tareas Obtenidas Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

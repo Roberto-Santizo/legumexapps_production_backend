@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['week', 'year'])]
 class WeeklyPlan extends Model
 {
-    use HasFactory;
+    public function tasks()
+    {
+        return $this->hasMany(WeeklyPlanTask::class);
+    }
 }

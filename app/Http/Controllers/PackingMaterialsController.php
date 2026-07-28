@@ -52,7 +52,7 @@ class PackingMaterialsController extends Controller
         try {
             $response = $service->getPackingMaterialByCode($id);
 
-            return ResponseHandler::success($response, 'Material de Empaque Obtenido Correctamente', 200);
+            return ResponseHandler::success(new PackingMaterialResource($response), 'Material de Empaque Obtenido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

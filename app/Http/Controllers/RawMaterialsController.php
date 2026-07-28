@@ -52,7 +52,7 @@ class RawMaterialsController extends Controller
         try {
             $response = $service->getRawMaterialByCode($id);
 
-            return ResponseHandler::success($response, 'Materia Prima Obtenida Correctamente', 200);
+            return ResponseHandler::success(new RawMaterialResource($response), 'Materia Prima Obtenida Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

@@ -12,4 +12,5 @@ Route::middleware('jwt.auth')->group(function () {
 // FUNCTIONALITYS
 Route::middleware('jwt.auth')->group(function () {
     Route::post('/weekly-plan-employees/uploadFile', [WeeklyPlanEmployeesController::class, 'uploadFile']);
+    Route::get('/weekly-plans/tasksForCalendar/{id}', [WeeklyPlansController::class, 'getTasksForCalendar']);
 });

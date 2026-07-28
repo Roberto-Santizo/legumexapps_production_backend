@@ -32,4 +32,12 @@ class WeeklyPlansService implements WeeklyPlansServiceInterface
         return $weeklyPlan;
 
     }
+
+    #[Override]
+    public function getWeeklyPlanTasksByPlanId(string $id)
+    {
+        $plan = $this->getWeeklyPlanById($id);
+
+        return $plan->tasks()->whereNotNull('operation_date')->get();
+    }
 }
