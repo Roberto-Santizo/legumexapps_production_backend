@@ -40,6 +40,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         $query->with(['performance', 'performance.sku', 'performance.line']);
         
         if($request->query('weeklyPlanId')) $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
+        if($request->query('noOperationDate')) $query->whereNull('operation_date');
         
         if ($limit) return $query->paginate($limit);
         
