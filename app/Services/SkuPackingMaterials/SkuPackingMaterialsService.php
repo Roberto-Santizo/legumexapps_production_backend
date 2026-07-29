@@ -4,6 +4,7 @@ namespace App\Services\SkuPackingMaterials;
 
 use App\Errors\NotFoundError;
 use App\Interfaces\SkuPackingMaterials\SkuPackingMaterialsServiceInterface;
+use App\Models\Sku;
 use App\Models\SkuPackingMaterial;
 use Override;
 
@@ -12,7 +13,15 @@ class SkuPackingMaterialsService implements SkuPackingMaterialsServiceInterface
     #[Override]
     public function createSkuPackingMaterial(array $data)
     {
-        $newSkuPackingMaterial = SkuPackingMaterial::create($data);
+        $sku = Sku::where('code', '=', $data['sku_code'])->first();
+
+        $payload = [
+            'lbs_per_item' => $data['lbs_per_item'],
+            'sku_id' => $sku->id,
+            'packing_material_id' => $data['packing_material_id'],
+        ];
+
+        $newSkuPackingMaterial = SkuPackingMaterial::create($payload);
 
         return $newSkuPackingMaterial;
     }
@@ -20,8 +29,12 @@ class SkuPackingMaterialsService implements SkuPackingMaterialsServiceInterface
     #[Override]
     public function getSkuPackingMaterials(string $skuId)
     {
-        $items = SkuPackingMaterial::where('sku_id', '=', $skuId)->get();
-        return $items;
+        $query = SkuPackingMaterial::query();
+        $query->whereHas('sku', function ($p0) use ($skuId) {
+            $p0->where('code', 'LIKE', '%'.$skuId.'%');
+        });
+
+        return $query->get();
     }
 
     #[Override]
@@ -39,7 +52,15 @@ class SkuPackingMaterialsService implements SkuPackingMaterialsServiceInterface
     public function updateSkuPackingMaterialById(string $id, array $data)
     {
         $skuPackingMaterial = $this->getSkuPackingMaterialById($id);
-        $skuPackingMaterial->update($data);
+        $sku = Sku::where('code', '=', $data['sku_code'])->first();
+
+        $payload = [
+            'lbs_per_item' => $data['lbs_per_item'],
+            'sku_id' => $sku->id,
+            'packing_material_id' => $data['packing_material_id'],
+        ];
+        
+        $skuPackingMaterial->update($payload);
 
         return true;
     }

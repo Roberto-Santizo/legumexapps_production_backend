@@ -24,7 +24,7 @@ class CreateSkuPackingMaterialRequest extends FormRequest
     {
         return [
             'lbs_per_item' => ['required', 'numeric'],
-            'sku_id' => ['required', 'exists:stock_keeping_units,id'],
+            'sku_code' => ['required', 'exists:stock_keeping_units,code'],
             'packing_material_id' => ['required', 'exists:packing_materials,id'],
         ];
     }
@@ -35,8 +35,8 @@ class CreateSkuPackingMaterialRequest extends FormRequest
             'lbs_per_item.required' => 'Las libras por artículo son obligatorias.',
             'lbs_per_item.numeric' => 'Las libras por artículo deben ser un valor numérico.',
 
-            'sku_id.required' => 'El SKU es obligatorio.',
-            'sku_id.exists' => 'El SKU no existe.',
+            'sku_code.required' => 'El SKU es obligatorio.',
+            'sku_code.exists' => 'El SKU no existe.',
 
             'packing_material_id.required' => 'El material de empaque es obligatorio.',
             'packing_material_id.exists' => 'El material de empaque no existe.',

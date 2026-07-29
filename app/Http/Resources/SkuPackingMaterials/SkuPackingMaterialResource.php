@@ -20,7 +20,10 @@ class SkuPackingMaterialResource extends JsonResource
             'sku' => $this->sku->code,
             'sku_id' => $this->sku_id,
             'packing_material' => $this->packingMaterial->name,
+            'packing_material_code'=> $this->packingMaterial->code,
             'packing_material_id' => $this->packing_material_id,
+            'created_at' => $this->created_at->format('d-m-Y h:i:s A'),
+            'updated_at' => $this->updated_at->format('d-m-Y h:i:s A')
         ];
     }
 }

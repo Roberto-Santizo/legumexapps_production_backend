@@ -24,7 +24,7 @@ class UpdateSkuRawMaterialRequest extends FormRequest
     {
         return [
             'percentage' => ['required', 'numeric'],
-            'stock_keeping_unit_id' => ['required', 'exists:stock_keeping_units,id'],
+            'stock_keeping_unit_code' => ['required', 'exists:stock_keeping_units,code'],
             'raw_material_id' => ['required', 'exists:raw_materials,id'],
         ];
     }
@@ -35,8 +35,8 @@ class UpdateSkuRawMaterialRequest extends FormRequest
             'percentage.required' => 'El porcentaje es obligatorio.',
             'percentage.numeric' => 'El porcentaje debe ser un valor numérico.',
 
-            'stock_keeping_unit_id.required' => 'El SKU es obligatorio.',
-            'stock_keeping_unit_id.exists' => 'El SKU no existe.',
+            'stock_keeping_unit_code.required' => 'El SKU es obligatorio.',
+            'stock_keeping_unit_code.exists' => 'El SKU no existe.',
 
             'raw_material_id.required' => 'El material crudo es obligatorio.',
             'raw_material_id.exists' => 'El material crudo no existe.',

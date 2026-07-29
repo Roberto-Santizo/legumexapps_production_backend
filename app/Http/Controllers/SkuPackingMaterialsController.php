@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\SkuPackingMaterials\CreateSkuPackingMaterialRequest;
 use App\Http\Requests\SkuPackingMaterials\UpdateSkuPackingMaterialRequest;
-use App\Http\Resources\SkuPackingMaterials\PaginatedSkuPackingMaterialsResource;
 use App\Http\Resources\SkuPackingMaterials\SkuPackingMaterialResource;
 use App\Interfaces\SkuPackingMaterials\SkuPackingMaterialsServiceInterface;
 use Illuminate\Http\Request;
