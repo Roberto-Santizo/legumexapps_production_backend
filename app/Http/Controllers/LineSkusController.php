@@ -19,7 +19,7 @@ class LineSkusController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getLineSkus($limit);
+            $response = $service->getLineSkus($limit, $request);
 
             $data = $limit ? new PaginatedLineSkusResource($response) : LineSkuResource::collection($response);
 
