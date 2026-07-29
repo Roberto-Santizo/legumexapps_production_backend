@@ -71,4 +71,21 @@ class DraftWeeklyPlansService implements DraftWeeklyPlansServiceInterface
 
         return true;
     }
+
+    #[Override]
+    public function getHoursPerLine(string $id)
+    {
+        $plan = $this->getDraftWeeklyPlanById($id);
+
+        return $plan->tasks()
+            ->with('line')
+            ->get()
+            ->filter(fn ($task) => $task->line_id !== null)
+            ->groupBy('line_id')
+            ->map(fn ($tasks) => [
+                'label' => $tasks->first()->line->name,
+                'value' => $tasks->sum('hours'),
+            ])
+            ->values();
+    }
 }

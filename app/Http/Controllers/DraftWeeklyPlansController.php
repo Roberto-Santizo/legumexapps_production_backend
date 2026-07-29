@@ -100,4 +100,15 @@ class DraftWeeklyPlansController extends Controller
             return ResponseHandler::error($th);
         }
     }
+
+    public function hoursPerLine(string $id, DraftWeeklyPlansServiceInterface $service)
+    {
+        try {
+            $tasks = $service->getHoursPerLine($id);
+
+            return ResponseHandler::success($tasks, 'Horas Por linea obtenidas correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
 }

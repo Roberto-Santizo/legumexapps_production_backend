@@ -10,4 +10,5 @@ Route::middleware('jwt.auth')->group(function () {
 // FUNCTIONALITYS
 Route::middleware('jwt.auth')->group(function () {
     Route::post('/draft-weekly-plans/{id}/confirm', [DraftWeeklyPlansController::class, 'confirm']);
+    Route::get('/draft-weekly-plans/{id}/hoursPerLine', [DraftWeeklyPlansController::class, 'hoursPerLine']);
 });

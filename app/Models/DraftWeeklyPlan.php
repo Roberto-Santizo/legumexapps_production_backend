@@ -8,5 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['week', 'year'])]
 class DraftWeeklyPlan extends Model
 {
-    //
+    public function tasks()
+    {
+        return $this->hasMany(DraftWeeklyPlanTask::class);
+    }
 }

@@ -15,4 +15,6 @@ interface DraftWeeklyPlansServiceInterface
     public function deleteDraftWeeklyPlanById(string $id);
 
     public function confirmDraftWeeklyPlanById(string $id);
+
+    public function getHoursPerLine(string $id);
 }
