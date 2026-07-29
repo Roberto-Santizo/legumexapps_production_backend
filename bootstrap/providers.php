@@ -3,6 +3,7 @@
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
 use App\Providers\Clients\ClientsProvider;
+use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\Lines\LinesProvider;
 use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
@@ -23,6 +24,7 @@ return [
     AppServiceProvider::class,
     AuthProvider::class,
     ClientsProvider::class,
+    DraftWeeklyPlansProvider::class,
     LineSkusProvider::class,
     LinesProvider::class,
     PackingMaterialsProvider::class,
