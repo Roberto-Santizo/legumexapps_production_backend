@@ -12,6 +12,14 @@ class WeeklyPlanTaskResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+
+    private $statusMessages = [
+        1 => 'Pendiente Entrega Material de Empaque',
+        2 => 'Lista para confirmación de asignaciónes',
+        3 => 'Lista para ejecución',
+        4 => 'En Progreso',
+        5 => 'Finalizada',
+    ];
     public function toArray(Request $request): array
     {
         return [
@@ -33,6 +41,7 @@ class WeeklyPlanTaskResource extends JsonResource
             'sku_code'=>                $this->performance->sku->code,
             'line_name'=>               $this->performance->line->name,
             'line_code'=>               $this->performance->line->code,
+            'status'=>                  $this->statusMessages[$this->status]
         ];
     }
 }
