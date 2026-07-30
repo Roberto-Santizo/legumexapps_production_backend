@@ -14,4 +14,14 @@ class Sku extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function packingMaterialItems()
+    {
+        return $this->hasMany(SkuPackingMaterial::class, 'sku_id', 'id');
+    }
+
+    public function rawMaterialItems()
+    {
+        return $this->hasMany(SkuRawMaterial::class, 'stock_keeping_unit_id', 'id');
+    }
 }

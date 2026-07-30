@@ -19,7 +19,7 @@ class LinesController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $result = $service->getLines($limit);
+            $result = $service->getLines($request, $limit);
 
             $response = $limit ? new PaginatedLinesResource($result) : LineResource::collection($result);
 

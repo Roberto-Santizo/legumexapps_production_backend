@@ -13,8 +13,8 @@ class SkuPackingMaterial extends Model
         return $this->belongsTo(Sku::class, 'sku_id', 'id');
     }
 
-    public function packingMaterial()
+    public function item()
     {
-        return $this->belongsTo(PackingMaterial::class);
+        return $this->belongsTo(PackingMaterial::class, 'packing_material_id', 'id');
     }
 }

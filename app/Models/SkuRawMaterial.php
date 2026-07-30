@@ -13,8 +13,8 @@ class SkuRawMaterial extends Model
         return $this->belongsTo(Sku::class, 'stock_keeping_unit_id');
     }
 
-    public function rawMaterial()
+    public function item()
     {
-        return $this->belongsTo(RawMaterial::class);
+        return $this->belongsTo(RawMaterial::class, 'raw_material_id', 'id');
     }
 }

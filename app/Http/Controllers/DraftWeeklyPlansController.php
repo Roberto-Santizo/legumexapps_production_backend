@@ -6,7 +6,9 @@ use App\Helpers\ResponseHandler;
 use App\Http\Requests\DraftWeeklyPlans\CreateDraftWeeklyPlanRequest;
 use App\Http\Requests\DraftWeeklyPlans\UpdateDraftWeeklyPlanRequest;
 use App\Http\Resources\DraftWeeklyPlans\DraftWeeklyPlanResource;
+use App\Http\Resources\DraftWeeklyPlans\PackingMaterialNecessityResource;
 use App\Http\Resources\DraftWeeklyPlans\PaginatedDraftWeeklyPlansResource;
+use App\Http\Resources\DraftWeeklyPlans\RawMaterialNecessityResource;
 use App\Interfaces\DraftWeeklyPlans\DraftWeeklyPlansServiceInterface;
 use Illuminate\Http\Request;
 
@@ -107,6 +109,30 @@ class DraftWeeklyPlansController extends Controller
             $tasks = $service->getHoursPerLine($id);
 
             return ResponseHandler::success($tasks, 'Horas Por linea obtenidas correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function getPackingMaterialNecessity(string $id, DraftWeeklyPlansServiceInterface $service)
+    {
+        try {
+            $plan = $service->getDraftWeeklyPlanById($id);
+            $data = new PackingMaterialNecessityResource($plan);
+
+            return ResponseHandler::success($data, 'Necesidad de material de empaque obtenida correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function getRawMaterialNecessity(string $id, DraftWeeklyPlansServiceInterface $service)
+    {
+        try {
+            $plan = $service->getDraftWeeklyPlanById($id);
+            $data = new RawMaterialNecessityResource($plan);
+
+            return ResponseHandler::success($data, 'Necesidad de materia prima obtenida correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

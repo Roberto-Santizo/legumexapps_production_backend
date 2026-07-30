@@ -9,5 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'code', 'shift'])]
 class Line extends Model
 {
-    use HasFactory;
+
+    public function performances()
+    {
+        return $this->hasMany(LineSku::class, 'line_id', 'id');
+    }
+
+
 }
