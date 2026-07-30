@@ -15,10 +15,14 @@ class ConfirmDraftWeeklyPlan
     public function exec(DraftWeeklyPlan $draftWeeklyPlan): void
     {
         $tasks = $draftWeeklyPlan->tasks()->with('sku')->get();
+        $plan = WeeklyPlan::where('week', '=', $draftWeeklyPlan->week)->where('year', '=', $draftWeeklyPlan->year)->first();
+
+        if($plan) throw new BadRequestError("Ya existe un plan confirmado con los datos S{$draftWeeklyPlan->week} - {$draftWeeklyPlan->year}");
+        if($tasks->count() === 0) throw new BadRequestError("El plan debe de tener al menos una tarea asignada");
 
         $tasksWithoutLine = $tasks->whereNull('line_id');
         if ($tasksWithoutLine->isNotEmpty()) {
-            throw new BadRequestError("Algunas tareas no tienen línea asignada");
+            throw new BadRequestError('Algunas tareas no tienen línea asignada');
         }
 
         $performances = LineSku::query()->whereIn('line_id', $tasks->pluck('line_id')->unique())->whereIn('sku_id', $tasks->pluck('sku_id')->unique())->get()
@@ -33,7 +37,7 @@ class ConfirmDraftWeeklyPlan
             throw new BadRequestError("No existe un rendimiento configurado para la línea y el SKU de las siguientes tareas: {$taskIds}");
         }
 
-        Db::transaction(function () use ($draftWeeklyPlan, $tasks, $performances): void {
+        DB::transaction(function () use ($draftWeeklyPlan, $tasks, $performances): void {
             $plan = WeeklyPlan::create(['week' => $draftWeeklyPlan->week, 'year' => $draftWeeklyPlan->year]);
 
             foreach ($tasks as $task) {
