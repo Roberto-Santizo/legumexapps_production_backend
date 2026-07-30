@@ -23,18 +23,18 @@ class UpdateWeeklyPlanTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'boxes' =>              ['required', 'integer'],
-            'produced_boxes' =>     ['nullable', 'integer'],
-            'pallets' =>            ['required', 'numeric'],
-            'produced_pallets' =>   ['nullable', 'numeric'],
-            'hours' =>              ['required', 'numeric'],
-            'weighed_pounds' =>     ['required', 'numeric'],
-            'destination' =>        ['required', 'string'],
-            'operation_date' =>     ['nullable', 'date'],
-            'start_date' =>         ['nullable', 'date'],
-            'end_date' =>           ['nullable', 'date'],
-            'weekly_plan_id' =>     ['required', 'integer', 'exists:weekly_plans,id'],
-            'line_sku_id' =>        ['required', 'integer', 'exists:line_stock_keeping_units,id'],
+                'boxes' =>              ['required', 'integer'],
+                'produced_boxes' =>     ['nullable', 'integer'],
+                'pallets' =>            ['required', 'numeric'],
+                'produced_pallets' =>   ['nullable', 'numeric'],
+                'hours' =>              ['required', 'numeric'],
+                'weighed_pounds' =>     ['required', 'numeric'],
+                'destination' =>        ['required', 'string'],
+                'operation_date' =>     ['nullable', 'date'],
+                'start_date' =>         ['nullable', 'date'],
+                'end_date' =>           ['nullable', 'date'],
+                'weekly_plan_id' =>     ['required', 'integer', 'exists:weekly_plans,id'],
+                'line_sku_id' =>        ['required', 'integer', 'exists:line_stock_keeping_units,id'],
         ];
     }
 

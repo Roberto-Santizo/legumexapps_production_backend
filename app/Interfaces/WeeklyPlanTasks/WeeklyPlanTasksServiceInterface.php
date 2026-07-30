@@ -15,4 +15,6 @@ interface WeeklyPlanTasksServiceInterface
     public function updateWeeklyPlanTaskById(array $data, string $id);
 
     public function deleteWeeklyPlanTaskById(string $id);
+
+    public function assignOperationDate(array $tasksIds, string $operationDate);
 }

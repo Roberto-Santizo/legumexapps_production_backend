@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
+use App\Http\Requests\WeeklyPlanTasks\AssignOperationDateRequest;
 use App\Http\Requests\WeeklyPlanTasks\CreateWeeklyPlanTaskRequest;
 use App\Http\Requests\WeeklyPlanTasks\UpdateWeeklyPlanTaskRequest;
 use App\Http\Resources\WeeklyPlanTasks\PaginatedWeeklyPlanTasksResource;
@@ -82,6 +83,21 @@ class WeeklyPlanTasksController extends Controller
             $result = $service->deleteWeeklyPlanTaskById($id);
 
             return ResponseHandler::success($result, 'Tarea del Plan Semanal Eliminada Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    /**
+     * Assign the operation date to the given weekly plan tasks.
+     */
+    public function assignOperationDate(AssignOperationDateRequest $request, WeeklyPlanTasksServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $result = $service->assignOperationDate($data['tasksIds'], $data['operation_date']);
+
+            return ResponseHandler::success($result, 'Fecha de Operación Asignada Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

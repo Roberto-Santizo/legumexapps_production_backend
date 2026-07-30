@@ -17,15 +17,15 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         $performance = LineSku::find($data['line_sku_id'], ['*'])->load(['sku']);
         $sku = $performance->sku;
         $total_lbs = $data['boxes'] * $sku->presentation;
-        
+
         $payload = [
-            'boxes' =>          $data['boxes'],
-            'pallets'=>         $data['boxes'] / $sku->boxes_per_pallet,
-            'hours'=>           $total_lbs / $performance->lbs_performance,
-            'destination'=>     $data['destination'],
-            'operation_date'=>  $data['operation_date'],
-            'weekly_plan_id'=>  $data['weekly_plan_id'],
-            'line_sku_id'=>     $data['line_sku_id'],
+            'boxes' => $data['boxes'],
+            'pallets' => $data['boxes'] / $sku->boxes_per_pallet,
+            'hours' => $total_lbs / $performance->lbs_performance,
+            'destination' => $data['destination'],
+            'operation_date' => $data['operation_date'],
+            'weekly_plan_id' => $data['weekly_plan_id'],
+            'line_sku_id' => $data['line_sku_id'],
         ];
 
         $weeklyPlanTask = WeeklyPlanTask::create($payload);
@@ -38,12 +38,23 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     {
         $query = WeeklyPlanTask::query();
         $query->with(['performance', 'performance.sku', 'performance.line']);
-        
-        if($request->query('weeklyPlanId')) $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
-        if($request->query('noOperationDate')) $query->whereNull('operation_date');
-        
-        if ($limit) return $query->paginate($limit);
-        
+
+        if ($request->query('weeklyPlanId')) {
+            $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
+        }
+
+        if($request->query('operationDate')){
+            $query->whereDate('operation_date', $request->query('operationDate'));
+        }
+
+        if ($request->query('noOperationDate')) {
+            $query->whereNull('operation_date');
+        }
+
+        if ($limit) {
+            return $query->paginate($limit);
+        }
+
         return $query->get();
     }
 
@@ -72,6 +83,14 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     {
         $weeklyPlanTask = $this->getWeeklyPlanTaskById($id);
         $weeklyPlanTask->delete();
+
+        return true;
+    }
+
+    #[Override]
+    public function assignOperationDate(array $tasksIds, string $operationDate)
+    {
+        WeeklyPlanTask::whereIn('id', $tasksIds)->update(['operation_date' => $operationDate]);
 
         return true;
     }

@@ -31,7 +31,7 @@ class WeeklyPlanTaskResource extends JsonResource
             'hours' =>                  $this->hours,
             'weighed_pounds' =>         $this->weighed_pounds,
             'destination' =>            $this->destination,
-            'operation_date' =>         $this->operation_date,
+            'operation_date' =>         $this->operation_date ? $this->operation_date->format('Y-m-d') : null,
             'operation_date_string' =>  $this->operation_date ? $this->operation_date->format('d-m-Y') : 'SIN PROGRAMACIÓN',
             'start_date' =>             $this->start_date,
             'end_date' =>               $this->end_date,
