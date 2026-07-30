@@ -66,8 +66,7 @@ class DraftWeeklyPlansService implements DraftWeeklyPlansServiceInterface
     #[Override]
     public function confirmDraftWeeklyPlanById(string $id)
     {
-        $draftWeeklyPlan = $this->getDraftWeeklyPlanById($id);
-        $draftWeeklyPlan->forceFill(['confirmation_date' => now()])->save();
+        $this->getDraftWeeklyPlanById($id);
 
         return true;
     }

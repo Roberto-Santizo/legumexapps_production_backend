@@ -13,6 +13,7 @@ class WeeklyPlansService implements WeeklyPlansServiceInterface
     public function getWeeklyPlans(?string $limit)
     {
         $query = WeeklyPlan::query();
+        $query->orderBy('year', 'DESC')->orderBy('week', 'DESC');
 
         if ($limit) {
             return $query->paginate($limit);

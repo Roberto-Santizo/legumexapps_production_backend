@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\DraftWeeklyPlans\ConfirmDraftWeeklyPlan;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\DraftWeeklyPlans\CreateDraftWeeklyPlanRequest;
 use App\Http\Requests\DraftWeeklyPlans\UpdateDraftWeeklyPlanRequest;
@@ -92,12 +93,13 @@ class DraftWeeklyPlansController extends Controller
     /**
      * Confirm the specified draft weekly plan.
      */
-    public function confirm(string $id, DraftWeeklyPlansServiceInterface $service)
+    public function confirm(string $id, DraftWeeklyPlansServiceInterface $service, ConfirmDraftWeeklyPlan $action)
     {
         try {
-            $response = $service->confirmDraftWeeklyPlanById($id);
+            $draftWeeklyPlan = $service->getDraftWeeklyPlanById($id);
+            $action->exec($draftWeeklyPlan);
 
-            return ResponseHandler::success($response, 'Plan Borrador Confirmado Correctamente', 200);
+            return ResponseHandler::success(true, 'Plan Borrador Confirmado Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
