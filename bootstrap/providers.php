@@ -8,6 +8,8 @@ use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
 use App\Providers\Lines\LinesProvider;
 use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
+use App\Providers\PackingMaterialTransactionItems\PackingMaterialTransactionItemsProvider;
+use App\Providers\PackingMaterialTransactions\PackingMaterialTransactionsProvider;
 use App\Providers\Permissions\PermissionProvider;
 use App\Providers\Positions\PositionsProvider;
 use App\Providers\RawMaterials\RawMaterialsProvider;
@@ -30,6 +32,8 @@ return [
     LineSkusProvider::class,
     LinesProvider::class,
     PackingMaterialsProvider::class,
+    PackingMaterialTransactionItemsProvider::class,
+    PackingMaterialTransactionsProvider::class,
     PermissionProvider::class,
     PositionsProvider::class,
     RawMaterialsProvider::class,
