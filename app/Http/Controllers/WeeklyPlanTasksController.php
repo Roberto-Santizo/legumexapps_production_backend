@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\WeeklyPlanTasks\AssignOperationDateRequest;
 use App\Http\Requests\WeeklyPlanTasks\CreateWeeklyPlanTaskRequest;
+use App\Http\Requests\WeeklyPlanTasks\SplitWeeklyPlanTaskRequest;
 use App\Http\Requests\WeeklyPlanTasks\UpdateWeeklyPlanTaskRequest;
 use App\Http\Resources\WeeklyPlanTasks\PaginatedWeeklyPlanTasksResource;
 use App\Http\Resources\WeeklyPlanTasks\WeeklyPlanTaskResource;
@@ -98,6 +99,21 @@ class WeeklyPlanTasksController extends Controller
             $result = $service->assignOperationDate($data['tasksIds'], $data['operation_date']);
 
             return ResponseHandler::success($result, 'Fecha de Operación Asignada Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    /**
+     * Split a weekly plan task into several tasks across different dates, then delete the original task.
+     */
+    public function splitTask(SplitWeeklyPlanTaskRequest $request, WeeklyPlanTasksServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $result = $service->splitWeeklyPlanTask($data['task_id'], $data['portions']);
+
+            return ResponseHandler::success(WeeklyPlanTaskResource::collection($result), 'Tarea Dividida Correctamente', 201);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

@@ -2,11 +2,13 @@
 
 namespace App\Services\WeeklyPlanTasks;
 
+use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\LineSku;
 use App\Models\WeeklyPlanTask;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
@@ -43,7 +45,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
         }
 
-        if($request->query('operationDate')){
+        if ($request->query('operationDate')) {
             $query->whereDate('operation_date', $request->query('operationDate'));
         }
 
@@ -93,5 +95,56 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         WeeklyPlanTask::whereIn('id', $tasksIds)->update(['operation_date' => $operationDate]);
 
         return true;
+    }
+
+    /**
+     * Split a weekly plan task into several tasks, one per date/boxes portion, then delete the original task.
+     *
+     * @param  array<int, array{boxes: int, operation_date: string}>  $portions
+     */
+    #[Override]
+    public function splitWeeklyPlanTask(string $taskId, array $portions)
+    {
+        $task = $this->getWeeklyPlanTaskById($taskId);
+        $task->load(['performance.sku']);
+
+        if ($task->produced_boxes || $task->produced_pallets || $task->start_date || $task->status > 2) {
+            throw new BadRequestError('No se puede dividir una tarea que ya inició o tiene producción registrada');
+        }
+
+        $portionsBoxes = array_sum(array_column($portions, 'boxes'));
+        if ($portionsBoxes !== $task->boxes) {
+            throw new BadRequestError("La suma de las cajas divididas ({$portionsBoxes}) no coincide con el total de la tarea ({$task->boxes})");
+        }
+
+        $performance = $task->performance;
+        $sku = $performance->sku;
+
+        $newTaskIds = DB::transaction(function () use ($task, $portions, $performance, $sku) {
+            $newTaskIds = [];
+
+            foreach ($portions as $portion) {
+                $totalLbs = $portion['boxes'] * $sku->presentation;
+
+                $newTask = WeeklyPlanTask::create([
+                    'boxes' => $portion['boxes'],
+                    'pallets' => $portion['boxes'] / $sku->boxes_per_pallet,
+                    'hours' => $totalLbs / $performance->lbs_performance,
+                    'destination' => $task->destination,
+                    'operation_date' => $portion['operation_date'],
+                    'weekly_plan_id' => $task->weekly_plan_id,
+                    'line_sku_id' => $task->line_sku_id,
+                    'status' => $task->status,
+                ]);
+
+                $newTaskIds[] = $newTask->id;
+            }
+
+            $task->delete();
+
+            return $newTaskIds;
+        });
+
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->get();
     }
 }

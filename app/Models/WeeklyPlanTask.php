@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['boxes', 'produced_boxes', 'pallets', 'produced_pallets', 'hours', 'weighed_pounds', 'destination', 'operation_date', 'start_date', 'end_date', 'weekly_plan_id', 'line_sku_id'])]
+#[Fillable(['boxes', 'produced_boxes', 'pallets', 'produced_pallets', 'hours', 'weighed_pounds', 'destination', 'operation_date', 'start_date', 'end_date', 'weekly_plan_id', 'line_sku_id', 'status'])]
 class WeeklyPlanTask extends Model
 {
     protected $casts = [
-        'operation_date' => 'datetime'
+        'operation_date' => 'datetime',
     ];
+
     public function performance()
     {
         return $this->belongsTo(LineSku::class, 'line_sku_id', 'id');
