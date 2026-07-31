@@ -13,7 +13,7 @@ class PackingMaterialTransaction extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function weeklyPlanTask()
+    public function task()
     {
         return $this->belongsTo(WeeklyPlanTask::class);
     }

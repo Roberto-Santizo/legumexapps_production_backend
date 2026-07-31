@@ -6,6 +6,7 @@ use App\Errors\NotFoundError;
 use App\Interfaces\PackingMaterialTransactions\PackingMaterialTransactionsServiceInterface;
 use App\Models\PackingMaterialTransaction;
 use App\Models\PackingMaterialTransactionItem;
+use App\Models\WeeklyPlanTask;
 use Illuminate\Support\Facades\DB;
 use Override;
 
@@ -17,6 +18,7 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         $items = $data['items'];
         $data['user_id'] = auth()->user()->id;
         unset($data['items']);
+        $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
 
         $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
             $packingMaterialTransaction = PackingMaterialTransaction::create($data);
@@ -29,6 +31,8 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
             return $packingMaterialTransaction;
         });
 
+        $task->status = 2;
+        $task->save();
         return $packingMaterialTransaction->load('items');
     }
 

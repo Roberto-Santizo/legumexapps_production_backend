@@ -41,7 +41,8 @@ class WeeklyPlanTaskResource extends JsonResource
             'sku_code'=>                $this->performance->sku->code,
             'line_name'=>               $this->performance->line->name,
             'line_code'=>               $this->performance->line->code,
-            'status'=>                  $this->statusMessages[$this->status]
+            'status_message'=>          $this->statusMessages[$this->status],
+            'status'=>                  $this->status,
         ];
     }
 }
