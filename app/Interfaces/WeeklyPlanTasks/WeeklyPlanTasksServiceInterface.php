@@ -19,4 +19,6 @@ interface WeeklyPlanTasksServiceInterface
     public function assignOperationDate(array $tasksIds, string $operationDate);
 
     public function splitWeeklyPlanTask(string $taskId, array $portions);
+
+    public function getPackingMaterialItemsByTaskId(string $id);
 }

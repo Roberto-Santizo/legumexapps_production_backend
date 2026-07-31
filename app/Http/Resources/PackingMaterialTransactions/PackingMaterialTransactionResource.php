@@ -23,6 +23,7 @@ class PackingMaterialTransactionResource extends JsonResource
             'user_signature' => $this->user_signature,
             'type' => $this->type,
             'user_id' => $this->user_id,
+            'user_name' => $this->user->name,
             'weekly_plan_task_id' => $this->weekly_plan_task_id,
         ];
     }

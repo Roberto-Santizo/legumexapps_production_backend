@@ -29,8 +29,12 @@ class CreatePackingMaterialTransactionRequest extends FormRequest
             'responsable_signature' => ['required', 'string'],
             'user_signature' => ['required', 'string'],
             'type' => ['required', 'integer'],
-            'user_id' => ['required', 'integer', 'exists:users,id'],
             'weekly_plan_task_id' => ['nullable', 'integer', 'exists:weekly_plan_tasks,id'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.quantity' => ['required', 'numeric'],
+            'items.*.lote' => ['required', 'string'],
+            'items.*.destination' => ['nullable', 'string'],
+            'items.*.packing_material_id' => ['required', 'integer', 'exists:packing_materials,id'],
         ];
     }
 
@@ -54,12 +58,24 @@ class CreatePackingMaterialTransactionRequest extends FormRequest
             'type.required' => 'El tipo es obligatorio.',
             'type.integer' => 'El tipo debe ser un número entero.',
 
-            'user_id.required' => 'El usuario es obligatorio.',
-            'user_id.integer' => 'El usuario debe ser un número entero.',
-            'user_id.exists' => 'El usuario no existe.',
-
             'weekly_plan_task_id.integer' => 'La tarea del plan semanal debe ser un número entero.',
             'weekly_plan_task_id.exists' => 'La tarea del plan semanal no existe.',
+
+            'items.required' => 'Los detalles de la transacción son obligatorios.',
+            'items.array' => 'Los detalles de la transacción deben ser un arreglo.',
+            'items.min' => 'La transacción debe tener al menos un detalle.',
+
+            'items.*.quantity.required' => 'La cantidad de cada detalle es obligatoria.',
+            'items.*.quantity.numeric' => 'La cantidad de cada detalle debe ser un número.',
+
+            'items.*.lote.required' => 'El lote de cada detalle es obligatorio.',
+            'items.*.lote.string' => 'El lote de cada detalle debe ser una cadena de texto.',
+
+            'items.*.destination.string' => 'El destino de cada detalle debe ser una cadena de texto.',
+
+            'items.*.packing_material_id.required' => 'El material de empaque de cada detalle es obligatorio.',
+            'items.*.packing_material_id.integer' => 'El material de empaque de cada detalle debe ser un número entero.',
+            'items.*.packing_material_id.exists' => 'El material de empaque no existe.',
         ];
     }
 }

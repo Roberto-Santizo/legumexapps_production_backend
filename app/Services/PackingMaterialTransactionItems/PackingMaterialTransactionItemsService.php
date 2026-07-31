@@ -5,6 +5,7 @@ namespace App\Services\PackingMaterialTransactionItems;
 use App\Errors\NotFoundError;
 use App\Interfaces\PackingMaterialTransactionItems\PackingMaterialTransactionItemsServiceInterface;
 use App\Models\PackingMaterialTransactionItem;
+use Illuminate\Http\Request;
 use Override;
 
 class PackingMaterialTransactionItemsService implements PackingMaterialTransactionItemsServiceInterface
@@ -16,9 +17,14 @@ class PackingMaterialTransactionItemsService implements PackingMaterialTransacti
     }
 
     #[Override]
-    public function getPackingMaterialTransactionItems(?string $limit)
+    public function getPackingMaterialTransactionItems(?string $limit, Request $request)
     {
         $query = PackingMaterialTransactionItem::query();
+        $query->with('packingMaterial');
+
+        if ($request->query('transactionId')) {
+            $query->where('pm_transaction_id', $request->query('transactionId'));
+        }
 
         if ($limit) {
             return $query->paginate($limit);

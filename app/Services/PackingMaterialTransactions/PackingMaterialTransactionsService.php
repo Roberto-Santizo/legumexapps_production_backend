@@ -5,6 +5,8 @@ namespace App\Services\PackingMaterialTransactions;
 use App\Errors\NotFoundError;
 use App\Interfaces\PackingMaterialTransactions\PackingMaterialTransactionsServiceInterface;
 use App\Models\PackingMaterialTransaction;
+use App\Models\PackingMaterialTransactionItem;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 class PackingMaterialTransactionsService implements PackingMaterialTransactionsServiceInterface
@@ -12,7 +14,22 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
     #[Override]
     public function createPackingMaterialTransaction(array $data)
     {
-        return PackingMaterialTransaction::create($data);
+        $items = $data['items'];
+        $data['user_id'] = auth()->user()->id;
+        unset($data['items']);
+
+        $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
+            $packingMaterialTransaction = PackingMaterialTransaction::create($data);
+
+            foreach ($items as $item) {
+                $item['pm_transaction_id'] = $packingMaterialTransaction->id;
+                PackingMaterialTransactionItem::create($item);
+            }
+
+            return $packingMaterialTransaction;
+        });
+
+        return $packingMaterialTransaction->load('items');
     }
 
     #[Override]
@@ -51,7 +68,11 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
     public function deletePackingMaterialTransactionById(string $id)
     {
         $packingMaterialTransaction = $this->getPackingMaterialTransactionById($id);
-        $packingMaterialTransaction->delete();
+
+        DB::transaction(function () use ($packingMaterialTransaction): void {
+            $packingMaterialTransaction->items()->delete();
+            $packingMaterialTransaction->delete();
+        });
 
         return true;
     }

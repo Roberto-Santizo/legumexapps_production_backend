@@ -20,6 +20,8 @@ class PackingMaterialTransactionItemResource extends JsonResource
             'lote' => $this->lote,
             'destination' => $this->destination,
             'packing_material_id' => $this->packing_material_id,
+            'packing_material_name' => $this->packingMaterial?->name,
+            'packing_material_code' => $this->packingMaterial?->code,
             'pm_transaction_id' => $this->pm_transaction_id,
         ];
     }

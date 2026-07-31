@@ -147,4 +147,20 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
 
         return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->get();
     }
+
+    /**
+     * Get the packing material items related to the SKU of the given weekly plan task.
+     */
+    #[Override]
+    public function getPackingMaterialItemsByTaskId(string $id)
+    {
+        $task = $this->getWeeklyPlanTaskById($id);
+        $task->load(['performance.sku.packingMaterialItems.item']);
+
+        if (! $task->performance?->sku) {
+            throw new NotFoundError('La tarea del plan semanal no tiene un SKU asociado');
+        }
+
+        return $task;
+    }
 }

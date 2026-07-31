@@ -8,6 +8,7 @@ use App\Http\Requests\WeeklyPlanTasks\CreateWeeklyPlanTaskRequest;
 use App\Http\Requests\WeeklyPlanTasks\SplitWeeklyPlanTaskRequest;
 use App\Http\Requests\WeeklyPlanTasks\UpdateWeeklyPlanTaskRequest;
 use App\Http\Resources\WeeklyPlanTasks\PaginatedWeeklyPlanTasksResource;
+use App\Http\Resources\WeeklyPlanTasks\WeeklyPlanTaskPackingMaterialItemResource;
 use App\Http\Resources\WeeklyPlanTasks\WeeklyPlanTaskResource;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use Illuminate\Http\Request;
@@ -114,6 +115,20 @@ class WeeklyPlanTasksController extends Controller
             $result = $service->splitWeeklyPlanTask($data['task_id'], $data['portions']);
 
             return ResponseHandler::success(WeeklyPlanTaskResource::collection($result), 'Tarea Dividida Correctamente', 201);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    /**
+     * Get the packing material items related to the SKU of the given weekly plan task.
+     */
+    public function packingMaterialItems(string $id, WeeklyPlanTasksServiceInterface $service)
+    {
+        try {
+            $task = $service->getPackingMaterialItemsByTaskId($id);
+
+            return ResponseHandler::success(new WeeklyPlanTaskPackingMaterialItemResource($task), 'Materiales de Empaque Obtenidos Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

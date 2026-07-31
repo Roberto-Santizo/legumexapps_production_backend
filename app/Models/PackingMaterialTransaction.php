@@ -17,4 +17,9 @@ class PackingMaterialTransaction extends Model
     {
         return $this->belongsTo(WeeklyPlanTask::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(PackingMaterialTransactionItem::class, 'pm_transaction_id');
+    }
 }
