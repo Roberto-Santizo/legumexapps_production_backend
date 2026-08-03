@@ -1,6 +1,6 @@
 # SPEC 01 — Registro de cambios de WeeklyPlanTask
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-08-03
 > **Objetivo:** Persistir en base de datos cada creación y cada cambio de `boxes`, `operation_date` y `line_sku_id` de una `WeeklyPlanTask`, junto al `user_id` que lo provocó.
@@ -113,18 +113,18 @@ La validación del usuario va en los hooks `-ing` a propósito: lanzar antes del
 
 ## Criterios de aceptación
 
-- [ ] `php artisan migrate` crea `weekly_plan_task_logs` con las columnas `weekly_plan_task_id`, `user_id`, `event`, `field`, `old_value`, `new_value`, `created_at`, `updated_at`.
-- [ ] `POST /weekly-plan-tasks` con JWT válido inserta exactamente **una** fila con `event = 'created'`, `field = null` y el `user_id` del token.
-- [ ] `PUT /weekly-plan-tasks/{id}` cambiando `boxes` de 100 a 120 inserta una fila con `event = 'updated'`, `field = 'boxes'`, `old_value = '100'`, `new_value = '120'`.
-- [ ] `PUT /weekly-plan-tasks/{id}` cambiando `boxes` y `operation_date` a la vez inserta exactamente **dos** filas.
-- [ ] `PUT /weekly-plan-tasks/{id}` cambiando solo `produced_boxes` **no** inserta ninguna fila.
-- [ ] `PUT /weekly-plan-tasks/{id}` enviando `boxes` con el mismo valor que ya tenía **no** inserta ninguna fila.
-- [ ] `POST /weekly-plan-tasks/assignOperationDate` con 3 ids inserta 3 filas con `field = 'operation_date'` y el `old_value` correcto e individual de cada tarea.
-- [ ] `POST /weekly-plan-tasks/splitTask` que divide una tarea en 2 inserta 2 filas `created`, y los logs de la tarea original desaparecen junto con ella.
-- [ ] Crear o actualizar una tarea desde tinker sin usuario autenticado lanza `BadRequestError` y **no** deja la tarea creada ni actualizada.
-- [ ] Actualizar desde tinker sin usuario autenticado un campo **no** rastreado (por ejemplo `produced_boxes`) funciona sin lanzar error.
-- [ ] Borrar una tarea elimina sus filas en `weekly_plan_task_logs` (cascada) sin error de FK.
-- [ ] `vendor/bin/pint --test` no reporta archivos con formato incorrecto.
+- [X] `php artisan migrate` crea `weekly_plan_task_logs` con las columnas `weekly_plan_task_id`, `user_id`, `event`, `field`, `old_value`, `new_value`, `created_at`, `updated_at`.
+- [X] `POST /weekly-plan-tasks` con JWT válido inserta exactamente **una** fila con `event = 'created'`, `field = null` y el `user_id` del token.
+- [X] `PUT /weekly-plan-tasks/{id}` cambiando `boxes` de 100 a 120 inserta una fila con `event = 'updated'`, `field = 'boxes'`, `old_value = '100'`, `new_value = '120'`.
+- [X] `PUT /weekly-plan-tasks/{id}` cambiando `boxes` y `operation_date` a la vez inserta exactamente **dos** filas.
+- [X] `PUT /weekly-plan-tasks/{id}` cambiando solo `produced_boxes` **no** inserta ninguna fila.
+- [X] `PUT /weekly-plan-tasks/{id}` enviando `boxes` con el mismo valor que ya tenía **no** inserta ninguna fila.
+- [X] `POST /weekly-plan-tasks/assignOperationDate` con 3 ids inserta 3 filas con `field = 'operation_date'` y el `old_value` correcto e individual de cada tarea.
+- [X] `POST /weekly-plan-tasks/splitTask` que divide una tarea en 2 inserta 2 filas `created`, y los logs de la tarea original desaparecen junto con ella.
+- [X] Crear o actualizar una tarea desde tinker sin usuario autenticado lanza `BadRequestError` y **no** deja la tarea creada ni actualizada.
+- [X] Actualizar desde tinker sin usuario autenticado un campo **no** rastreado (por ejemplo `produced_boxes`) funciona sin lanzar error.
+- [X] Borrar una tarea elimina sus filas en `weekly_plan_task_logs` (cascada) sin error de FK.
+- [X] `vendor/bin/pint --test` no reporta archivos con formato incorrecto.
 
 ---
 
