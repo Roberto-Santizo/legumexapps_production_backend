@@ -9,7 +9,7 @@ Route::middleware('jwt.auth')->group(function () {
 
 // FUNCTIONALITYS
 Route::middleware('jwt.auth')->group(function () {
-    Route::post('/weekly-plan-tasks/assignOperationDate', [WeeklyPlanTasksController::class, 'assignOperationDate']);
-    Route::post('/weekly-plan-tasks/splitTask', [WeeklyPlanTasksController::class, 'splitTask']);
-    Route::get('/weekly-plan-tasks/{id}/packingMaterialItems', [WeeklyPlanTasksController::class, 'packingMaterialItems']);
+    Route::post('/weekly-plan-tasks/assignOperationDate',       [WeeklyPlanTasksController::class, 'assignOperationDate']);
+    Route::post('/weekly-plan-tasks/splitTask',                 [WeeklyPlanTasksController::class, 'splitTask']);
+    Route::get('/weekly-plan-tasks/{id}/packingMaterialItems',  [WeeklyPlanTasksController::class, 'packingMaterialItems']);
 });
