@@ -23,7 +23,11 @@ class PositionsService implements PositionsServiceInterface
     {
         $query = Position::query();
 
-        if($request->query('lineId')) $query->where('line_id', $request->query('lineId'));
+        if($request->query('lineCode')) {
+            $query->whereHas('line', function ($p0) use($request) {
+                $p0->where('code', '=', $request->query('lineCode'));
+            });
+        }
 
         if ($limit) {
             return $query->paginate($limit);
