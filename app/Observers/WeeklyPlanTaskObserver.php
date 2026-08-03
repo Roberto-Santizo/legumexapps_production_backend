@@ -3,11 +3,32 @@
 namespace App\Observers;
 
 use App\Errors\BadRequestError;
+use App\Helpers\MailHandler;
+use App\Mail\WeeklyPlanTaskChanged;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskLog;
 
 class WeeklyPlanTaskObserver
 {
+    /**
+     * Whether the individual change email is sent on create and update.
+     */
+    public static bool $sendsMail = true;
+
+    /**
+     * Run a callback with the individual change email disabled.
+     */
+    public static function withoutMail(callable $callback): mixed
+    {
+        self::$sendsMail = false;
+
+        try {
+            return $callback();
+        } finally {
+            self::$sendsMail = true;
+        }
+    }
+
     /**
      * Handle the WeeklyPlanTask "creating" event.
      */
@@ -29,6 +50,28 @@ class WeeklyPlanTaskObserver
             'old_value' => null,
             'new_value' => null,
         ]);
+
+        if (! self::$sendsMail) {
+            return;
+        }
+
+        $changes = [];
+
+        foreach (WeeklyPlanTask::LOGGED_FIELDS as $field) {
+            $changes[] = [
+                'field' => $field,
+                'old' => null,
+                'new' => $this->stringifyValue($weeklyPlanTask->{$field}),
+            ];
+        }
+
+        MailHandler::notifyWeeklyPlanTaskRecipients(new WeeklyPlanTaskChanged(
+            event: 'created',
+            taskId: $weeklyPlanTask->id,
+            userName: auth()->user()->name,
+            changedAt: now(),
+            changes: $changes,
+        ));
     }
 
     /**
@@ -46,20 +89,43 @@ class WeeklyPlanTaskObserver
      */
     public function updated(WeeklyPlanTask $weeklyPlanTask): void
     {
+        $changes = [];
+
         foreach ($weeklyPlanTask->getChanges() as $field => $newValue) {
             if (! in_array($field, WeeklyPlanTask::LOGGED_FIELDS, true)) {
                 continue;
             }
+
+            $oldValue = $this->stringifyValue($weeklyPlanTask->getOriginal($field));
+            $newValue = $this->stringifyValue($newValue);
 
             WeeklyPlanTaskLog::create([
                 'weekly_plan_task_id' => $weeklyPlanTask->id,
                 'user_id' => auth()->user()->id,
                 'event' => 'updated',
                 'field' => $field,
-                'old_value' => $this->stringifyValue($weeklyPlanTask->getOriginal($field)),
-                'new_value' => $this->stringifyValue($newValue),
+                'old_value' => $oldValue,
+                'new_value' => $newValue,
             ]);
+
+            $changes[] = [
+                'field' => $field,
+                'old' => $oldValue,
+                'new' => $newValue,
+            ];
         }
+
+        if (! self::$sendsMail || $changes === []) {
+            return;
+        }
+
+        MailHandler::notifyWeeklyPlanTaskRecipients(new WeeklyPlanTaskChanged(
+            event: 'updated',
+            taskId: $weeklyPlanTask->id,
+            userName: auth()->user()->name,
+            changedAt: now(),
+            changes: $changes,
+        ));
     }
 
     /**
