@@ -115,4 +115,20 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly Plan Task Recipients
+    |--------------------------------------------------------------------------
+    |
+    | Comma separated list of addresses notified whenever a weekly plan task
+    | is created or modified. Leaving the environment variable empty turns
+    | the notification off without requiring any change to the codebase.
+    |
+    */
+
+    'weekly_plan_task_recipients' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('WEEKLY_PLAN_TASK_NOTIFY_EMAILS', ''))
+    ))),
+
 ];
