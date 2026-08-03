@@ -28,7 +28,7 @@ class UpdateWeeklyPlanTaskRequest extends FormRequest
                 'pallets' =>            ['required', 'numeric'],
                 'produced_pallets' =>   ['nullable', 'numeric'],
                 'hours' =>              ['required', 'numeric'],
-                'weighed_pounds' =>     ['required', 'numeric'],
+                'weighed_pounds' =>     ['nullable', 'numeric'],
                 'destination' =>        ['required', 'string'],
                 'operation_date' =>     ['nullable', 'date'],
                 'start_date' =>         ['nullable', 'date'],
