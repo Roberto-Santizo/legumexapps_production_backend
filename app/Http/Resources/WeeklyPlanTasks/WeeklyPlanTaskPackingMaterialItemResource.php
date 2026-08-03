@@ -19,7 +19,7 @@ class WeeklyPlanTaskPackingMaterialItemResource extends JsonResource
         return $sku->packingMaterialItems->map(fn ($recipeItem) => [
             'quantity' => ($this->boxes * $sku->presentation) / $recipeItem->lbs_per_item,
             'lote' => '',
-            'destination' => '',
+            'destination' => $this->performance->line->name,
             'packing_material_id' => $recipeItem->packing_material_id,
             'packing_material_name' => $recipeItem->item?->name,
             'packing_material_code' => $recipeItem->item?->code,
