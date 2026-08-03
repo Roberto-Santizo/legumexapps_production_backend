@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\WeeklyPlanTaskObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy(WeeklyPlanTaskObserver::class)]
 #[Fillable(['boxes', 'produced_boxes', 'pallets', 'produced_pallets', 'hours', 'weighed_pounds', 'destination', 'operation_date', 'start_date', 'end_date', 'weekly_plan_id', 'line_sku_id', 'status'])]
 class WeeklyPlanTask extends Model
 {
