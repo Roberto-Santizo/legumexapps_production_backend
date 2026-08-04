@@ -31,8 +31,8 @@ class UpdateWeeklyPlanTaskObservationRequest extends FormRequest
     {
         return [
             'observation.required' => 'La observación es obligatoria.',
-            'observation.string' =>   'La observación debe ser una cadena de texto.',
-            'observation.max' =>      'La observación no puede superar los 1000 caracteres.',
+            'observation.string' => 'La observación debe ser una cadena de texto.',
+            'observation.max' => 'La observación no puede superar los 1000 caracteres.',
         ];
     }
 }

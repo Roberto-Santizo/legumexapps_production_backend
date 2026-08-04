@@ -24,7 +24,7 @@ class CreateWeeklyPlanTaskObservationRequest extends FormRequest
     {
         return [
             'weekly_plan_task_id' => ['required', 'integer', 'exists:weekly_plan_tasks,id'],
-            'observation' =>         ['required', 'string', 'max:1000'],
+            'observation' => ['required', 'string', 'max:1000'],
         ];
     }
 
@@ -32,12 +32,12 @@ class CreateWeeklyPlanTaskObservationRequest extends FormRequest
     {
         return [
             'weekly_plan_task_id.required' => 'La tarea del plan semanal es obligatoria.',
-            'weekly_plan_task_id.integer' =>  'La tarea del plan semanal debe ser un número entero.',
-            'weekly_plan_task_id.exists' =>   'La tarea del plan semanal no existe.',
+            'weekly_plan_task_id.integer' => 'La tarea del plan semanal debe ser un número entero.',
+            'weekly_plan_task_id.exists' => 'La tarea del plan semanal no existe.',
 
-            'observation.required' =>         'La observación es obligatoria.',
-            'observation.string' =>           'La observación debe ser una cadena de texto.',
-            'observation.max' =>              'La observación no puede superar los 1000 caracteres.',
+            'observation.required' => 'La observación es obligatoria.',
+            'observation.string' => 'La observación debe ser una cadena de texto.',
+            'observation.max' => 'La observación no puede superar los 1000 caracteres.',
         ];
     }
 }
