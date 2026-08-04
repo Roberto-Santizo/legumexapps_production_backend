@@ -4,9 +4,12 @@ namespace App\Services\WeeklyPlanTasks;
 
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
+use App\Helpers\MailHandler;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
+use App\Mail\WeeklyPlanTasksOperationDateAssigned;
 use App\Models\LineSku;
 use App\Models\WeeklyPlanTask;
+use App\Observers\WeeklyPlanTaskObserver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Override;
@@ -92,13 +95,43 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     #[Override]
     public function assignOperationDate(array $tasksIds, string $operationDate)
     {
-        DB::transaction(function () use ($tasksIds, $operationDate) {
-            $tasks = WeeklyPlanTask::whereIn('id', $tasksIds)->get();
+        $changedTasks = WeeklyPlanTaskObserver::withoutMail(function () use ($tasksIds, $operationDate) {
+            return DB::transaction(function () use ($tasksIds, $operationDate) {
+                $tasks = WeeklyPlanTask::with(['weeklyPlan', 'performance.sku', 'performance.line'])
+                    ->whereIn('id', $tasksIds)
+                    ->get();
+                $changedTasks = [];
 
-            foreach ($tasks as $task) {
-                $task->update(['operation_date' => $operationDate]);
-            }
+                foreach ($tasks as $task) {
+                    $previousOperationDate = $task->operation_date;
+
+                    $task->update(['operation_date' => $operationDate]);
+
+                    if ($task->wasChanged('operation_date')) {
+                        $weeklyPlan = $task->weeklyPlan;
+
+                        $changedTasks[] = [
+                            'id' => $task->id,
+                            'oldOperationDate' => $previousOperationDate === null ? null : (string) $previousOperationDate,
+                            'productName' => $task->performance?->sku?->product_name,
+                            'lineName' => $task->performance?->line?->name,
+                            'weeklyPlan' => $weeklyPlan ? "Semana {$weeklyPlan->week} · {$weeklyPlan->year}" : null,
+                        ];
+                    }
+                }
+
+                return $changedTasks;
+            });
         });
+
+        if ($changedTasks !== []) {
+            MailHandler::notifyWeeklyPlanTaskRecipients(new WeeklyPlanTasksOperationDateAssigned(
+                operationDate: $operationDate,
+                userName: auth()->user()->name,
+                changedAt: now(),
+                tasks: $changedTasks,
+            ));
+        }
 
         return true;
     }
