@@ -37,6 +37,9 @@ class WeeklyPlanTaskChanged extends Mailable
         protected string $userName,
         protected Carbon $changedAt,
         protected array $changes,
+        protected ?string $weeklyPlan = null,
+        protected ?string $productName = null,
+        protected ?string $lineName = null,
     ) {}
 
     /**
@@ -59,13 +62,17 @@ class WeeklyPlanTaskChanged extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.weekly-plan-task-changed',
+            view: 'emails.weekly-plan-task-changed',
             with: [
                 'event' => $this->event,
                 'taskId' => $this->taskId,
                 'userName' => $this->userName,
                 'changedAt' => $this->changedAt,
                 'changes' => $this->labelledChanges(),
+                'weeklyPlan' => $this->weeklyPlan,
+                'productName' => $this->productName,
+                'lineName' => $this->lineName,
+                'logoUrl' => config('mail.logo_url'),
             ],
         );
     }

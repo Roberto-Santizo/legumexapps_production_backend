@@ -97,7 +97,9 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     {
         $changedTasks = WeeklyPlanTaskObserver::withoutMail(function () use ($tasksIds, $operationDate) {
             return DB::transaction(function () use ($tasksIds, $operationDate) {
-                $tasks = WeeklyPlanTask::whereIn('id', $tasksIds)->get();
+                $tasks = WeeklyPlanTask::with(['weeklyPlan', 'performance.sku', 'performance.line'])
+                    ->whereIn('id', $tasksIds)
+                    ->get();
                 $changedTasks = [];
 
                 foreach ($tasks as $task) {
@@ -106,9 +108,14 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
                     $task->update(['operation_date' => $operationDate]);
 
                     if ($task->wasChanged('operation_date')) {
+                        $weeklyPlan = $task->weeklyPlan;
+
                         $changedTasks[] = [
                             'id' => $task->id,
                             'oldOperationDate' => $previousOperationDate === null ? null : (string) $previousOperationDate,
+                            'productName' => $task->performance?->sku?->product_name,
+                            'lineName' => $task->performance?->line?->name,
+                            'weeklyPlan' => $weeklyPlan ? "Semana {$weeklyPlan->week} · {$weeklyPlan->year}" : null,
                         ];
                     }
                 }

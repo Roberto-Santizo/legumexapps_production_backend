@@ -17,7 +17,7 @@ class WeeklyPlanTasksOperationDateAssigned extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param  array<int, array{id: int, oldOperationDate: ?string}>  $tasks
+     * @param  array<int, array{id: int, oldOperationDate: ?string, productName: ?string, lineName: ?string, weeklyPlan: ?string}>  $tasks
      */
     public function __construct(
         protected string $operationDate,
@@ -42,12 +42,13 @@ class WeeklyPlanTasksOperationDateAssigned extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.weekly-plan-tasks-operation-date-assigned',
+            view: 'emails.weekly-plan-tasks-operation-date-assigned',
             with: [
                 'operationDate' => $this->operationDate,
                 'userName' => $this->userName,
                 'changedAt' => $this->changedAt,
                 'tasks' => $this->tasks,
+                'logoUrl' => config('mail.logo_url'),
             ],
         );
     }

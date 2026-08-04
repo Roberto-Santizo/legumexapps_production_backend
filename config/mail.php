@@ -131,4 +131,17 @@ return [
         explode(',', (string) env('WEEKLY_PLAN_TASK_NOTIFY_EMAILS', ''))
     ))),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Logo URL
+    |--------------------------------------------------------------------------
+    |
+    | Publicly reachable image shown in the header of the notification emails.
+    | When the environment variable is empty the templates fall back to the
+    | application name so the message still renders correctly.
+    |
+    */
+
+    'logo_url' => env('LOGO_URL'),
+
 ];

@@ -65,12 +65,17 @@ class WeeklyPlanTaskObserver
             ];
         }
 
+        $mailContext = $this->mailContext($weeklyPlanTask);
+
         MailHandler::notifyWeeklyPlanTaskRecipients(new WeeklyPlanTaskChanged(
-            event: 'created',
-            taskId: $weeklyPlanTask->id,
-            userName: auth()->user()->name,
-            changedAt: now(),
-            changes: $changes,
+            'created',
+            $weeklyPlanTask->id,
+            auth()->user()->name,
+            now(),
+            $changes,
+            $mailContext['weeklyPlan'],
+            $mailContext['productName'],
+            $mailContext['lineName'],
         ));
     }
 
@@ -119,13 +124,35 @@ class WeeklyPlanTaskObserver
             return;
         }
 
+        $mailContext = $this->mailContext($weeklyPlanTask);
+
         MailHandler::notifyWeeklyPlanTaskRecipients(new WeeklyPlanTaskChanged(
-            event: 'updated',
-            taskId: $weeklyPlanTask->id,
-            userName: auth()->user()->name,
-            changedAt: now(),
-            changes: $changes,
+            'updated',
+            $weeklyPlanTask->id,
+            auth()->user()->name,
+            now(),
+            $changes,
+            $mailContext['weeklyPlan'],
+            $mailContext['productName'],
+            $mailContext['lineName'],
         ));
+    }
+
+    /**
+     * Resolve the weekly plan, product and line the task belongs to.
+     *
+     * @return array{weeklyPlan: ?string, productName: ?string, lineName: ?string}
+     */
+    private function mailContext(WeeklyPlanTask $weeklyPlanTask): array
+    {
+        $weeklyPlan = $weeklyPlanTask->weeklyPlan()->first();
+        $performance = $weeklyPlanTask->performance()->with(['sku', 'line'])->first();
+
+        return [
+            'weeklyPlan' => $weeklyPlan ? "Semana {$weeklyPlan->week} · {$weeklyPlan->year}" : null,
+            'productName' => $performance?->sku?->product_name,
+            'lineName' => $performance?->line?->name,
+        ];
     }
 
     /**
