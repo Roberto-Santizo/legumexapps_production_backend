@@ -13,4 +13,5 @@ Route::middleware('jwt.auth')->group(function () {
 Route::middleware('jwt.auth')->group(function () {
     Route::post('/weekly-plan-employees/uploadFile', [WeeklyPlanEmployeesController::class, 'uploadFile']);
     Route::get('/weekly-plans/tasksForCalendar/{id}', [WeeklyPlansController::class, 'getTasksForCalendar']);
+    Route::get('/weekly-plans/summaryToday/{id}', [WeeklyPlansController::class, 'getWeeklyPlanSummaryToday']);
 });
