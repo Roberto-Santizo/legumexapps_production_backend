@@ -1,6 +1,6 @@
 # SPEC 03 — Observaciones de WeeklyPlanTask
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-08-04
 > **Objetivo:** Permitir que un usuario autenticado escriba observaciones de texto libre sobre una `WeeklyPlanTask`, que se acumulan como bitácora con autor y fecha, y que solo su autor puede editar o borrar.
@@ -194,26 +194,26 @@ class ForbiddenError extends ApiException
 
 Verificación manual contra los endpoints con JWT válido.
 
-- [ ] `php artisan migrate` crea `weekly_plan_task_observations` con `weekly_plan_task_id`, `user_id`, `observation`, `created_at`, `updated_at`.
-- [ ] `POST /weekly-plan-task-observations` con `weekly_plan_task_id` y `observation` devuelve **201** y guarda la fila con el `user_id` del token.
-- [ ] El `user_id` guardado es el del JWT aunque el body incluya un `user_id` distinto.
-- [ ] `POST` con `observation` vacío devuelve **422** con el mensaje `'La observación es obligatoria.'`.
-- [ ] `POST` con `observation` de 1001 caracteres devuelve **422**.
-- [ ] `POST` con un `weekly_plan_task_id` inexistente devuelve **422** con `'La tarea del plan semanal no existe.'`.
-- [ ] `GET /weekly-plan-task-observations?weeklyPlanTaskId={id}` devuelve solo las observaciones de esa tarea, ordenadas de la **más antigua a la más reciente**, cada una con `user_name`.
-- [ ] `GET /weekly-plan-task-observations` **sin** `weeklyPlanTaskId` devuelve **400**.
-- [ ] `GET /weekly-plan-task-observations/{id}` de una observación de **otro** usuario devuelve **200**.
-- [ ] `PUT /weekly-plan-task-observations/{id}` sobre una observación **propia** cambia el texto, devuelve **200** y deja `was_edited = true` en la siguiente lectura.
-- [ ] `PUT /weekly-plan-task-observations/{id}` sobre una observación de **otro** usuario devuelve **403** y **no** modifica la fila.
-- [ ] `DELETE /weekly-plan-task-observations/{id}` sobre una observación **propia** devuelve **200** y la fila desaparece.
-- [ ] `DELETE /weekly-plan-task-observations/{id}` sobre una observación de **otro** usuario devuelve **403** y la fila sigue ahí.
-- [ ] Cualquiera de las cinco rutas sin JWT devuelve **401**.
-- [ ] Una observación recién creada tiene `was_edited = false`.
-- [ ] `DELETE /weekly-plan-tasks/{id}` borra en cascada las observaciones de esa tarea, sin error de FK.
-- [ ] Crear una observación **no** inserta ninguna fila en `weekly_plan_task_logs` y **no** genera correo.
-- [ ] `GET /weekly-plan-tasks/{id}` devuelve exactamente el mismo JSON que antes de esta spec.
-- [ ] Se puede añadir una observación a una tarea con `status = 5` (Finalizada).
-- [ ] `vendor/bin/pint --test` no reporta archivos con formato incorrecto.
+- [x] `php artisan migrate` crea `weekly_plan_task_observations` con `weekly_plan_task_id`, `user_id`, `observation`, `created_at`, `updated_at`.
+- [x] `POST /weekly-plan-task-observations` con `weekly_plan_task_id` y `observation` devuelve **201** y guarda la fila con el `user_id` del token.
+- [x] El `user_id` guardado es el del JWT aunque el body incluya un `user_id` distinto.
+- [x] `POST` con `observation` vacío devuelve **422** con el mensaje `'La observación es obligatoria.'`.
+- [x] `POST` con `observation` de 1001 caracteres devuelve **422**.
+- [x] `POST` con un `weekly_plan_task_id` inexistente devuelve **422** con `'La tarea del plan semanal no existe.'`.
+- [x] `GET /weekly-plan-task-observations?weeklyPlanTaskId={id}` devuelve solo las observaciones de esa tarea, ordenadas de la **más antigua a la más reciente**, cada una con `user_name`.
+- [x] `GET /weekly-plan-task-observations` **sin** `weeklyPlanTaskId` devuelve **400**.
+- [x] `GET /weekly-plan-task-observations/{id}` de una observación de **otro** usuario devuelve **200**.
+- [x] `PUT /weekly-plan-task-observations/{id}` sobre una observación **propia** cambia el texto, devuelve **200** y deja `was_edited = true` en la siguiente lectura.
+- [x] `PUT /weekly-plan-task-observations/{id}` sobre una observación de **otro** usuario devuelve **403** y **no** modifica la fila.
+- [x] `DELETE /weekly-plan-task-observations/{id}` sobre una observación **propia** devuelve **200** y la fila desaparece.
+- [x] `DELETE /weekly-plan-task-observations/{id}` sobre una observación de **otro** usuario devuelve **403** y la fila sigue ahí.
+- [x] Cualquiera de las cinco rutas sin JWT devuelve **401**.
+- [x] Una observación recién creada tiene `was_edited = false`.
+- [x] `DELETE /weekly-plan-tasks/{id}` borra en cascada las observaciones de esa tarea, sin error de FK.
+- [x] Crear una observación **no** inserta ninguna fila en `weekly_plan_task_logs` y **no** genera correo.
+- [x] `GET /weekly-plan-tasks/{id}` devuelve exactamente el mismo JSON que antes de esta spec.
+- [x] Se puede añadir una observación a una tarea con `status = 5` (Finalizada).
+- [x] `vendor/bin/pint --test` no reporta archivos con formato incorrecto.
 
 ---
 
