@@ -39,6 +39,7 @@ class WeeklyPlanTaskResource extends JsonResource
             'line_sku_id' =>            $this->line_sku_id,
             'sku_name'=>                $this->performance->sku->product_name,
             'sku_code'=>                $this->performance->sku->code,
+            'sku_client'=>              $this->performance->sku->client->name,
             'line_name'=>               $this->performance->line->name,
             'line_code'=>               $this->performance->line->code,
             'status_message'=>          $this->statusMessages[$this->status],
