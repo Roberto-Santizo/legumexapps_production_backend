@@ -18,7 +18,7 @@ class PackingMaterialTransactionResource extends JsonResource
             'id' => $this->id,
             'reference' => $this->reference,
             'responsable' => $this->responsable,
-            'observations' => $this->observations,
+            'observations' => $this->observations ?? '',
             'responsable_signature' => $this->responsable_signature,
             'user_signature' => $this->user_signature,
             'type' => $this->type,

@@ -19,7 +19,7 @@ class SkuRawMaterialResource extends JsonResource
             'percentage' => $this->percentage,
             'sku' => $this->sku->code,
             'stock_keeping_unit_id' => $this->stock_keeping_unit_id,
-            'raw_material' => $this->rawMaterial->product_name,
+            'raw_material' => $this->item->product_name,
             'raw_material_id' => $this->raw_material_id,
         ];
     }
