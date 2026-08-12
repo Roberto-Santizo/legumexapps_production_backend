@@ -18,4 +18,9 @@ class Line extends Model
     {
         return $this->hasMany(LineDependency::class, 'line_id', 'id');
     }
+
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
+    }
 }

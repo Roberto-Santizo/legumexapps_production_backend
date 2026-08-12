@@ -13,8 +13,8 @@ class LineDependency extends Model
         return $this->belongsTo(Line::class);
     }
 
-    public function dependentLine()
+    public function dependantLine()
     {
-        return $this->hasOne(Line::class, 'line_dependent_id', 'id');
+        return $this->hasOne(Line::class, 'id', 'line_dependent_id');
     }
 }
