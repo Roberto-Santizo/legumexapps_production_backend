@@ -5,6 +5,7 @@ namespace App\Services\WeeklyPlans;
 use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlans\WeeklyPlansServiceInterface;
 use App\Models\WeeklyPlan;
+use Carbon\Carbon;
 use Override;
 
 class WeeklyPlansService implements WeeklyPlansServiceInterface
@@ -32,6 +33,18 @@ class WeeklyPlansService implements WeeklyPlansServiceInterface
 
         return $weeklyPlan;
 
+    }
+
+    #[Override]
+    public function getWeeklyPlanSummaryToday(string $id, ?string $date = null)
+    {
+        $plan = $this->getWeeklyPlanById($id);
+        $operationDate = $date ? Carbon::parse($date) : Carbon::now();
+
+        return $plan->tasks()
+            ->with('performance.line')
+            ->whereDate('operation_date', $operationDate->toDateString())
+            ->get();
     }
 
     #[Override]
