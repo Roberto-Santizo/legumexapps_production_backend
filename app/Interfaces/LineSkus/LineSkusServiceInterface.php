@@ -15,4 +15,6 @@ interface LineSkusServiceInterface
     public function updateLineSkuById(string $id, array $data);
 
     public function deleteLineSkuById(string $id);
+
+    public function uploadFile(mixed $file);
 }
