@@ -23,7 +23,7 @@ class ClientsController extends Controller
             $response = $service->getClients($limit);
 
             $data = $limit ? new PaginatedClientsResource($response) : ClientResource::collection($response);
-            
+
             return ResponseHandler::success($data, 'Clientes Obtenidos Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);

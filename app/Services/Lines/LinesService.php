@@ -28,8 +28,8 @@ class LinesService implements LinesServiceInterface
         $query = Line::query();
         $skuId = $request->query('skuId');
 
-        if($skuId){
-            $query->whereHas('performances', function ($p0) use($skuId) {
+        if ($skuId) {
+            $query->whereHas('performances', function ($p0) use ($skuId) {
                 $p0->where('sku_id', $skuId);
             });
         }

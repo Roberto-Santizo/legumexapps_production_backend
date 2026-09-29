@@ -17,6 +17,7 @@ class ClientsService implements ClientsServiceInterface
     public function createClient(array $data)
     {
         $newClient = Client::create($data);
+
         return $newClient;
     }
 
@@ -25,8 +26,9 @@ class ClientsService implements ClientsServiceInterface
     {
         $query = Client::query();
 
-        if($limit) return $query->paginate($limit);
-        
+        if ($limit) {
+            return $query->paginate($limit);
+        }
 
         return $query->get();
     }
@@ -35,7 +37,10 @@ class ClientsService implements ClientsServiceInterface
     public function getClientById(string $id)
     {
         $client = Client::find($id, ['*']);
-        if(!$client) throw new NotFoundError("El cliente no existe");
+        if (! $client) {
+            throw new NotFoundError('El cliente no existe');
+        }
+
         return $client;
     }
 
@@ -44,6 +49,7 @@ class ClientsService implements ClientsServiceInterface
     {
         $client = $this->getClientById($id);
         $client->update($data);
+
         return true;
     }
 
@@ -52,6 +58,7 @@ class ClientsService implements ClientsServiceInterface
     {
         $client = $this->getClientById($id);
         $client->delete();
+
         return true;
     }
 

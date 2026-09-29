@@ -28,8 +28,8 @@ class PositionsService implements PositionsServiceInterface
     {
         $query = Position::query();
 
-        if($request->query('lineCode')) {
-            $query->whereHas('line', function ($p0) use($request) {
+        if ($request->query('lineCode')) {
+            $query->whereHas('line', function ($p0) use ($request) {
                 $p0->where('code', '=', $request->query('lineCode'));
             });
         }
