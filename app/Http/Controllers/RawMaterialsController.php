@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\RawMaterials\CreateRawMaterialRequest;
 use App\Http\Requests\RawMaterials\UpdateRawMaterialRequest;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Resources\RawMaterials\PaginatedRawMaterialsResource;
 use App\Http\Resources\RawMaterials\RawMaterialResource;
 use App\Interfaces\RawMaterials\RawMaterialsServiceInterface;
@@ -82,6 +83,18 @@ class RawMaterialsController extends Controller
             $response = $service->deleteRawMaterialById($id);
 
             return ResponseHandler::success($response, 'Materia Prima Eliminada Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, RawMaterialsServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
