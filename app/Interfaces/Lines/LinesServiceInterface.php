@@ -12,4 +12,6 @@ interface LinesServiceInterface
     public function getLineByCode(string $code);
     public function updateLineById(string $id, array $data);
     public function deleteLineById(string $id);
+
+    public function uploadFile(mixed $file);
 }

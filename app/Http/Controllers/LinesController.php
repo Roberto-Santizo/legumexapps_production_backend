@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\Lines\CreateLineRequest;
 use App\Http\Requests\Lines\UpdateLineRequest;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Resources\Lines\LineResource;
 use App\Http\Resources\Lines\PaginatedLinesResource;
 use App\Interfaces\Lines\LinesServiceInterface;
@@ -82,6 +83,18 @@ class LinesController extends Controller
             $result = $service->deleteLineById($id);
 
             return ResponseHandler::success(new LineResource($result), 'Línea Eliminada Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, LinesServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
