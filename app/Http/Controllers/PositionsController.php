@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\Positions\CreatePositionRequest;
 use App\Http\Requests\Positions\UpdatePositionRequest;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Resources\Positions\PaginatedPositionsResource;
 use App\Http\Resources\Positions\PositionResource;
 use App\Interfaces\Positions\PositionsServiceInterface;
@@ -82,6 +83,18 @@ class PositionsController extends Controller
             $result = $service->deletePositionById($id);
 
             return ResponseHandler::success($result, 'Puesto Eliminado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, PositionsServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
