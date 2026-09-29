@@ -7,6 +7,7 @@ use App\Http\Controllers\RawMaterialsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('jwt.auth')->group(function () {
+    Route::post('/packing-materials/uploadFile', [PackingMaterialsController::class, 'uploadFile']);
     Route::apiResource('/packing-materials', PackingMaterialsController::class);
     Route::post('/raw-materials/uploadFile', [RawMaterialsController::class, 'uploadFile']);
     Route::apiResource('/raw-materials', RawMaterialsController::class);
