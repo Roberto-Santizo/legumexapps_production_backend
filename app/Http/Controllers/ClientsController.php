@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\Clients\CreateClientRequest;
 use App\Http\Requests\Clients\UpdateClientRequest;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Resources\Clients\ClientResource;
 use App\Http\Resources\Clients\PaginatedClientsResource;
 use App\Interfaces\Clients\ClientsServiceInterface;
@@ -82,6 +83,18 @@ class ClientsController extends Controller
             $response = $service->deleteClientById($id);
 
             return ResponseHandler::success($response, 'Cliente Eliminado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, ClientsServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

@@ -13,4 +13,6 @@ interface ClientsServiceInterface
     public function updateClientById(string $id, array $data);
 
     public function deleteClientById(string $id);
+
+    public function uploadFile(mixed $file);
 }
