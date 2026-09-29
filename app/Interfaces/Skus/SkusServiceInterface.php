@@ -15,4 +15,6 @@ interface SkusServiceInterface
     public function updateSkuById(string $id, array $data);
 
     public function deleteSkuById(string $id);
+
+    public function uploadFile(mixed $file);
 }
