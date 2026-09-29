@@ -13,4 +13,6 @@ interface TimeoutsServiceInterface
     public function updateTimeoutById(string $id, array $data);
 
     public function deleteTimeoutById(string $id);
+
+    public function uploadFile(mixed $file);
 }
