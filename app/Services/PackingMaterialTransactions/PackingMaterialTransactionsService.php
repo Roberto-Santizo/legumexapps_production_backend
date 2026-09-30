@@ -8,7 +8,10 @@ use App\Models\PackingMaterialTransaction;
 use App\Models\PackingMaterialTransactionItem;
 use App\Models\WeeklyPlanTask;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Override;
 
 class PackingMaterialTransactionsService implements PackingMaterialTransactionsServiceInterface
@@ -20,6 +23,9 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         $data['user_id'] = auth()->user()->id;
         unset($data['items']);
         $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
+
+        $data['responsable_signature'] = $this->uploadSignature($data['responsable_signature']);
+        $data['user_signature'] = $this->uploadSignature($data['user_signature']);
 
         $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
             $packingMaterialTransaction = PackingMaterialTransaction::create($data);
@@ -93,5 +99,18 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         });
 
         return true;
+    }
+
+    /**
+     * Upload a signature image to S3 with public visibility and return its key.
+     */
+    private function uploadSignature(UploadedFile $signature): string
+    {
+        return Storage::disk('s3')->putFileAs(
+            'packing-material-transactions/signatures',
+            $signature,
+            Str::uuid().'.png',
+            ['visibility' => 'public'],
+        );
     }
 }
