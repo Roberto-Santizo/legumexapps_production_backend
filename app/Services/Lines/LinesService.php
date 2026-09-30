@@ -31,6 +31,7 @@ class LinesService implements LinesServiceInterface
         if ($skuId) {
             $query->whereHas('performances', function ($p0) use ($skuId) {
                 $p0->where('sku_id', $skuId);
+                $p0->where('status', 1);
             });
         }
 
