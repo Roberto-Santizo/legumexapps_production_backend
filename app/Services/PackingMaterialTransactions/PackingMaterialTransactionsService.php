@@ -22,7 +22,6 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         $items = $data['items'];
         $data['user_id'] = auth()->user()->id;
         unset($data['items']);
-        $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
 
         $uploadedKeys = [];
 
@@ -38,6 +37,12 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
                     PackingMaterialTransactionItem::create($item);
                 }
 
+                if (! empty($data['weekly_plan_task_id'])) {
+                    $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
+                    $task->status = 2;
+                    $task->save();
+                }
+
                 return $packingMaterialTransaction;
             });
         } catch (\Throwable $th) {
@@ -47,9 +52,6 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
 
             throw $th;
         }
-
-        $task->status = 2;
-        $task->save();
 
         return $packingMaterialTransaction->load('items');
     }
