@@ -26,8 +26,6 @@ class UpdatePackingMaterialTransactionRequest extends FormRequest
             'reference' => ['required', 'string'],
             'responsable' => ['required', 'string'],
             'observations' => ['nullable', 'string'],
-            'responsable_signature' => ['required', 'string'],
-            'user_signature' => ['required', 'string'],
             'type' => ['required', 'integer'],
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'weekly_plan_task_id' => ['nullable', 'integer', 'exists:weekly_plan_tasks,id'],
@@ -44,12 +42,6 @@ class UpdatePackingMaterialTransactionRequest extends FormRequest
             'responsable.string' => 'El responsable debe ser una cadena de texto.',
 
             'observations.string' => 'Las observaciones deben ser una cadena de texto.',
-
-            'responsable_signature.required' => 'La firma del responsable es obligatoria.',
-            'responsable_signature.string' => 'La firma del responsable debe ser una cadena de texto.',
-
-            'user_signature.required' => 'La firma del usuario es obligatoria.',
-            'user_signature.string' => 'La firma del usuario debe ser una cadena de texto.',
 
             'type.required' => 'El tipo es obligatorio.',
             'type.integer' => 'El tipo debe ser un número entero.',
