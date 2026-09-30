@@ -13,6 +13,7 @@ class LineDependenciesService implements LineDependenciesServiceInterface
     #[Override]
     public function create(array $data)
     {
+        if($data['line_id'] == $data['line_dependent_id']) throw  new BadRequestError("La línea dependiente no puede ser igual a la línea independiente");
         $newDependency = LineDependency::create($data);
         return $newDependency;
     }
