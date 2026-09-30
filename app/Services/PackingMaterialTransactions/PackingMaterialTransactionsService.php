@@ -8,7 +8,10 @@ use App\Models\PackingMaterialTransaction;
 use App\Models\PackingMaterialTransactionItem;
 use App\Models\WeeklyPlanTask;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Override;
 
 class PackingMaterialTransactionsService implements PackingMaterialTransactionsServiceInterface
@@ -19,23 +22,36 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         $items = $data['items'];
         $data['user_id'] = auth()->user()->id;
         unset($data['items']);
-        $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
 
-        $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
-            $packingMaterialTransaction = PackingMaterialTransaction::create($data);
+        $uploadedKeys = [];
 
-            foreach ($items as $item) {
-                $item['pm_transaction_id'] = $packingMaterialTransaction->id;
-                PackingMaterialTransactionItem::create($item);
+        try {
+            $data['responsable_signature'] = $uploadedKeys[] = $this->uploadSignature($data['responsable_signature']);
+            $data['user_signature'] = $uploadedKeys[] = $this->uploadSignature($data['user_signature']);
+
+            DB::transaction(function () use ($data, $items): void {
+                $packingMaterialTransaction = PackingMaterialTransaction::create($data);
+
+                foreach ($items as $item) {
+                    $item['pm_transaction_id'] = $packingMaterialTransaction->id;
+                    PackingMaterialTransactionItem::create($item);
+                }
+
+                if (! empty($data['weekly_plan_task_id'])) {
+                    $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
+                    $task->status = 2;
+                    $task->save();
+                }
+            });
+        } catch (\Throwable $th) {
+            if ($uploadedKeys !== []) {
+                Storage::disk('s3')->delete($uploadedKeys);
             }
 
-            return $packingMaterialTransaction;
-        });
+            throw $th;
+        }
 
-        $task->status = 2;
-        $task->save();
-
-        return $packingMaterialTransaction->load('items');
+        return null;
     }
 
     #[Override]
@@ -93,5 +109,18 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         });
 
         return true;
+    }
+
+    /**
+     * Upload a signature image to S3 with public visibility and return its key.
+     */
+    private function uploadSignature(UploadedFile $signature): string
+    {
+        return Storage::disk('s3')->putFileAs(
+            'packing-material-transactions/signatures',
+            $signature,
+            Str::uuid().'.png',
+            ['visibility' => 'public'],
+        );
     }
 }
