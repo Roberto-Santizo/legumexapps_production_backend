@@ -28,7 +28,7 @@ class ResponseHandler
             $response['data'] = $data;
         }
 
-        return response()->json($response, $statusCode);
+        return response()->json($response, $statusCode, [], JSON_UNESCAPED_SLASHES);
     }
 
     public static function error(\Throwable $error)
