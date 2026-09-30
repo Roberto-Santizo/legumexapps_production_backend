@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\Skus;
 
+use Illuminate\Http\Request;
+
 interface SkusServiceInterface
 {
     public function createSku(array $data);
 
-    public function getSkus(?string $limit);
+    public function getSkus(?string $limit, Request $request);
 
     public function getSkuById(string $id);
 

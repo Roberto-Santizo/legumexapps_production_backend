@@ -7,6 +7,7 @@ use App\Errors\NotFoundError;
 use App\Imports\ClientsImport;
 use App\Interfaces\Clients\ClientsServiceInterface;
 use App\Models\Client;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -22,9 +23,13 @@ class ClientsService implements ClientsServiceInterface
     }
 
     #[Override]
-    public function getClients(?string $limit)
+    public function getClients(?string $limit, Request $request)
     {
         $query = Client::query();
+
+        if ($request->query('name')) {
+            $query->where('name', 'LIKE', '%'.$request->query('name').'%');
+        }
 
         if ($limit) {
             return $query->paginate($limit);

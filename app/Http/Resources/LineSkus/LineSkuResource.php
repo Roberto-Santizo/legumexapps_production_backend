@@ -22,7 +22,7 @@ class LineSkuResource extends JsonResource
             'line_id' => $this->line_id,
             'lbs_performance' => $this->lbs_performance,
             'accepted_percentage' => $this->accepted_percentage,
-            'payment_method' => $this->payment_method,
+            'payment_method' => $this->payment_method ? 1 : 0,
             'status' => $this->status,
         ];
     }

@@ -43,6 +43,22 @@ class DraftWeeklyPlanTasksService implements DraftWeeklyPlanTasksServiceInterfac
             $query->whereNull('operation_date');
         }
 
+        if ($request->query('line')) {
+            $query->whereHas('line', function ($p0) use ($request) {
+                $p0->where('name', 'LIKE', '%'.$request->query('line').'%');
+            });
+        }
+
+        if ($request->query('sku')) {
+            $query->whereHas('sku', function ($p0) use ($request) {
+                $p0->where('code', 'LIKE', '%'.$request->query('sku').'%');
+            });
+        }
+
+        if ($request->query('destination')) {
+            $query->where('destination', 'LIKE', '%'.$request->query('destination').'%');
+        }
+
         if ($limit) {
             return $query->paginate($limit);
         }

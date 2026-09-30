@@ -2,9 +2,11 @@
 
 namespace App\Interfaces\WeeklyPlans;
 
+use Illuminate\Http\Request;
+
 interface WeeklyPlansServiceInterface
 {
-    public function getWeeklyPlans(?string $limit);
+    public function getWeeklyPlans(?string $limit, Request $request);
 
     public function getWeeklyPlanById(string $id);
 

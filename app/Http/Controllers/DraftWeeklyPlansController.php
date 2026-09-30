@@ -22,7 +22,7 @@ class DraftWeeklyPlansController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getDraftWeeklyPlans($limit);
+            $response = $service->getDraftWeeklyPlans($limit, $request);
 
             $data = $limit ? new PaginatedDraftWeeklyPlansResource($response) : DraftWeeklyPlanResource::collection($response);
 

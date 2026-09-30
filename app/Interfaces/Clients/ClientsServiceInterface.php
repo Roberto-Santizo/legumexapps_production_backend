@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\Clients;
 
+use Illuminate\Http\Request;
+
 interface ClientsServiceInterface
 {
     public function createClient(array $data);
 
-    public function getClients(?string $limit);
+    public function getClients(?string $limit, Request $request);
 
     public function getClientById(string $id);
 

@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\Timeouts;
 
+use Illuminate\Http\Request;
+
 interface TimeoutsServiceInterface
 {
     public function createTimeout(array $data);
 
-    public function getTimeouts(?string $limit);
+    public function getTimeouts(?string $limit, Request $request);
 
     public function getTimeoutById(string $id);
 

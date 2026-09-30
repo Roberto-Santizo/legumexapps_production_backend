@@ -20,7 +20,7 @@ class SkusController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getSkus($limit);
+            $response = $service->getSkus($limit, $request);
 
             $data = $limit ? new PaginatedSkusResource($response) : SkuResource::collection($response);
 

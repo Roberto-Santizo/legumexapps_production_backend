@@ -20,7 +20,7 @@ class RawMaterialsController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getRawMaterials($limit);
+            $response = $service->getRawMaterials($limit, $request);
 
             $data = $limit ? new PaginatedRawMaterialsResource($response) : RawMaterialResource::collection($response);
 

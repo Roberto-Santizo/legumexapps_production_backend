@@ -35,8 +35,18 @@ class LineSkusService implements LineSkusServiceInterface
             });
         }
 
-        if ($request->query('line_id')) {
-            $query->where('line_id', $request->query('line_id'));
+        if ($request->query('line')) {
+            $query->whereHas('line', function ($p0) use ($request) {
+                $p0->where('name', 'LIKE', '%'.$request->query('line').'%');
+            });
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->boolean('payment_method'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->boolean('status'));
         }
 
         if ($limit) {
@@ -71,6 +81,15 @@ class LineSkusService implements LineSkusServiceInterface
     {
         $lineSku = $this->getLineSkuById($id);
         $lineSku->delete();
+
+        return true;
+    }
+
+    #[Override]
+    public function toggleLineSkuStatusById(string $id)
+    {
+        $lineSku = $this->getLineSkuById($id);
+        $lineSku->update(['status' => ! $lineSku->status]);
 
         return true;
     }

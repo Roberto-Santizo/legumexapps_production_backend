@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\RawMaterials;
 
+use Illuminate\Http\Request;
+
 interface RawMaterialsServiceInterface
 {
     public function createRawMaterial(array $data);
 
-    public function getRawMaterials(?string $limit);
+    public function getRawMaterials(?string $limit, Request $request);
 
     public function getRawMaterialById(string $id);
 

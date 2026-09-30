@@ -7,6 +7,7 @@ use App\Interfaces\PackingMaterialTransactions\PackingMaterialTransactionsServic
 use App\Models\PackingMaterialTransaction;
 use App\Models\PackingMaterialTransactionItem;
 use App\Models\WeeklyPlanTask;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Override;
 
@@ -33,13 +34,26 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
 
         $task->status = 2;
         $task->save();
+
         return $packingMaterialTransaction->load('items');
     }
 
     #[Override]
-    public function getPackingMaterialTransactions(?string $limit)
+    public function getPackingMaterialTransactions(?string $limit, Request $request)
     {
         $query = PackingMaterialTransaction::query();
+
+        if ($request->query('reference')) {
+            $query->where('reference', 'LIKE', '%'.$request->query('reference').'%');
+        }
+
+        if ($request->query('responsable')) {
+            $query->where('responsable', 'LIKE', '%'.$request->query('responsable').'%');
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->query('type'));
+        }
 
         if ($limit) {
             return $query->paginate($limit);

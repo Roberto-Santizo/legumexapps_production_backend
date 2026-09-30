@@ -7,6 +7,7 @@ use App\Errors\NotFoundError;
 use App\Imports\RawMaterialsImport;
 use App\Interfaces\RawMaterials\RawMaterialsServiceInterface;
 use App\Models\RawMaterial;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -22,9 +23,17 @@ class RawMaterialsService implements RawMaterialsServiceInterface
     }
 
     #[Override]
-    public function getRawMaterials(?string $limit)
+    public function getRawMaterials(?string $limit, Request $request)
     {
         $query = RawMaterial::query();
+
+        if ($request->query('code')) {
+            $query->where('code', 'LIKE', '%'.$request->query('code').'%');
+        }
+
+        if ($request->query('product_name')) {
+            $query->where('product_name', 'LIKE', '%'.$request->query('product_name').'%');
+        }
 
         if ($limit) {
             return $query->paginate($limit);

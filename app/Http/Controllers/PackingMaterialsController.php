@@ -20,7 +20,7 @@ class PackingMaterialsController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getPackingMaterials($limit);
+            $response = $service->getPackingMaterials($limit, $request);
 
             $data = $limit ? new PaginatedPackingMaterialsResource($response) : PackingMaterialResource::collection($response);
 
