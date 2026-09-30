@@ -4,6 +4,7 @@ namespace App\Http\Resources\PackingMaterialTransactions;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class PackingMaterialTransactionResource extends JsonResource
 {
@@ -19,8 +20,8 @@ class PackingMaterialTransactionResource extends JsonResource
             'reference' => $this->reference,
             'responsable' => $this->responsable,
             'observations' => $this->observations ?? '',
-            'responsable_signature' => $this->responsable_signature,
-            'user_signature' => $this->user_signature,
+            'responsable_signature' => Storage::disk('s3')->url($this->responsable_signature),
+            'user_signature' => Storage::disk('s3')->url($this->user_signature),
             'type' => $this->type,
             'user_id' => $this->user_id,
             'user_name' => $this->user->name,
