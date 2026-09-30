@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Requests\Timeouts\CreateTimeoutRequest;
 use App\Http\Requests\Timeouts\UpdateTimeoutRequest;
 use App\Http\Resources\Timeouts\PaginatedTimeoutsResource;
@@ -82,6 +83,18 @@ class TimeoutsController extends Controller
             $response = $service->deleteTimeoutById($id);
 
             return ResponseHandler::success($response, 'Tiempo Muerto Eliminado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, TimeoutsServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

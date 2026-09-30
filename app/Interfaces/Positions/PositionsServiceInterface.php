@@ -15,4 +15,6 @@ interface PositionsServiceInterface
     public function updatePositionById(array $data, string $id);
 
     public function deletePositionById(string $id);
+
+    public function uploadFile(mixed $file);
 }

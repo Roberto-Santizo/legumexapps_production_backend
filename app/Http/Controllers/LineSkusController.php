@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\LineSkus\CreateLineSkuRequest;
 use App\Http\Requests\LineSkus\UpdateLineSkuRequest;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Resources\LineSkus\LineSkuResource;
 use App\Http\Resources\LineSkus\PaginatedLineSkusResource;
 use App\Interfaces\LineSkus\LineSkusServiceInterface;
@@ -82,6 +83,18 @@ class LineSkusController extends Controller
             $response = $service->deleteLineSkuById($id);
 
             return ResponseHandler::success($response, 'Rendimiento Eliminado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, LineSkusServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

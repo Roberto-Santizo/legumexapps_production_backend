@@ -7,8 +7,10 @@ use App\Http\Controllers\SkusController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('jwt.auth')->group(function () {
-    Route::apiResource('/skus',                     SkusController::class);
-    Route::apiResource('/performances',             LineSkusController::class);
-    Route::apiResource('/sku-packing-materials',    SkuPackingMaterialsController::class);
-    Route::apiResource('/sku-raw-materials',        SkuRawMaterialsController::class);
+    Route::post('/skus/uploadFile', [SkusController::class, 'uploadFile']);
+    Route::apiResource('/skus', SkusController::class);
+    Route::post('/performances/uploadFile', [LineSkusController::class, 'uploadFile']);
+    Route::apiResource('/performances', LineSkusController::class);
+    Route::apiResource('/sku-packing-materials', SkuPackingMaterialsController::class);
+    Route::apiResource('/sku-raw-materials', SkuRawMaterialsController::class);
 });

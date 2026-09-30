@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Requests\Skus\CreateSkuRequest;
 use App\Http\Requests\Skus\UpdateSkuRequest;
 use App\Http\Resources\Skus\PaginatedSkusResource;
@@ -82,6 +83,18 @@ class SkusController extends Controller
             $response = $service->deleteSkuById($id);
 
             return ResponseHandler::success($response, 'SKU Eliminado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, SkusServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

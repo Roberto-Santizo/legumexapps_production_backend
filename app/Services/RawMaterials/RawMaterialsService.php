@@ -2,9 +2,13 @@
 
 namespace App\Services\RawMaterials;
 
+use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
+use App\Imports\RawMaterialsImport;
 use App\Interfaces\RawMaterials\RawMaterialsServiceInterface;
 use App\Models\RawMaterial;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Override;
 
 class RawMaterialsService implements RawMaterialsServiceInterface
@@ -67,5 +71,69 @@ class RawMaterialsService implements RawMaterialsServiceInterface
         $rawMaterial->delete();
 
         return true;
+    }
+
+    #[Override]
+    public function uploadFile(mixed $file)
+    {
+        $rows = Excel::toCollection(new RawMaterialsImport, $file)->first() ?? collect();
+
+        if ($rows->isEmpty()) {
+            throw new BadRequestError('El archivo no contiene filas');
+        }
+
+        $existingCodes = RawMaterial::pluck('code')->flip();
+
+        $now = now();
+        $errors = [];
+        $codesInFile = [];
+        $rawMaterialsToCreate = [];
+
+        foreach ($rows as $index => $row) {
+            $lineNumber = $index + 2;
+            $rowErrors = [];
+
+            $code = trim((string) ($row['codigo'] ?? ''));
+            $productName = trim((string) ($row['nombre_producto'] ?? ''));
+
+            if ($code === '') {
+                $rowErrors[] = "Línea {$lineNumber}: el campo 'codigo' es obligatorio";
+            } elseif ($existingCodes->has($code)) {
+                $rowErrors[] = "Línea {$lineNumber}: el código '{$code}' ya existe";
+            } elseif (isset($codesInFile[$code])) {
+                $rowErrors[] = "Línea {$lineNumber}: el código '{$code}' está repetido en el archivo";
+            }
+
+            if ($code !== '') {
+                $codesInFile[$code] = true;
+            }
+
+            if ($productName === '') {
+                $rowErrors[] = "Línea {$lineNumber}: el campo 'nombre_producto' es obligatorio";
+            }
+
+            if (! empty($rowErrors)) {
+                array_push($errors, ...$rowErrors);
+
+                continue;
+            }
+
+            $rawMaterialsToCreate[] = [
+                'code' => $code,
+                'product_name' => $productName,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        if (! empty($errors)) {
+            throw new BadRequestError(implode(PHP_EOL, $errors));
+        }
+
+        DB::transaction(function () use ($rawMaterialsToCreate) {
+            RawMaterial::insert($rawMaterialsToCreate);
+        });
+
+        return ['created' => count($rawMaterialsToCreate)];
     }
 }

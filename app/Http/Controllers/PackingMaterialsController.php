@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\PackingMaterials\CreatePackingMaterialRequest;
 use App\Http\Requests\PackingMaterials\UpdatePackingMaterialRequest;
+use App\Http\Requests\Shared\UploadFileRequest;
 use App\Http\Resources\PackingMaterials\PackingMaterialResource;
 use App\Http\Resources\PackingMaterials\PaginatedPackingMaterialsResource;
 use App\Interfaces\PackingMaterials\PackingMaterialsServiceInterface;
@@ -82,6 +83,18 @@ class PackingMaterialsController extends Controller
             $response = $service->deletePackingMaterialById($id);
 
             return ResponseHandler::success($response, 'Material de Empaque Eliminado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function uploadFile(UploadFileRequest $request, PackingMaterialsServiceInterface $service)
+    {
+        try {
+            $file = $request->validated();
+            $result = $service->uploadFile($file['file']);
+
+            return ResponseHandler::success($result, 'Archivo Subido Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

@@ -15,4 +15,6 @@ interface PackingMaterialsServiceInterface
     public function updatePackingMaterialById(string $id, array $data);
 
     public function deletePackingMaterialById(string $id);
+
+    public function uploadFile(mixed $file);
 }

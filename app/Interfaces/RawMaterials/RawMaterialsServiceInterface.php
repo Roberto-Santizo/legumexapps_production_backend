@@ -15,4 +15,6 @@ interface RawMaterialsServiceInterface
     public function updateRawMaterialById(string $id, array $data);
 
     public function deleteRawMaterialById(string $id);
+
+    public function uploadFile(mixed $file);
 }
