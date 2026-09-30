@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\DraftWeeklyPlans;
 
+use Illuminate\Http\Request;
+
 interface DraftWeeklyPlansServiceInterface
 {
     public function createDraftWeeklyPlan(array $data);
 
-    public function getDraftWeeklyPlans(?string $limit);
+    public function getDraftWeeklyPlans(?string $limit, Request $request);
 
     public function getDraftWeeklyPlanById(string $id);
 

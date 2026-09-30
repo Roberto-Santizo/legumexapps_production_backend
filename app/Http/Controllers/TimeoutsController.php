@@ -20,7 +20,7 @@ class TimeoutsController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getTimeouts($limit);
+            $response = $service->getTimeouts($limit, $request);
 
             $data = $limit ? new PaginatedTimeoutsResource($response) : TimeoutResource::collection($response);
 

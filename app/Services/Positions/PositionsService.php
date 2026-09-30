@@ -34,6 +34,20 @@ class PositionsService implements PositionsServiceInterface
             });
         }
 
+        if ($request->query('line')) {
+            $query->whereHas('line', function ($p0) use ($request) {
+                $p0->where('name', 'LIKE', '%'.$request->query('line').'%');
+            });
+        }
+
+        if ($request->query('code')) {
+            $query->where('code', 'LIKE', '%'.$request->query('code').'%');
+        }
+
+        if ($request->query('activity')) {
+            $query->where('activity', 'LIKE', '%'.$request->query('activity').'%');
+        }
+
         if ($limit) {
             return $query->paginate($limit);
         }

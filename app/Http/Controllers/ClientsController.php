@@ -20,7 +20,7 @@ class ClientsController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $response = $service->getClients($limit);
+            $response = $service->getClients($limit, $request);
 
             $data = $limit ? new PaginatedClientsResource($response) : ClientResource::collection($response);
 

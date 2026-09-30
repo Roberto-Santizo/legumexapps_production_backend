@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\PackingMaterials;
 
+use Illuminate\Http\Request;
+
 interface PackingMaterialsServiceInterface
 {
     public function createPackingMaterial(array $data);
 
-    public function getPackingMaterials(?string $limit);
+    public function getPackingMaterials(?string $limit, Request $request);
 
     public function getPackingMaterialById(string $id);
 

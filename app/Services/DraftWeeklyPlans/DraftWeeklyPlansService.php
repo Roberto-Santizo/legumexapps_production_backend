@@ -6,6 +6,7 @@ use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\DraftWeeklyPlans\DraftWeeklyPlansServiceInterface;
 use App\Models\DraftWeeklyPlan;
+use Illuminate\Http\Request;
 use Override;
 
 class DraftWeeklyPlansService implements DraftWeeklyPlansServiceInterface
@@ -22,9 +23,18 @@ class DraftWeeklyPlansService implements DraftWeeklyPlansServiceInterface
     }
 
     #[Override]
-    public function getDraftWeeklyPlans(?string $limit)
+    public function getDraftWeeklyPlans(?string $limit, Request $request)
     {
         $query = DraftWeeklyPlan::query();
+
+        if ($request->query('week')) {
+            $query->where('week', $request->query('week'));
+        }
+
+        if ($request->query('year')) {
+            $query->where('year', $request->query('year'));
+        }
+
         $query->orderBy('year', 'DESC')->orderBy('week', 'DESC');
 
         if ($limit) {

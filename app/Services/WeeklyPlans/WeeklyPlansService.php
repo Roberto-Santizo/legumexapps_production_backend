@@ -6,14 +6,24 @@ use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlans\WeeklyPlansServiceInterface;
 use App\Models\WeeklyPlan;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Override;
 
 class WeeklyPlansService implements WeeklyPlansServiceInterface
 {
     #[Override]
-    public function getWeeklyPlans(?string $limit)
+    public function getWeeklyPlans(?string $limit, Request $request)
     {
         $query = WeeklyPlan::query();
+
+        if ($request->query('week')) {
+            $query->where('week', $request->query('week'));
+        }
+
+        if ($request->query('year')) {
+            $query->where('year', $request->query('year'));
+        }
+
         $query->orderBy('year', 'DESC')->orderBy('week', 'DESC');
 
         if ($limit) {

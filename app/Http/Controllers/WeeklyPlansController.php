@@ -19,7 +19,7 @@ class WeeklyPlansController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $data = $service->getWeeklyPlans($limit);
+            $data = $service->getWeeklyPlans($limit, $request);
 
             $response = $limit ? new PaginatedWeeklyPlansResource($data) : WeeklyPlanResource::collection($data);
 

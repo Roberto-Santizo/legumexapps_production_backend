@@ -34,6 +34,14 @@ class LinesService implements LinesServiceInterface
             });
         }
 
+        if ($request->query('name')) {
+            $query->where('name', 'LIKE', '%'.$request->query('name').'%');
+        }
+
+        if ($request->query('code')) {
+            $query->where('code', 'LIKE', '%'.$request->query('code').'%');
+        }
+
         if ($limit) {
             return $query->paginate($limit);
         }

@@ -8,6 +8,7 @@ use App\Imports\SkusImport;
 use App\Interfaces\Skus\SkusServiceInterface;
 use App\Models\Client;
 use App\Models\Sku;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -23,9 +24,23 @@ class SkusService implements SkusServiceInterface
     }
 
     #[Override]
-    public function getSkus(?string $limit)
+    public function getSkus(?string $limit, Request $request)
     {
         $query = Sku::query();
+
+        if ($request->query('code')) {
+            $query->where('code', 'LIKE', '%'.$request->query('code').'%');
+        }
+
+        if ($request->query('product_name')) {
+            $query->where('product_name', 'LIKE', '%'.$request->query('product_name').'%');
+        }
+
+        if ($request->query('client')) {
+            $query->whereHas('client', function ($p0) use ($request) {
+                $p0->where('name', 'LIKE', '%'.$request->query('client').'%');
+            });
+        }
 
         if ($limit) {
             return $query->paginate($limit);

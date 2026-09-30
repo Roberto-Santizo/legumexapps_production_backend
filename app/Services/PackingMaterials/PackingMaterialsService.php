@@ -7,6 +7,7 @@ use App\Errors\NotFoundError;
 use App\Imports\PackingMaterialsImport;
 use App\Interfaces\PackingMaterials\PackingMaterialsServiceInterface;
 use App\Models\PackingMaterial;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -22,9 +23,17 @@ class PackingMaterialsService implements PackingMaterialsServiceInterface
     }
 
     #[Override]
-    public function getPackingMaterials(?string $limit)
+    public function getPackingMaterials(?string $limit, Request $request)
     {
         $query = PackingMaterial::query();
+
+        if ($request->query('code')) {
+            $query->where('code', 'LIKE', '%'.$request->query('code').'%');
+        }
+
+        if ($request->query('name')) {
+            $query->where('name', 'LIKE', '%'.$request->query('name').'%');
+        }
 
         if ($limit) {
             return $query->paginate($limit);

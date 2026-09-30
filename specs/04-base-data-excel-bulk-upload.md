@@ -1,6 +1,6 @@
 # SPEC 04 — Carga masiva por Excel de la información base
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-09-29
 > **Enmienda:** 2026-09-29 — se agrega la carga de `Sku` (paso 10 del plan).
@@ -112,25 +112,25 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `php artisan migrate` crea el índice único `(sku_id, line_id)` en `line_stock_keeping_units`.
-- [ ] `php artisan route:list --path=uploadFile` muestra las 8 rutas nuevas más la existente de `weekly-plan-employees`, todas bajo `jwt.auth`.
-- [ ] Subir un `.csv` o no enviar `file` responde el error de validación de `UploadFileRequest`.
-- [ ] Un Excel válido de cada recurso responde 200 con `created` igual al número de filas de datos, y los registros existen en BD.
-- [ ] Un SKU con `cliente` = ` acme ` se asigna al cliente `ACME`; un cliente inexistente produce `Línea N: el cliente 'X' no existe`.
-- [ ] Un SKU con `presentacion` y `cajas_por_pallet` vacías se guarda con `null`; con texto o decimal en `cajas_por_pallet` produce error de línea.
-- [ ] Un Excel con solo el encabezado responde `El archivo no contiene filas` y no inserta nada.
-- [ ] Un Excel con una fila inválida entre varias válidas responde error con el número de línea correcto y **no** inserta ninguna fila.
-- [ ] Un Excel con varias filas inválidas devuelve **todos** los errores en una sola respuesta, no solo el primero.
-- [ ] Un `codigo` que ya existe en BD (lines, positions, raw_materials, packing_materials, stock_keeping_units) produce `Línea N: el código 'X' ya existe`.
-- [ ] Un `codigo` repetido dos veces en el mismo archivo produce error en la segunda aparición.
-- [ ] Un cliente `ACME` en BD hace fallar una fila con `nombre` = ` acme ` (espacios y minúsculas).
-- [ ] Una posición con `linea` inexistente produce `Línea N: la línea con código 'X' no existe`.
-- [ ] Un LineSku con par `(sku, linea)` ya existente en BD, o repetido en el archivo, produce error.
-- [ ] `metodo_pago` acepta `1`, `0`, `SI`, `si`, `NO`, `Sí` y rechaza `2`, `X` o vacío.
-- [ ] `turno`, `rendimiento_lbs` o `porcentaje_aceptado` con texto no numérico producen error de línea.
-- [ ] Un código numérico como `001` en Excel se guarda y compara como string.
-- [ ] Los registros creados con `blocked`/`status` quedan con el default de BD.
-- [ ] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
+- [X] `php artisan migrate` crea el índice único `(sku_id, line_id)` en `line_stock_keeping_units`.
+- [X] `php artisan route:list --path=uploadFile` muestra las 8 rutas nuevas más la existente de `weekly-plan-employees`, todas bajo `jwt.auth`.
+- [X] Subir un `.csv` o no enviar `file` responde el error de validación de `UploadFileRequest`.
+- [X] Un Excel válido de cada recurso responde 200 con `created` igual al número de filas de datos, y los registros existen en BD.
+- [X] Un SKU con `cliente` = ` acme ` se asigna al cliente `ACME`; un cliente inexistente produce `Línea N: el cliente 'X' no existe`.
+- [X] Un SKU con `presentacion` y `cajas_por_pallet` vacías se guarda con `null`; con texto o decimal en `cajas_por_pallet` produce error de línea.
+- [X] Un Excel con solo el encabezado responde `El archivo no contiene filas` y no inserta nada.
+- [X] Un Excel con una fila inválida entre varias válidas responde error con el número de línea correcto y **no** inserta ninguna fila.
+- [X] Un Excel con varias filas inválidas devuelve **todos** los errores en una sola respuesta, no solo el primero.
+- [X] Un `codigo` que ya existe en BD (lines, positions, raw_materials, packing_materials, stock_keeping_units) produce `Línea N: el código 'X' ya existe`.
+- [X] Un `codigo` repetido dos veces en el mismo archivo produce error en la segunda aparición.
+- [X] Un cliente `ACME` en BD hace fallar una fila con `nombre` = ` acme ` (espacios y minúsculas).
+- [X] Una posición con `linea` inexistente produce `Línea N: la línea con código 'X' no existe`.
+- [X] Un LineSku con par `(sku, linea)` ya existente en BD, o repetido en el archivo, produce error.
+- [X] `metodo_pago` acepta `1`, `0`, `SI`, `si`, `NO`, `Sí` y rechaza `2`, `X` o vacío.
+- [X] `turno`, `rendimiento_lbs` o `porcentaje_aceptado` con texto no numérico producen error de línea.
+- [X] Un código numérico como `001` en Excel se guarda y compara como string.
+- [X] Los registros creados con `blocked`/`status` quedan con el default de BD.
+- [X] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
 
 ---
 

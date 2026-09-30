@@ -7,6 +7,7 @@ use App\Errors\NotFoundError;
 use App\Imports\TimeoutsImport;
 use App\Interfaces\Timeouts\TimeoutsServiceInterface;
 use App\Models\Timeout;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -22,9 +23,13 @@ class TimeoutsService implements TimeoutsServiceInterface
     }
 
     #[Override]
-    public function getTimeouts(?string $limit)
+    public function getTimeouts(?string $limit, Request $request)
     {
         $query = Timeout::query();
+
+        if ($request->query('name')) {
+            $query->where('name', 'LIKE', '%'.$request->query('name').'%');
+        }
 
         if ($limit) {
             return $query->paginate($limit);
