@@ -88,6 +88,20 @@ class LineSkusController extends Controller
         }
     }
 
+    /**
+     * Toggle the status of the specified resource.
+     */
+    public function toggleStatus(string $id, LineSkusServiceInterface $service)
+    {
+        try {
+            $response = $service->toggleLineSkuStatusById($id);
+
+            return ResponseHandler::success($response, 'Estado del Rendimiento Actualizado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
     public function uploadFile(UploadFileRequest $request, LineSkusServiceInterface $service)
     {
         try {

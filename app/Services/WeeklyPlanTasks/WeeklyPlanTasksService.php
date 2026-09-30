@@ -48,11 +48,23 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
         }
 
-        if($request->query('lineCode')){
-            $query->whereHas('performance', function ($p0) use($request) {
-                $p0->whereHas('line', function ($p1) use($request) {
-                    $p1->where('code','=', $request->query('lineCode'));
+        if ($request->query('lineCode')) {
+            $query->whereHas('performance', function ($p0) use ($request) {
+                $p0->whereHas('line', function ($p1) use ($request) {
+                    $p1->where('code', '=', $request->query('lineCode'));
                 });
+            });
+        }
+
+        if ($request->query('lineId')) {
+            $query->whereHas('performance', function ($performance) use ($request) {
+                $performance->where('line_id', $request->query('lineId'));
+            });
+        }
+
+        if ($request->query('skuCode')) {
+            $query->whereHas('performance.sku', function ($sku) use ($request) {
+                $sku->where('code', 'LIKE', '%'.$request->query('skuCode').'%');
             });
         }
 

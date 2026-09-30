@@ -19,7 +19,7 @@ class DraftWeeklyPlanTaskResource extends JsonResource
             'boxes' => $this->boxes,
             'destination' => $this->destination,
             'hours' => $this->hours,
-            'operation_date' => $this->operation_date,
+            'operation_date' => $this->operation_date ? $this->operation_date->format('Y-m-d') : null,
             'operation_date_string' => $this->operation_date ? $this->operation_date->format('d-m-Y') : 'SIN PROGRAMACIÓN',
             'draft_weekly_plan_id' => $this->draft_weekly_plan_id,
             'sku_id' => $this->sku_id,

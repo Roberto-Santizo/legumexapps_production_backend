@@ -86,6 +86,15 @@ class LineSkusService implements LineSkusServiceInterface
     }
 
     #[Override]
+    public function toggleLineSkuStatusById(string $id)
+    {
+        $lineSku = $this->getLineSkuById($id);
+        $lineSku->update(['status' => ! $lineSku->status]);
+
+        return true;
+    }
+
+    #[Override]
     public function uploadFile(mixed $file)
     {
         $rows = Excel::toCollection(new LineSkusImport, $file)->first() ?? collect();
