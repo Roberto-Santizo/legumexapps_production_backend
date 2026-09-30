@@ -36,9 +36,9 @@ class PackingMaterialTransactionsController extends Controller
     {
         try {
             $data = $request->validated();
-            $response = $service->createPackingMaterialTransaction($data);
+            $service->createPackingMaterialTransaction($data);
 
-            return ResponseHandler::success($response, 'Transacción de Material de Empaque Creada Correctamente', 201);
+            return ResponseHandler::success(null, 'Transacción de Material de Empaque Creada Correctamente', 201);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

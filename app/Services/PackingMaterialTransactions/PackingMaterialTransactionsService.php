@@ -29,7 +29,7 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
             $data['responsable_signature'] = $uploadedKeys[] = $this->uploadSignature($data['responsable_signature']);
             $data['user_signature'] = $uploadedKeys[] = $this->uploadSignature($data['user_signature']);
 
-            $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
+            DB::transaction(function () use ($data, $items): void {
                 $packingMaterialTransaction = PackingMaterialTransaction::create($data);
 
                 foreach ($items as $item) {
@@ -42,8 +42,6 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
                     $task->status = 2;
                     $task->save();
                 }
-
-                return $packingMaterialTransaction;
             });
         } catch (\Throwable $th) {
             if ($uploadedKeys !== []) {
@@ -53,7 +51,7 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
             throw $th;
         }
 
-        return $packingMaterialTransaction->load('items');
+        return null;
     }
 
     #[Override]
