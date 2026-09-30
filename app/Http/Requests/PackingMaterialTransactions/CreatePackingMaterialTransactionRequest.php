@@ -26,8 +26,8 @@ class CreatePackingMaterialTransactionRequest extends FormRequest
             'reference' => ['required', 'string'],
             'responsable' => ['required', 'string'],
             'observations' => ['nullable', 'string'],
-            'responsable_signature' => ['required', 'string'],
-            'user_signature' => ['required', 'string'],
+            'responsable_signature' => ['required', 'image', 'mimes:png', 'max:1024'],
+            'user_signature' => ['required', 'image', 'mimes:png', 'max:1024'],
             'type' => ['required', 'integer'],
             'weekly_plan_task_id' => ['nullable', 'integer', 'exists:weekly_plan_tasks,id'],
             'items' => ['required', 'array', 'min:1'],
@@ -50,10 +50,14 @@ class CreatePackingMaterialTransactionRequest extends FormRequest
             'observations.string' => 'Las observaciones deben ser una cadena de texto.',
 
             'responsable_signature.required' => 'La firma del responsable es obligatoria.',
-            'responsable_signature.string' => 'La firma del responsable debe ser una cadena de texto.',
+            'responsable_signature.image' => 'La firma del responsable debe ser una imagen.',
+            'responsable_signature.mimes' => 'La firma del responsable debe ser un archivo PNG.',
+            'responsable_signature.max' => 'La firma del responsable no debe pesar más de 1 MB.',
 
             'user_signature.required' => 'La firma del usuario es obligatoria.',
-            'user_signature.string' => 'La firma del usuario debe ser una cadena de texto.',
+            'user_signature.image' => 'La firma del usuario debe ser una imagen.',
+            'user_signature.mimes' => 'La firma del usuario debe ser un archivo PNG.',
+            'user_signature.max' => 'La firma del usuario no debe pesar más de 1 MB.',
 
             'type.required' => 'El tipo es obligatorio.',
             'type.integer' => 'El tipo debe ser un número entero.',
