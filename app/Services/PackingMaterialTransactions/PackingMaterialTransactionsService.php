@@ -24,19 +24,29 @@ class PackingMaterialTransactionsService implements PackingMaterialTransactionsS
         unset($data['items']);
         $task = WeeklyPlanTask::find($data['weekly_plan_task_id']);
 
-        $data['responsable_signature'] = $this->uploadSignature($data['responsable_signature']);
-        $data['user_signature'] = $this->uploadSignature($data['user_signature']);
+        $uploadedKeys = [];
 
-        $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
-            $packingMaterialTransaction = PackingMaterialTransaction::create($data);
+        try {
+            $data['responsable_signature'] = $uploadedKeys[] = $this->uploadSignature($data['responsable_signature']);
+            $data['user_signature'] = $uploadedKeys[] = $this->uploadSignature($data['user_signature']);
 
-            foreach ($items as $item) {
-                $item['pm_transaction_id'] = $packingMaterialTransaction->id;
-                PackingMaterialTransactionItem::create($item);
+            $packingMaterialTransaction = DB::transaction(function () use ($data, $items) {
+                $packingMaterialTransaction = PackingMaterialTransaction::create($data);
+
+                foreach ($items as $item) {
+                    $item['pm_transaction_id'] = $packingMaterialTransaction->id;
+                    PackingMaterialTransactionItem::create($item);
+                }
+
+                return $packingMaterialTransaction;
+            });
+        } catch (\Throwable $th) {
+            if ($uploadedKeys !== []) {
+                Storage::disk('s3')->delete($uploadedKeys);
             }
 
-            return $packingMaterialTransaction;
-        });
+            throw $th;
+        }
 
         $task->status = 2;
         $task->save();
