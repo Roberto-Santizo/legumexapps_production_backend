@@ -36,4 +36,9 @@ class WeeklyPlanTask extends Model
     {
         return $this->hasMany(WeeklyPlanTaskObservation::class);
     }
+
+    public function employees()
+    {
+        return $this->hasMany(WeeklyPlanTaskEmployee::class);
+    }
 }
