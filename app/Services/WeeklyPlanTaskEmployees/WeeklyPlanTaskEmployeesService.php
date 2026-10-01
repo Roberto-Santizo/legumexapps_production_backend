@@ -41,17 +41,83 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
         $this->ensureTaskAwaitsEmployeeConfirmation($task);
 
-        $now = now();
-        $assignmentsToCreate = $this->getCandidates($task)
+        $replacements = collect($data['replacements'] ?? [])->map(fn (array $replacement) => [
+            'replaced' => (int) $replacement['weekly_plan_employee_id'],
+            'replacement' => (int) $replacement['replacement_weekly_plan_employee_id'],
+        ]);
+        $additions = collect($data['additions'] ?? [])->map(fn ($id) => (int) $id);
+        $removals = collect($data['removals'] ?? [])->map(fn ($id) => (int) $id);
+
+        $candidates = $this->getCandidates($task)->keyBy('id');
+        $replacedIds = $replacements->pluck('replaced');
+        $incomingIds = $replacements->pluck('replacement')->merge($additions);
+
+        $weeklyPlanEmployees = WeeklyPlanEmployee::with('employee')
+            ->findMany($replacedIds->merge($incomingIds)->merge($removals)->unique()->values())
+            ->keyBy('id');
+        $codeOf = fn (int $id) => $weeklyPlanEmployees->get($id)->employee->code;
+
+        $errors = [];
+
+        foreach ($replacedIds->merge($removals)->unique() as $id) {
+            if (! $candidates->has($id)) {
+                $errors[] = "El empleado '{$codeOf($id)}' no es candidato de la tarea";
+            }
+        }
+
+        foreach ($removals->intersect($replacedIds) as $id) {
+            if ($candidates->has($id)) {
+                $errors[] = "El empleado '{$codeOf($id)}' no puede quitarse y reemplazarse a la vez";
+            }
+        }
+
+        foreach ($incomingIds->unique() as $id) {
+            if ($weeklyPlanEmployees->get($id)->weekly_plan_id != $task->weekly_plan_id) {
+                $errors[] = "El empleado '{$codeOf($id)}' no pertenece al plan semanal de la tarea";
+            }
+        }
+
+        $assignments = $candidates
+            ->reject(fn (WeeklyPlanEmployee $candidate) => $removals->contains($candidate->id) || $replacedIds->contains($candidate->id))
             ->map(fn (WeeklyPlanEmployee $candidate) => [
-                'weekly_plan_task_id' => $task->id,
                 'weekly_plan_employee_id' => $candidate->id,
                 'position_id' => $candidate->position_id,
                 'replaced_weekly_plan_employee_id' => null,
+            ])
+            ->values()
+            ->merge($replacements->map(fn (array $replacement) => [
+                'weekly_plan_employee_id' => $replacement['replacement'],
+                'position_id' => $candidates->get($replacement['replaced'])?->position_id,
+                'replaced_weekly_plan_employee_id' => $replacement['replaced'],
+            ]))
+            ->merge($additions->map(fn (int $id) => [
+                'weekly_plan_employee_id' => $id,
+                'position_id' => $weeklyPlanEmployees->get($id)->position_id,
+                'replaced_weekly_plan_employee_id' => null,
+            ]));
+
+        $assignments->countBy('weekly_plan_employee_id')
+            ->filter(fn (int $count) => $count > 1)
+            ->each(function (int $count, int $id) use (&$errors, $codeOf) {
+                $errors[] = "El empleado '{$codeOf($id)}' está asignado más de una vez";
+            });
+
+        if ($assignments->isEmpty()) {
+            $errors[] = 'La tarea debe tener al menos un empleado asignado';
+        }
+
+        if (! empty($errors)) {
+            throw new BadRequestError(implode(PHP_EOL, $errors));
+        }
+
+        $now = now();
+        $assignmentsToCreate = $assignments
+            ->map(fn (array $assignment) => [
+                'weekly_plan_task_id' => $task->id,
+                ...$assignment,
                 'created_at' => $now,
                 'updated_at' => $now,
             ])
-            ->values()
             ->all();
 
         DB::transaction(function () use ($task, $assignmentsToCreate) {
