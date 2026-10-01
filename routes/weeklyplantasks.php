@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
 use App\Http\Controllers\WeeklyPlanTasksController;
 use Illuminate\Support\Facades\Route;
@@ -14,4 +15,5 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/weekly-plan-tasks/assignOperationDate', [WeeklyPlanTasksController::class, 'assignOperationDate']);
     Route::post('/weekly-plan-tasks/splitTask', [WeeklyPlanTasksController::class, 'splitTask']);
     Route::get('/weekly-plan-tasks/{id}/packingMaterialItems', [WeeklyPlanTasksController::class, 'packingMaterialItems']);
+    Route::get('/weekly-plan-tasks/{id}/availableEmployees', [WeeklyPlanTaskEmployeesController::class, 'availableEmployees']);
 });
