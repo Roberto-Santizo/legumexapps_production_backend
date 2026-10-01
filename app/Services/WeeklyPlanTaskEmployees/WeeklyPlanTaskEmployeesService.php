@@ -22,6 +22,16 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         return $this->getCandidates($task);
     }
 
+    #[Override]
+    public function getTaskEmployees(string $taskId)
+    {
+        $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
+
+        return $task->employees()
+            ->with(['weeklyPlanEmployee.employee', 'position', 'replacedWeeklyPlanEmployee.employee'])
+            ->get();
+    }
+
     /**
      * Employees of the task's weekly plan whose active position belongs to the task's line.
      *
