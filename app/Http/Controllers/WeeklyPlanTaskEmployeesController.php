@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
+use App\Http\Requests\WeeklyPlanTaskEmployees\ConfirmWeeklyPlanTaskEmployeesRequest;
 use App\Http\Resources\WeeklyPlanEmployees\WeeklyPlanEmployeeResource;
 use App\Http\Resources\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeeResource;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
@@ -26,6 +27,18 @@ class WeeklyPlanTaskEmployeesController extends Controller
             $assignments = $service->getTaskEmployees($id);
 
             return ResponseHandler::success(WeeklyPlanTaskEmployeeResource::collection($assignments), 'Personal Asignado Obtenido Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function confirmEmployees(ConfirmWeeklyPlanTaskEmployeesRequest $request, string $id, WeeklyPlanTaskEmployeesServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $result = $service->confirmEmployees($id, $data);
+
+            return ResponseHandler::success($result, 'Personal Asignado Correctamente', 201);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

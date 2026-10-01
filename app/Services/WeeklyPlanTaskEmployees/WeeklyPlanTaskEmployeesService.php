@@ -2,12 +2,15 @@
 
 namespace App\Services\WeeklyPlanTaskEmployees;
 
+use App\Errors\BadRequestError;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\Position;
 use App\Models\WeeklyPlanEmployee;
 use App\Models\WeeklyPlanTask;
+use App\Models\WeeklyPlanTaskEmployee;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceInterface
@@ -30,6 +33,52 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         return $task->employees()
             ->with(['weeklyPlanEmployee.employee', 'position', 'replacedWeeklyPlanEmployee.employee'])
             ->get();
+    }
+
+    #[Override]
+    public function confirmEmployees(string $taskId, array $data)
+    {
+        $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
+        $this->ensureTaskAwaitsEmployeeConfirmation($task);
+
+        $now = now();
+        $assignmentsToCreate = $this->getCandidates($task)
+            ->map(fn (WeeklyPlanEmployee $candidate) => [
+                'weekly_plan_task_id' => $task->id,
+                'weekly_plan_employee_id' => $candidate->id,
+                'position_id' => $candidate->position_id,
+                'replaced_weekly_plan_employee_id' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])
+            ->values()
+            ->all();
+
+        DB::transaction(function () use ($task, $assignmentsToCreate) {
+            $lockedTask = WeeklyPlanTask::lockForUpdate()->find($task->id);
+            $this->ensureTaskAwaitsEmployeeConfirmation($lockedTask);
+
+            WeeklyPlanTaskEmployee::insert($assignmentsToCreate);
+
+            $lockedTask->status = 3;
+            $lockedTask->save();
+        });
+
+        return null;
+    }
+
+    /**
+     * Confirmation is only allowed once, while the task is in status 2.
+     */
+    private function ensureTaskAwaitsEmployeeConfirmation(WeeklyPlanTask $task): void
+    {
+        if ($task->status != 2) {
+            throw new BadRequestError('La tarea no está lista para confirmar asignaciones');
+        }
+
+        if ($task->employees()->exists()) {
+            throw new BadRequestError('La tarea ya tiene personal asignado');
+        }
     }
 
     /**
