@@ -10,6 +10,7 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\WeeklyPlan;
 use App\Models\WeeklyPlanEmployee;
+use App\Models\WeeklyPlanTaskEmployee;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -60,6 +61,16 @@ class WeeklyPlanEmployeesService implements WeeklyPlanEmployeesServiceInterface
     public function deleteWeeklyPlanEmployeeById(string $id)
     {
         $weeklyPlanEmployee = $this->getWeeklyPlanEmployeeById($id);
+
+        $hasTaskAssignments = WeeklyPlanTaskEmployee::withTrashed()
+            ->where('weekly_plan_employee_id', $weeklyPlanEmployee->id)
+            ->orWhere('replaced_weekly_plan_employee_id', $weeklyPlanEmployee->id)
+            ->exists();
+
+        if ($hasTaskAssignments) {
+            throw new BadRequestError('No se puede eliminar un empleado del plan con personal asignado en tareas');
+        }
+
         $weeklyPlanEmployee->delete();
 
         return true;
