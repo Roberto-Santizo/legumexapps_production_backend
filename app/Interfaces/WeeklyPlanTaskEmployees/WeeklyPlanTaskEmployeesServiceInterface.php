@@ -13,4 +13,6 @@ interface WeeklyPlanTaskEmployeesServiceInterface
     public function addEmployee(string $taskId, int $weeklyPlanEmployeeId);
 
     public function replaceEmployee(string $assignmentId, int $weeklyPlanEmployeeId);
+
+    public function removeEmployee(string $assignmentId);
 }

@@ -69,4 +69,15 @@ class WeeklyPlanTaskEmployeesController extends Controller
             return ResponseHandler::error($th);
         }
     }
+
+    public function removeEmployee(string $id, WeeklyPlanTaskEmployeesServiceInterface $service)
+    {
+        try {
+            $result = $service->removeEmployee($id);
+
+            return ResponseHandler::success($result, 'Empleado Retirado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
 }

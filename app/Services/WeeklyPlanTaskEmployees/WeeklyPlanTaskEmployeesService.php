@@ -177,6 +177,22 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         return null;
     }
 
+    #[Override]
+    public function removeEmployee(string $assignmentId)
+    {
+        $assignment = $this->getAssignmentById($assignmentId);
+        $task = $assignment->task;
+        $this->ensureTaskAcceptsEmployeeChanges($task);
+
+        if ($task->employees()->count() <= 1) {
+            throw new BadRequestError('La tarea debe tener al menos un empleado asignado');
+        }
+
+        $assignment->delete();
+
+        return null;
+    }
+
     /**
      * Active assignment by id; soft deleted rows are excluded.
      */
