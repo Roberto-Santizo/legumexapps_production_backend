@@ -3,6 +3,7 @@
 namespace App\Services\WeeklyPlanTaskEmployees;
 
 use App\Errors\BadRequestError;
+use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\Position;
@@ -150,6 +151,43 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         ]);
 
         return null;
+    }
+
+    #[Override]
+    public function replaceEmployee(string $assignmentId, int $weeklyPlanEmployeeId)
+    {
+        $assignment = $this->getAssignmentById($assignmentId);
+        $task = $assignment->task;
+        $this->ensureTaskAcceptsEmployeeChanges($task);
+
+        $weeklyPlanEmployee = WeeklyPlanEmployee::with('employee')->find($weeklyPlanEmployeeId);
+        $this->ensureEmployeeCanJoinTask($task, $weeklyPlanEmployee);
+
+        DB::transaction(function () use ($assignment, $weeklyPlanEmployee) {
+            $assignment->delete();
+
+            WeeklyPlanTaskEmployee::create([
+                'weekly_plan_task_id' => $assignment->weekly_plan_task_id,
+                'weekly_plan_employee_id' => $weeklyPlanEmployee->id,
+                'position_id' => $assignment->position_id,
+                'replaced_weekly_plan_employee_id' => $assignment->weekly_plan_employee_id,
+            ]);
+        });
+
+        return null;
+    }
+
+    /**
+     * Active assignment by id; soft deleted rows are excluded.
+     */
+    private function getAssignmentById(string $id): WeeklyPlanTaskEmployee
+    {
+        $assignment = WeeklyPlanTaskEmployee::find($id);
+        if (! $assignment) {
+            throw new NotFoundError('La asignación no existe');
+        }
+
+        return $assignment;
     }
 
     /**

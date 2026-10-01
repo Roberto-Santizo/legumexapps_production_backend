@@ -11,4 +11,6 @@ interface WeeklyPlanTaskEmployeesServiceInterface
     public function confirmEmployees(string $taskId, array $data);
 
     public function addEmployee(string $taskId, int $weeklyPlanEmployeeId);
+
+    public function replaceEmployee(string $assignmentId, int $weeklyPlanEmployeeId);
 }
