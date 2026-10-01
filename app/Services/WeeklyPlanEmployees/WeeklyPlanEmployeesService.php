@@ -79,11 +79,32 @@ class WeeklyPlanEmployeesService implements WeeklyPlanEmployeesServiceInterface
     #[Override]
     public function uploadFile(mixed $file)
     {
-        $rows = Excel::toCollection(new WeeklyPlanEmployeesImport, $file)->first();
+        $rows = Excel::toCollection(new WeeklyPlanEmployeesImport, $file)->first() ?? collect();
+
+        if ($rows->isEmpty()) {
+            throw new BadRequestError('El archivo no contiene filas');
+        }
 
         $employeeIdsByCode = Employee::pluck('id', 'code');
+        $employeeCodesById = $employeeIdsByCode->flip();
         $positionIdsByCode = Position::pluck('id', 'code');
+        $positionCodesById = $positionIdsByCode->flip();
         $weeklyPlansByWeekAndYear = WeeklyPlan::get()->keyBy(fn (WeeklyPlan $weeklyPlan) => "{$weeklyPlan->week}-{$weeklyPlan->year}");
+
+        $weeklyPlanIdsInFile = $rows
+            ->map(fn ($row) => $weeklyPlansByWeekAndYear->get(trim((string) ($row['semana'] ?? '')).'-'.trim((string) ($row['year'] ?? '')))?->id)
+            ->filter()
+            ->unique();
+
+        $positionIdsByPlanEmployee = [];
+        $employeeIdsByPlanPosition = [];
+
+        WeeklyPlanEmployee::whereIn('weekly_plan_id', $weeklyPlanIdsInFile)
+            ->get(['weekly_plan_id', 'employee_id', 'position_id'])
+            ->each(function (WeeklyPlanEmployee $weeklyPlanEmployee) use (&$positionIdsByPlanEmployee, &$employeeIdsByPlanPosition) {
+                $positionIdsByPlanEmployee["{$weeklyPlanEmployee->weekly_plan_id}-{$weeklyPlanEmployee->employee_id}"] = (int) $weeklyPlanEmployee->position_id;
+                $employeeIdsByPlanPosition["{$weeklyPlanEmployee->weekly_plan_id}-{$weeklyPlanEmployee->position_id}"] = (int) $weeklyPlanEmployee->employee_id;
+            });
 
         $now = now();
         $errors = [];
@@ -91,37 +112,67 @@ class WeeklyPlanEmployeesService implements WeeklyPlanEmployeesServiceInterface
 
         foreach ($rows as $index => $row) {
             $lineNumber = $index + 2;
+            $rowErrors = [];
 
-            $employeeCode = $row['codigo'] ?? null;
-            $positionCode = $row['posicion'] ?? null;
-            $week = $row['semana'] ?? null;
-            $year = $row['year'] ?? null;
+            $employeeCode = trim((string) ($row['codigo'] ?? ''));
+            $positionCode = trim((string) ($row['posicion'] ?? ''));
+            $week = trim((string) ($row['semana'] ?? ''));
+            $year = trim((string) ($row['year'] ?? ''));
 
-            $employeeId = $employeeIdsByCode->get($employeeCode);
-            $positionId = $positionIdsByCode->get($positionCode);
+            $employeeId = (int) $employeeIdsByCode->get($employeeCode);
+            $positionId = (int) $positionIdsByCode->get($positionCode);
             $weeklyPlanId = $weeklyPlansByWeekAndYear->get("{$week}-{$year}")?->id;
 
-            if (! $employeeId) {
-                $errors[] = "Línea {$lineNumber}: el empleado con código '{$employeeCode}' no existe";
+            if ($employeeCode === '') {
+                $rowErrors[] = "Línea {$lineNumber}: el campo 'codigo' es obligatorio";
+            } elseif (! $employeeId) {
+                $rowErrors[] = "Línea {$lineNumber}: el empleado con código '{$employeeCode}' no existe";
             }
 
-            if (! $positionId) {
-                $errors[] = "Línea {$lineNumber}: la posición con código '{$positionCode}' no existe";
+            if ($positionCode === '') {
+                $rowErrors[] = "Línea {$lineNumber}: el campo 'posicion' es obligatorio";
+            } elseif (! $positionId) {
+                $rowErrors[] = "Línea {$lineNumber}: la posición con código '{$positionCode}' no existe";
             }
 
-            if (! $weeklyPlanId) {
-                $errors[] = "Línea {$lineNumber}: el plan semanal de la semana {$week} del año {$year} no existe";
+            if ($week === '' || $year === '') {
+                $rowErrors[] = "Línea {$lineNumber}: los campos 'semana' y 'year' son obligatorios";
+            } elseif (! $weeklyPlanId) {
+                $rowErrors[] = "Línea {$lineNumber}: el plan semanal de la semana {$week} del año {$year} no existe";
             }
 
             if ($employeeId && $positionId && $weeklyPlanId) {
-                $weeklyPlanEmployeesToCreate[] = [
-                    'employee_id' => $employeeId,
-                    'position_id' => $positionId,
-                    'weekly_plan_id' => $weeklyPlanId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
+                $planLabel = "el plan de la semana {$week} del año {$year}";
+                $assignedPositionId = $positionIdsByPlanEmployee["{$weeklyPlanId}-{$employeeId}"] ?? null;
+                $assignedEmployeeId = $employeeIdsByPlanPosition["{$weeklyPlanId}-{$positionId}"] ?? null;
+
+                if ($assignedPositionId === $positionId) {
+                    $rowErrors[] = "Línea {$lineNumber}: el empleado '{$employeeCode}' ya está registrado en {$planLabel}";
+                } elseif ($assignedPositionId) {
+                    $rowErrors[] = "Línea {$lineNumber}: el empleado '{$employeeCode}' ya está asignado a la posición '{$positionCodesById->get($assignedPositionId)}' en {$planLabel}";
+                }
+
+                if ($assignedEmployeeId && $assignedEmployeeId !== $employeeId) {
+                    $rowErrors[] = "Línea {$lineNumber}: la posición '{$positionCode}' ya está ocupada por el empleado '{$employeeCodesById->get($assignedEmployeeId)}' en {$planLabel}";
+                }
             }
+
+            if (! empty($rowErrors)) {
+                array_push($errors, ...$rowErrors);
+
+                continue;
+            }
+
+            $positionIdsByPlanEmployee["{$weeklyPlanId}-{$employeeId}"] = $positionId;
+            $employeeIdsByPlanPosition["{$weeklyPlanId}-{$positionId}"] = $employeeId;
+
+            $weeklyPlanEmployeesToCreate[] = [
+                'employee_id' => $employeeId,
+                'position_id' => $positionId,
+                'weekly_plan_id' => $weeklyPlanId,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
         }
 
         if (! empty($errors)) {
