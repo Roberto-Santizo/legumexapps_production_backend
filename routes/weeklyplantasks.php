@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
+use App\Http\Controllers\WeeklyPlanTaskPerformanceRecordsController;
 use App\Http\Controllers\WeeklyPlanTasksController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('jwt.auth')->group(function () {
     Route::apiResource('/weekly-plan-tasks', WeeklyPlanTasksController::class);
     Route::apiResource('/weekly-plan-task-observations', WeeklyPlanTaskObservationsController::class);
+    Route::apiResource('/weekly-plan-task-performance-records', WeeklyPlanTaskPerformanceRecordsController::class);
 });
 
 // FUNCTIONALITYS
