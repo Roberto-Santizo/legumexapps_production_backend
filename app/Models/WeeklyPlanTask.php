@@ -41,4 +41,9 @@ class WeeklyPlanTask extends Model
     {
         return $this->hasMany(WeeklyPlanTaskEmployee::class);
     }
+
+    public function performanceRecords()
+    {
+        return $this->hasMany(WeeklyPlanTaskPerformanceRecord::class);
+    }
 }

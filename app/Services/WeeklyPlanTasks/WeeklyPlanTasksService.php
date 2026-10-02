@@ -43,6 +43,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     {
         $query = WeeklyPlanTask::query();
         $query->with(['performance', 'performance.sku', 'performance.line']);
+        $query->withSum('performanceRecords', 'weighed_pounds');
 
         if ($request->query('weeklyPlanId')) {
             $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
@@ -86,7 +87,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     #[Override]
     public function getWeeklyPlanTaskById(string $id)
     {
-        $weeklyPlanTask = WeeklyPlanTask::find($id);
+        $weeklyPlanTask = WeeklyPlanTask::withSum('performanceRecords', 'weighed_pounds')->find($id);
         if (! $weeklyPlanTask) {
             throw new NotFoundError('La tarea del plan semanal no existe');
         }
@@ -204,7 +205,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             return $newTaskIds;
         });
 
-        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->get();
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->withSum('performanceRecords', 'weighed_pounds')->get();
     }
 
     /**
@@ -221,5 +222,62 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         }
 
         return $task;
+    }
+
+    /**
+     * Start a task ready for execution: set its start date and move it from status 3 to 4.
+     */
+    #[Override]
+    public function startWeeklyPlanTask(string $id)
+    {
+        return $this->transitionWeeklyPlanTask($id, 3, 4, fn () => [
+            'start_date' => now(),
+        ], 'Solo se puede iniciar una tarea lista para ejecución');
+    }
+
+    /**
+     * End a task in progress: record its production, set its end date and move it from status 4 to 5.
+     * Produced pallets are derived from the SKU boxes per pallet, or 0 when the SKU does not define it.
+     *
+     * @param  array{produced_boxes: int, weighed_pounds: float}  $data
+     */
+    #[Override]
+    public function endWeeklyPlanTask(string $id, array $data)
+    {
+        return $this->transitionWeeklyPlanTask($id, 4, 5, function (WeeklyPlanTask $task) use ($data) {
+            $boxesPerPallet = $task->performance?->sku?->boxes_per_pallet;
+
+            return [
+                'produced_boxes' => $data['produced_boxes'],
+                'produced_pallets' => $boxesPerPallet ? $data['produced_boxes'] / $boxesPerPallet : 0,
+                'weighed_pounds' => $data['weighed_pounds'],
+                'end_date' => now(),
+            ];
+        }, 'Solo se puede finalizar una tarea en progreso');
+    }
+
+    /**
+     * Move a task between statuses applying the given attributes, revalidating the status under a row lock.
+     *
+     * @param  callable(WeeklyPlanTask): array<string, mixed>  $attributes
+     */
+    private function transitionWeeklyPlanTask(string $id, int $fromStatus, int $toStatus, callable $attributes, string $errorMessage): WeeklyPlanTask
+    {
+        $task = $this->getWeeklyPlanTaskById($id);
+        if ($task->status != $fromStatus) {
+            throw new BadRequestError($errorMessage);
+        }
+
+        DB::transaction(function () use ($task, $fromStatus, $toStatus, $attributes, $errorMessage) {
+            $lockedTask = WeeklyPlanTask::with('performance.sku')->lockForUpdate()->find($task->id);
+            if ($lockedTask->status != $fromStatus) {
+                throw new BadRequestError($errorMessage);
+            }
+
+            $lockedTask->forceFill([...$attributes($lockedTask), 'status' => $toStatus]);
+            $lockedTask->save();
+        });
+
+        return $task->fresh(['performance.sku.client', 'performance.line'])->loadSum('performanceRecords', 'weighed_pounds');
     }
 }

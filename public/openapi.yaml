@@ -61,6 +61,8 @@ tags:
   - name: WeeklyPlanTasks
   - name: WeeklyPlanTaskEmployees
   - name: WeeklyPlanTaskObservations
+  - name: WeeklyPlanTaskPerformanceRecords
+    description: Tomas de rendimiento (pallet, cajas, libras) registradas durante una tarea en progreso.
 
 paths:
   # ───────────────────────────── AUTH ─────────────────────────────
@@ -2177,6 +2179,67 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  /weekly-plan-tasks/{id}/start:
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Iniciar tarea de plan semanal
+      description: |
+        Solo tareas en status `3` (Lista para ejecución). Registra `start_date` con la fecha/hora
+        actual del servidor y pasa la tarea a status `4` (En Progreso). Sin body.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Tarea Iniciada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTask' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/end:
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Finalizar tarea de plan semanal
+      description: |
+        Solo tareas en status `4` (En Progreso). Guarda `produced_boxes` y `weighed_pounds`,
+        calcula `produced_pallets` = `produced_boxes / sku.boxes_per_pallet` (`0` si el SKU no
+        tiene `boxes_per_pallet`), registra `end_date` con la fecha/hora actual del servidor y
+        pasa la tarea a status `5` (Finalizada).
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [produced_boxes, weighed_pounds]
+              properties:
+                produced_boxes: { type: integer, minimum: 0 }
+                weighed_pounds: { type: number, minimum: 0 }
+      responses:
+        '200':
+          description: Tarea Finalizada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTask' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK EMPLOYEES ─────────────────────────────
   /weekly-plan-tasks/{id}/availableEmployees:
     get:
@@ -2389,6 +2452,114 @@ paths:
         '200': { $ref: '#/components/responses/TrueData' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLAN TASK PERFORMANCE RECORDS ─────────────────────────────
+  /weekly-plan-task-performance-records:
+    get:
+      tags: [WeeklyPlanTaskPerformanceRecords]
+      summary: Listar tomas de rendimiento de una tarea
+      description: Ordenadas por fecha de registro (más antigua primero). Sin paginación.
+      parameters:
+        - { name: weeklyPlanTaskId, in: query, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Tomas de Rendimiento Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskPerformanceRecord' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanTaskPerformanceRecords]
+      summary: Registrar toma de rendimiento (registrador = usuario autenticado)
+      description: |
+        Solo tareas en status `4` (En Progreso). `pallet_number` y `boxes` son opcionales
+        (SKUs no paletizados solo registran peso). `pallet_number` no puede repetirse en la misma tarea.
+
+        El servidor calcula:
+        - `theoretical_pounds` = `boxes × sku.presentation`
+        - `difference_pounds` = `weighed_pounds − theoretical_pounds`
+
+        Ambos quedan en `0` si no se envían `boxes` o el SKU no tiene `presentation`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanTaskPerformanceRecordInput' }
+      responses:
+        '201':
+          description: Toma de Rendimiento Creada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskPerformanceRecord' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-performance-records/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanTaskPerformanceRecords]
+      summary: Obtener toma de rendimiento
+      responses:
+        '200':
+          description: Toma de Rendimiento Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskPerformanceRecord' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanTaskPerformanceRecords]
+      summary: Actualizar toma de rendimiento
+      description: |
+        Solo con la tarea en status `4`. Todos los campos son opcionales; los omitidos conservan su valor.
+        Enviar `null` en `pallet_number` o `boxes` los limpia. `theoretical_pounds` y `difference_pounds`
+        se recalculan.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pallet_number: { type: [integer, 'null'], minimum: 1 }
+                boxes: { type: [integer, 'null'], minimum: 0 }
+                weighed_pounds: { type: number, minimum: 0 }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTaskPerformanceRecords]
+      summary: Eliminar toma de rendimiento
+      description: Solo con la tarea en status `4`.
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
@@ -2895,11 +3066,13 @@ components:
         produced_pallets: { type: [number, 'null'] }
         hours: { type: number }
         weighed_pounds: { type: [number, 'null'] }
+        recorded_pounds: { type: number, description: 'Suma de `weighed_pounds` de las tomas de rendimiento ("cuánto lleva")' }
+        planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
         destination: { type: string }
         operation_date: { type: [string, 'null'], format: date }
         operation_date_string: { type: string, description: "`d-m-Y` o 'SIN PROGRAMACIÓN'" }
-        start_date: { type: [string, 'null'] }
-        end_date: { type: [string, 'null'] }
+        start_date: { type: [string, 'null'], description: '`Y-m-d H:i:s`; se registra con `POST …/start`' }
+        end_date: { type: [string, 'null'], description: '`Y-m-d H:i:s`; se registra con `POST …/end`' }
         weekly_plan_id: { type: integer }
         line_sku_id: { type: integer }
         sku_name: { type: string }
@@ -2950,3 +3123,25 @@ components:
         created_at: { type: string, examples: ['01-10-2026 08:30'] }
         updated_at: { type: string, examples: ['01-10-2026 08:30'] }
         was_edited: { type: boolean }
+    WeeklyPlanTaskPerformanceRecord:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_task_id: { type: integer }
+        pallet_number: { type: [integer, 'null'] }
+        boxes: { type: [integer, 'null'] }
+        weighed_pounds: { type: number, description: Peso real }
+        theoretical_pounds: { type: number, description: '`boxes × sku.presentation`; `0` sin cajas o sin `presentation`' }
+        difference_pounds: { type: number, description: '`weighed_pounds − theoretical_pounds`; `0` cuando no hay teórico' }
+        user_id: { type: integer }
+        user_name: { type: string }
+        created_at: { type: string, examples: ['02-10-2026 08:30'] }
+        updated_at: { type: string, examples: ['02-10-2026 08:30'] }
+    WeeklyPlanTaskPerformanceRecordInput:
+      type: object
+      required: [weekly_plan_task_id, weighed_pounds]
+      properties:
+        weekly_plan_task_id: { type: integer }
+        pallet_number: { type: [integer, 'null'], minimum: 1 }
+        boxes: { type: [integer, 'null'], minimum: 0 }
+        weighed_pounds: { type: number, minimum: 0 }
