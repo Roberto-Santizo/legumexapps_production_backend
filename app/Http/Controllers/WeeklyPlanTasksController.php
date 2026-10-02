@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\WeeklyPlanTasks\AssignOperationDateRequest;
 use App\Http\Requests\WeeklyPlanTasks\CreateWeeklyPlanTaskRequest;
+use App\Http\Requests\WeeklyPlanTasks\EndWeeklyPlanTaskRequest;
 use App\Http\Requests\WeeklyPlanTasks\SplitWeeklyPlanTaskRequest;
 use App\Http\Requests\WeeklyPlanTasks\UpdateWeeklyPlanTaskRequest;
 use App\Http\Resources\WeeklyPlanTasks\PaginatedWeeklyPlanTasksResource;
@@ -129,6 +130,35 @@ class WeeklyPlanTasksController extends Controller
             $task = $service->getPackingMaterialItemsByTaskId($id);
 
             return ResponseHandler::success(new WeeklyPlanTaskPackingMaterialItemResource($task), 'Materiales de Empaque Obtenidos Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    /**
+     * Start the given weekly plan task.
+     */
+    public function start(string $id, WeeklyPlanTasksServiceInterface $service)
+    {
+        try {
+            $task = $service->startWeeklyPlanTask($id);
+
+            return ResponseHandler::success(new WeeklyPlanTaskResource($task), 'Tarea Iniciada Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    /**
+     * End the given weekly plan task.
+     */
+    public function end(EndWeeklyPlanTaskRequest $request, string $id, WeeklyPlanTasksServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $task = $service->endWeeklyPlanTask($id, $data);
+
+            return ResponseHandler::success(new WeeklyPlanTaskResource($task), 'Tarea Finalizada Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

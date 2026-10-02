@@ -15,6 +15,8 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/weekly-plan-tasks/assignOperationDate', [WeeklyPlanTasksController::class, 'assignOperationDate']);
     Route::post('/weekly-plan-tasks/splitTask', [WeeklyPlanTasksController::class, 'splitTask']);
     Route::get('/weekly-plan-tasks/{id}/packingMaterialItems', [WeeklyPlanTasksController::class, 'packingMaterialItems']);
+    Route::post('/weekly-plan-tasks/{id}/start', [WeeklyPlanTasksController::class, 'start']);
+    Route::post('/weekly-plan-tasks/{id}/end', [WeeklyPlanTasksController::class, 'end']);
     Route::get('/weekly-plan-tasks/{id}/availableEmployees', [WeeklyPlanTaskEmployeesController::class, 'availableEmployees']);
     Route::get('/weekly-plan-tasks/{id}/employees', [WeeklyPlanTaskEmployeesController::class, 'employees']);
     Route::post('/weekly-plan-tasks/{id}/confirmEmployees', [WeeklyPlanTaskEmployeesController::class, 'confirmEmployees']);

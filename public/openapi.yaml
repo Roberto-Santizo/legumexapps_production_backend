@@ -2177,6 +2177,67 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  /weekly-plan-tasks/{id}/start:
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Iniciar tarea de plan semanal
+      description: |
+        Solo tareas en status `3` (Lista para ejecución). Registra `start_date` con la fecha/hora
+        actual del servidor y pasa la tarea a status `4` (En Progreso). Sin body.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Tarea Iniciada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTask' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/end:
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Finalizar tarea de plan semanal
+      description: |
+        Solo tareas en status `4` (En Progreso). Guarda `produced_boxes` y `weighed_pounds`,
+        calcula `produced_pallets` = `produced_boxes / sku.boxes_per_pallet` (`0` si el SKU no
+        tiene `boxes_per_pallet`), registra `end_date` con la fecha/hora actual del servidor y
+        pasa la tarea a status `5` (Finalizada).
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [produced_boxes, weighed_pounds]
+              properties:
+                produced_boxes: { type: integer, minimum: 0 }
+                weighed_pounds: { type: number, minimum: 0 }
+      responses:
+        '200':
+          description: Tarea Finalizada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTask' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK EMPLOYEES ─────────────────────────────
   /weekly-plan-tasks/{id}/availableEmployees:
     get:
@@ -2898,8 +2959,8 @@ components:
         destination: { type: string }
         operation_date: { type: [string, 'null'], format: date }
         operation_date_string: { type: string, description: "`d-m-Y` o 'SIN PROGRAMACIÓN'" }
-        start_date: { type: [string, 'null'] }
-        end_date: { type: [string, 'null'] }
+        start_date: { type: [string, 'null'], description: '`Y-m-d H:i:s`; se registra con `POST …/start`' }
+        end_date: { type: [string, 'null'], description: '`Y-m-d H:i:s`; se registra con `POST …/end`' }
         weekly_plan_id: { type: integer }
         line_sku_id: { type: integer }
         sku_name: { type: string }
