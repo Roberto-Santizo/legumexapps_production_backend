@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('jwt.auth')->group(function () {
     Route::apiResource('/weekly-plan-tasks', WeeklyPlanTasksController::class);
     Route::apiResource('/weekly-plan-task-observations', WeeklyPlanTaskObservationsController::class);
-    Route::apiResource('/weekly-plan-task-performance-records', WeeklyPlanTaskPerformanceRecordsController::class);
+    Route::apiResource('/weekly-plan-task-performance-records', WeeklyPlanTaskPerformanceRecordsController::class)
+        ->parameters(['weekly-plan-task-performance-records' => 'id']);
 });
 
 // FUNCTIONALITYS
