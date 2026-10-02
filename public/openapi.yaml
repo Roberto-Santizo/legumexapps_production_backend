@@ -63,6 +63,8 @@ tags:
   - name: WeeklyPlanTaskObservations
   - name: WeeklyPlanTaskPerformanceRecords
     description: Tomas de rendimiento (pallet, cajas, libras) registradas durante una tarea en progreso.
+  - name: WeeklyPlanTaskTimeouts
+    description: Tiempos muertos (percances) registrados en vivo durante una tarea en progreso.
 
 paths:
   # ───────────────────────────── AUTH ─────────────────────────────
@@ -1547,8 +1549,10 @@ paths:
     delete:
       tags: [Timeouts]
       summary: Eliminar tiempo muerto
+      description: No se puede eliminar un tipo usado en tareas (`400 No se puede eliminar un tiempo muerto registrado en tareas`).
       responses:
         '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -2212,6 +2216,9 @@ paths:
         calcula `produced_pallets` = `produced_boxes / sku.boxes_per_pallet` (`0` si el SKU no
         tiene `boxes_per_pallet`), registra `end_date` con la fecha/hora actual del servidor y
         pasa la tarea a status `5` (Finalizada).
+
+        Si la tarea tiene un tiempo muerto abierto responde `400`
+        `No se puede finalizar la tarea con un tiempo muerto abierto` y la tarea sigue en status `4`.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -2558,6 +2565,142 @@ paths:
       description: Solo con la tarea en status `4`.
       responses:
         '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLAN TASK TIMEOUTS ─────────────────────────────
+  /weekly-plan-tasks/{id}/timeouts:
+    get:
+      tags: [WeeklyPlanTaskTimeouts]
+      summary: Listar tiempos muertos de una tarea
+      description: Abiertos y cerrados, ordenados por `start_date` (más antiguo primero). Sin paginación.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Tiempos Muertos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskTimeout' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/startTimeout:
+    post:
+      tags: [WeeklyPlanTaskTimeouts]
+      summary: Abrir tiempo muerto (registrador = usuario autenticado)
+      description: |
+        Solo tareas en status `4` (En Progreso) y sin otro tiempo muerto abierto.
+        El servidor registra `start_date` con la fecha/hora actual; `end_date` queda en `null`.
+
+        Errores `400`:
+        - `Solo se pueden registrar tiempos muertos en una tarea en progreso`
+        - `La tarea ya tiene un tiempo muerto abierto`
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [timeout_id]
+              properties:
+                timeout_id: { type: integer, description: ID del tipo de tiempo muerto (catálogo `timeouts`) }
+                observation: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '201':
+          description: Tiempo Muerto Iniciado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskTimeout' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-timeouts/{id}/end:
+    post:
+      tags: [WeeklyPlanTaskTimeouts]
+      summary: Cerrar tiempo muerto
+      description: |
+        Solo con la tarea en status `4`. El servidor registra `end_date` con la fecha/hora actual y
+        `duration_hours` = horas entre `start_date` y `end_date`. Si se envía `observation` no nula,
+        reemplaza la anterior; si no, se conserva.
+
+        Errores `400`:
+        - `Solo se pueden registrar tiempos muertos en una tarea en progreso`
+        - `El tiempo muerto ya fue finalizado`
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: ID del tiempo muerto (weekly_plan_task_timeouts) }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                observation: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200':
+          description: Tiempo Muerto Finalizado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskTimeout' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-timeouts/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer }, description: ID del tiempo muerto (weekly_plan_task_timeouts) }
+    patch:
+      tags: [WeeklyPlanTaskTimeouts]
+      summary: Editar tipo u observación de un tiempo muerto
+      description: |
+        Solo con la tarea en status `4`; aplica a abiertos y cerrados. Ambos campos son opcionales;
+        los omitidos conservan su valor. `observation: null` la borra. Nunca cambia
+        `start_date`, `end_date` ni `duration_hours`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeout_id: { type: integer }
+                observation: { type: [string, 'null'], maxLength: 500 }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTaskTimeouts]
+      summary: Eliminar tiempo muerto
+      description: Borrado físico. Solo con la tarea en status `4`; aplica a abiertos y cerrados.
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -3068,6 +3211,8 @@ components:
         weighed_pounds: { type: [number, 'null'] }
         recorded_pounds: { type: number, description: 'Suma de `weighed_pounds` de las tomas de rendimiento ("cuánto lleva")' }
         planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
+        timeout_hours: { type: number, description: 'Suma de `duration_hours` de los tiempos muertos cerrados (2 decimales)' }
+        open_timeout_id: { type: [integer, 'null'], description: 'ID del tiempo muerto abierto; `null` si no hay ninguno' }
         destination: { type: string }
         operation_date: { type: [string, 'null'], format: date }
         operation_date_string: { type: string, description: "`d-m-Y` o 'SIN PROGRAMACIÓN'" }
@@ -3145,3 +3290,17 @@ components:
         pallet_number: { type: [integer, 'null'], minimum: 1 }
         boxes: { type: [integer, 'null'], minimum: 0 }
         weighed_pounds: { type: number, minimum: 0 }
+    WeeklyPlanTaskTimeout:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_task_id: { type: integer }
+        timeout_id: { type: integer }
+        timeout_name: { type: string }
+        user_id: { type: integer, description: Usuario que abrió el tiempo muerto }
+        user_name: { type: string }
+        start_date: { type: string, format: date-time, examples: ['2026-10-02T14:30:00.000000Z'] }
+        end_date: { type: [string, 'null'], format: date-time, description: '`null` mientras está abierto' }
+        duration_hours: { type: [number, 'null'], description: 'Horas entre `start_date` y `end_date` (2 decimales); `null` mientras está abierto' }
+        observation: { type: [string, 'null'] }
+        is_open: { type: boolean }
