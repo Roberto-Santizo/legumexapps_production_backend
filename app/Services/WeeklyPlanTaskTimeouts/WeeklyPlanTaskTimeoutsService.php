@@ -4,8 +4,8 @@ namespace App\Services\WeeklyPlanTaskTimeouts;
 
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
-use App\Interfaces\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
+use App\Interfaces\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsServiceInterface;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskTimeout;
 use Illuminate\Support\Facades\DB;
