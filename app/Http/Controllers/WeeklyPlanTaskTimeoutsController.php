@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
+use App\Http\Requests\WeeklyPlanTaskTimeouts\StartWeeklyPlanTaskTimeoutRequest;
 use App\Http\Resources\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutResource;
 use App\Interfaces\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsServiceInterface;
 
@@ -14,6 +15,18 @@ class WeeklyPlanTaskTimeoutsController extends Controller
             $timeouts = $service->getTaskTimeouts($id);
 
             return ResponseHandler::success(WeeklyPlanTaskTimeoutResource::collection($timeouts), 'Tiempos Muertos Obtenidos Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function startTimeout(StartWeeklyPlanTaskTimeoutRequest $request, string $id, WeeklyPlanTaskTimeoutsServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $timeout = $service->startTimeout($id, $data);
+
+            return ResponseHandler::success(new WeeklyPlanTaskTimeoutResource($timeout->load(['timeout', 'user'])), 'Tiempo Muerto Iniciado Correctamente', 201);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
