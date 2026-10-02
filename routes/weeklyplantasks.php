@@ -4,6 +4,7 @@ use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
 use App\Http\Controllers\WeeklyPlanTaskPerformanceRecordsController;
 use App\Http\Controllers\WeeklyPlanTasksController;
+use App\Http\Controllers\WeeklyPlanTaskTimeoutsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('jwt.auth')->group(function () {
@@ -26,4 +27,5 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/weekly-plan-tasks/{id}/addEmployee', [WeeklyPlanTaskEmployeesController::class, 'addEmployee']);
     Route::patch('/weekly-plan-task-employees/{id}/replace', [WeeklyPlanTaskEmployeesController::class, 'replaceEmployee']);
     Route::delete('/weekly-plan-task-employees/{id}', [WeeklyPlanTaskEmployeesController::class, 'removeEmployee']);
+    Route::get('/weekly-plan-tasks/{id}/timeouts', [WeeklyPlanTaskTimeoutsController::class, 'timeouts']);
 });
