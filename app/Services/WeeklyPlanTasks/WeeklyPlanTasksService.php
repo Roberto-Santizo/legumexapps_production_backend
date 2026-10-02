@@ -238,6 +238,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     /**
      * End a task in progress: record its production, set its end date and move it from status 4 to 5.
      * Produced pallets are derived from the SKU boxes per pallet, or 0 when the SKU does not define it.
+     * The open timeout check runs under the task row lock so it cannot race with a timeout being started.
      *
      * @param  array{produced_boxes: int, weighed_pounds: float}  $data
      */
@@ -245,6 +246,10 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     public function endWeeklyPlanTask(string $id, array $data)
     {
         return $this->transitionWeeklyPlanTask($id, 4, 5, function (WeeklyPlanTask $task) use ($data) {
+            if ($task->openTimeout()->exists()) {
+                throw new BadRequestError('No se puede finalizar la tarea con un tiempo muerto abierto');
+            }
+
             $boxesPerPallet = $task->performance?->sku?->boxes_per_pallet;
 
             return [
