@@ -1,6 +1,6 @@
 # SPEC 06 — Personal asignado a cada WeeklyPlanTask
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-10-01
 > **Objetivo:** Registrar qué `WeeklyPlanEmployee` trabajan en cada `WeeklyPlanTask`, partiendo de los empleados del plan cuyas posiciones pertenecen a la línea de la tarea, con reemplazos, altas y bajas, y guardando el historial de cambios.
@@ -251,32 +251,32 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `php artisan migrate` crea `weekly_plan_task_employees` con las FKs y la columna `deleted_at` y el índice `(weekly_plan_task_id, deleted_at)`.
-- [ ] `php artisan route:list --path=weekly-plan-task` muestra las 6 rutas nuevas bajo `jwt.auth`.
-- [ ] `availableEmployees` de una tarea de `1REM1A` devuelve solo `WeeklyPlanEmployee` del mismo plan con posición de esa línea; no incluye los de otras líneas, otros planes ni posiciones con `status = 0`.
-- [ ] `confirmEmployees` con body vacío en status `2` crea una fila por candidato con su `position_id` actual, `replaced_weekly_plan_employee_id = null`, y deja la tarea en status `3`.
-- [ ] `confirmEmployees` en status distinto de `2` responde 400 `La tarea no está lista para confirmar asignaciones` y no crea filas.
-- [ ] Un reemplazo al confirmar crea la fila del entrante con la posición del reemplazado y `replaced_weekly_plan_employee_id` del reemplazado; el reemplazado no tiene fila.
-- [ ] Un reemplazo puede ser un empleado del plan de otra línea.
-- [ ] Un alta al confirmar crea una fila con la posición del `WeeklyPlanEmployee` del agregado.
-- [ ] Un `removals` al confirmar hace que ese candidato no tenga fila.
-- [ ] Reemplazo o alta de otro plan → 400 `El empleado 'X' no pertenece al plan semanal de la tarea`.
-- [ ] `removals` o reemplazado que no es candidato → 400 `El empleado 'X' no es candidato de la tarea`.
-- [ ] Un reemplazo que también es candidato no quitado → 400 `El empleado 'X' está asignado más de una vez`.
-- [ ] Quitar a todos sin altas → 400 `La tarea debe tener al menos un empleado asignado`.
-- [ ] Un body con varios errores devuelve todos en una sola respuesta y no crea filas ni cambia el status.
-- [ ] Cambiar la posición de un `WeeklyPlanEmployee` después de confirmar no cambia el `position` que devuelve `GET /weekly-plan-tasks/{id}/employees`.
-- [ ] `addEmployee` en status `3` o `4` crea la fila; en `1`, `2` o `5` responde 400.
-- [ ] `addEmployee` de un empleado ya activo en la tarea → 400 `El empleado 'X' ya está asignado a la tarea`.
-- [ ] `replace` hace soft delete de la fila original (`deleted_at` informado) y crea una nueva con la misma posición y `replaced_weekly_plan_employee_id` del saliente.
-- [ ] `replace` o `DELETE` sobre una fila con soft delete → 404 `La asignación no existe`.
-- [ ] `DELETE` pone `deleted_at` y la fila deja de salir en `GET /weekly-plan-tasks/{id}/employees`, pero sigue en BD.
-- [ ] `DELETE` de la única fila activa → 400 `La tarea debe tener al menos un empleado asignado`.
-- [ ] Un empleado quitado puede volver a agregarse con `addEmployee`.
-- [ ] Borrar un `WeeklyPlanEmployee` con asignaciones en tareas → 400 con el mensaje de la spec, no 500.
-- [ ] Borrar una `WeeklyPlanTask` borra sus filas de `weekly_plan_task_employees`.
-- [ ] `GET /weekly-plan-tasks/{id}/employees` no hace consultas N+1 (una consulta por relación cargada).
-- [ ] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
+- [X] `php artisan migrate` crea `weekly_plan_task_employees` con las FKs y la columna `deleted_at` y el índice `(weekly_plan_task_id, deleted_at)`.
+- [X] `php artisan route:list --path=weekly-plan-task` muestra las 6 rutas nuevas bajo `jwt.auth`.
+- [X] `availableEmployees` de una tarea de `1REM1A` devuelve solo `WeeklyPlanEmployee` del mismo plan con posición de esa línea; no incluye los de otras líneas, otros planes ni posiciones con `status = 0`.
+- [X] `confirmEmployees` con body vacío en status `2` crea una fila por candidato con su `position_id` actual, `replaced_weekly_plan_employee_id = null`, y deja la tarea en status `3`.
+- [X] `confirmEmployees` en status distinto de `2` responde 400 `La tarea no está lista para confirmar asignaciones` y no crea filas.
+- [X] Un reemplazo al confirmar crea la fila del entrante con la posición del reemplazado y `replaced_weekly_plan_employee_id` del reemplazado; el reemplazado no tiene fila.
+- [X] Un reemplazo puede ser un empleado del plan de otra línea.
+- [X] Un alta al confirmar crea una fila con la posición del `WeeklyPlanEmployee` del agregado.
+- [X] Un `removals` al confirmar hace que ese candidato no tenga fila.
+- [X] Reemplazo o alta de otro plan → 400 `El empleado 'X' no pertenece al plan semanal de la tarea`.
+- [X] `removals` o reemplazado que no es candidato → 400 `El empleado 'X' no es candidato de la tarea`.
+- [X] Un reemplazo que también es candidato no quitado → 400 `El empleado 'X' está asignado más de una vez`.
+- [X] Quitar a todos sin altas → 400 `La tarea debe tener al menos un empleado asignado`.
+- [X] Un body con varios errores devuelve todos en una sola respuesta y no crea filas ni cambia el status.
+- [X] Cambiar la posición de un `WeeklyPlanEmployee` después de confirmar no cambia el `position` que devuelve `GET /weekly-plan-tasks/{id}/employees`.
+- [X] `addEmployee` en status `3` o `4` crea la fila; en `1`, `2` o `5` responde 400.
+- [X] `addEmployee` de un empleado ya activo en la tarea → 400 `El empleado 'X' ya está asignado a la tarea`.
+- [X] `replace` hace soft delete de la fila original (`deleted_at` informado) y crea una nueva con la misma posición y `replaced_weekly_plan_employee_id` del saliente.
+- [X] `replace` o `DELETE` sobre una fila con soft delete → 404 `La asignación no existe`.
+- [X] `DELETE` pone `deleted_at` y la fila deja de salir en `GET /weekly-plan-tasks/{id}/employees`, pero sigue en BD.
+- [X] `DELETE` de la única fila activa → 400 `La tarea debe tener al menos un empleado asignado`.
+- [X] Un empleado quitado puede volver a agregarse con `addEmployee`.
+- [X] Borrar un `WeeklyPlanEmployee` con asignaciones en tareas → 400 con el mensaje de la spec, no 500.
+- [X] Borrar una `WeeklyPlanTask` borra sus filas de `weekly_plan_task_employees`.
+- [X] `GET /weekly-plan-tasks/{id}/employees` no hace consultas N+1 (una consulta por relación cargada).
+- [X] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
 
 ---
 
