@@ -80,6 +80,33 @@ class WeeklyPlanTaskTimeoutsService implements WeeklyPlanTaskTimeoutsServiceInte
         return $timeout;
     }
 
+    /**
+     * Change the type and observation of an open or closed timeout; dates and duration are never touched.
+     *
+     * @param  array{timeout_id?: int, observation?: string|null}  $data
+     */
+    #[Override]
+    public function updateTimeout(string $id, array $data)
+    {
+        $timeout = $this->getTimeoutById($id);
+        $this->ensureTaskInProgress($timeout->task);
+
+        $timeout->update(array_intersect_key($data, array_flip(['timeout_id', 'observation'])));
+
+        return true;
+    }
+
+    #[Override]
+    public function deleteTimeout(string $id)
+    {
+        $timeout = $this->getTimeoutById($id);
+        $this->ensureTaskInProgress($timeout->task);
+
+        $timeout->delete();
+
+        return true;
+    }
+
     private function getTimeoutById(string $id): WeeklyPlanTaskTimeout
     {
         $timeout = WeeklyPlanTaskTimeout::with('task')->find($id);
