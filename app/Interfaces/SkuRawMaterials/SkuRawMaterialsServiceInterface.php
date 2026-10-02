@@ -6,7 +6,7 @@ interface SkuRawMaterialsServiceInterface
 {
     public function createSkuRawMaterial(array $data);
 
-    public function getSkuRawMaterials(string $skuId);
+    public function getSkuRawMaterials(?string $skuId);
 
     public function getSkuRawMaterialById(string $id);
 

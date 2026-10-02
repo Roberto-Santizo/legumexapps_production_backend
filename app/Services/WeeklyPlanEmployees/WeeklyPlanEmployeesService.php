@@ -11,6 +11,7 @@ use App\Models\Position;
 use App\Models\WeeklyPlan;
 use App\Models\WeeklyPlanEmployee;
 use App\Models\WeeklyPlanTaskEmployee;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Override;
@@ -26,9 +27,39 @@ class WeeklyPlanEmployeesService implements WeeklyPlanEmployeesServiceInterface
     }
 
     #[Override]
-    public function getWeeklyPlanEmployees(?string $limit)
+    public function getWeeklyPlanEmployees(?string $limit, Request $request)
     {
-        $query = WeeklyPlanEmployee::query();
+        $query = WeeklyPlanEmployee::query()->with(['employee', 'position']);
+
+        if ($request->query('name')) {
+            $query->whereHas('employee', function ($p0) use ($request) {
+                $p0->where('name', 'LIKE', '%'.$request->query('name').'%');
+            });
+        }
+
+        if ($request->query('code')) {
+            $query->whereHas('employee', function ($p0) use ($request) {
+                $p0->where('code', 'LIKE', '%'.$request->query('code').'%');
+            });
+        }
+
+        if ($request->query('position')) {
+            $query->whereHas('position', function ($p0) use ($request) {
+                $p0->where('code', 'LIKE', '%'.$request->query('position').'%');
+            });
+        }
+
+        if ($request->query('week')) {
+            $query->whereHas('weeklyPlan', function ($p0) use ($request) {
+                $p0->where('week', '=', $request->query('week'));
+            });
+        }
+
+        if ($request->query('year')) {
+            $query->whereHas('weeklyPlan', function ($p0) use ($request) {
+                $p0->where('year', '=', $request->query('year'));
+            });
+        }
 
         if ($limit) {
             return $query->paginate($limit);
