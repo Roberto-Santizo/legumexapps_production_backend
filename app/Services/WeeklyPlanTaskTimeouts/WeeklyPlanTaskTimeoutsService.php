@@ -3,6 +3,7 @@
 namespace App\Services\WeeklyPlanTaskTimeouts;
 
 use App\Errors\BadRequestError;
+use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\WeeklyPlanTask;
@@ -50,6 +51,44 @@ class WeeklyPlanTaskTimeoutsService implements WeeklyPlanTaskTimeoutsServiceInte
                 'observation' => $data['observation'] ?? null,
             ]);
         });
+    }
+
+    /**
+     * Close an open timeout with the server time and store its duration in hours.
+     * The observation is replaced only when a non null one is sent.
+     *
+     * @param  array{observation?: string|null}  $data
+     */
+    #[Override]
+    public function endTimeout(string $id, array $data)
+    {
+        $timeout = $this->getTimeoutById($id);
+        $this->ensureTaskInProgress($timeout->task);
+
+        if ($timeout->end_date !== null) {
+            throw new BadRequestError('El tiempo muerto ya fue finalizado');
+        }
+
+        $endDate = now()->startOfSecond();
+
+        $timeout->update([
+            'end_date' => $endDate,
+            'duration_hours' => round($timeout->start_date->diffInHours($endDate), 4),
+            'observation' => $data['observation'] ?? $timeout->observation,
+        ]);
+
+        return $timeout;
+    }
+
+    private function getTimeoutById(string $id): WeeklyPlanTaskTimeout
+    {
+        $timeout = WeeklyPlanTaskTimeout::with('task')->find($id);
+
+        if (! $timeout) {
+            throw new NotFoundError('El tiempo muerto no existe');
+        }
+
+        return $timeout;
     }
 
     /**
