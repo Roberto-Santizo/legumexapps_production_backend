@@ -25,4 +25,9 @@ class WeeklyPlanEmployee extends Model
     {
         return $this->belongsTo(WeeklyPlan::class);
     }
+
+    public function taskAssignments()
+    {
+        return $this->hasMany(WeeklyPlanTaskEmployee::class);
+    }
 }

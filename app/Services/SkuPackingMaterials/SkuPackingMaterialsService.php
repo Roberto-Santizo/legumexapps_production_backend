@@ -2,6 +2,7 @@
 
 namespace App\Services\SkuPackingMaterials;
 
+use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\SkuPackingMaterials\SkuPackingMaterialsServiceInterface;
 use App\Models\Sku;
@@ -27,8 +28,12 @@ class SkuPackingMaterialsService implements SkuPackingMaterialsServiceInterface
     }
 
     #[Override]
-    public function getSkuPackingMaterials(string $skuId)
+    public function getSkuPackingMaterials(?string $skuId)
     {
+        if (! $skuId) {
+            throw new BadRequestError('El código del SKU es requerido');
+        }
+
         $query = SkuPackingMaterial::query();
         $query->whereHas('sku', function ($p0) use ($skuId) {
             $p0->where('code', 'LIKE', '%'.$skuId.'%');
@@ -59,7 +64,7 @@ class SkuPackingMaterialsService implements SkuPackingMaterialsServiceInterface
             'sku_id' => $sku->id,
             'packing_material_id' => $data['packing_material_id'],
         ];
-        
+
         $skuPackingMaterial->update($payload);
 
         return true;

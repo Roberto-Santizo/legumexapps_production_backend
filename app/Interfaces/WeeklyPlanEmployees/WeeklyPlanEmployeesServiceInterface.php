@@ -2,11 +2,13 @@
 
 namespace App\Interfaces\WeeklyPlanEmployees;
 
+use Illuminate\Http\Request;
+
 interface WeeklyPlanEmployeesServiceInterface
 {
     public function createWeeklyPlanEmployee(array $data);
 
-    public function getWeeklyPlanEmployees(?string $limit);
+    public function getWeeklyPlanEmployees(?string $limit, Request $request);
 
     public function getWeeklyPlanEmployeeById(string $id);
 

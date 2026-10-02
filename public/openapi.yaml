@@ -1,0 +1,2952 @@
+openapi: 3.1.0
+info:
+  title: Legumex Production API
+  version: 1.0.0
+  description: |
+    API REST para planificación de producción: líneas, SKUs, materiales, planes semanales y tareas.
+
+    **Formato de respuesta.** Toda respuesta de los controllers tiene la forma
+    `{ statusCode, message, data }`. Los listados paginados (`?limit=`) agregan
+    `total`, `currentPage` y `lastPage` al nivel raíz, junto a `data`.
+
+    **Listados.** Con `?limit=N` la respuesta es paginada (usar `?page=` para navegar);
+    sin `limit` se devuelve la colección completa.
+
+    **Actualizaciones.** Todo `PUT /recurso/{id}` acepta también `PATCH` con el mismo cuerpo
+    (rutas `apiResource`); la validación sigue exigiendo todos los campos requeridos.
+
+    **Errores.**
+    - `400` / `403` / `404` / `406`: errores de negocio (`{ statusCode, message, data: null }`).
+    - `401`: token JWT ausente, inválido o expirado (`{ message }`).
+    - `422`: error de validación de Laravel (`{ message, errors }`).
+    - `500`: cualquier otra excepción.
+
+    **Carga masiva.** Los endpoints `uploadFile` reciben un Excel (`xls`/`xlsx`); se validan
+    todas las filas y, si alguna falla, se responde un único `400` con los errores por línea
+    separados por salto de línea.
+servers:
+  - url: /api
+    description: Servidor actual
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Users
+    description: Solo administradores (`role = admin`).
+  - name: UserPermissions
+    description: Solo administradores (`role = admin`).
+  - name: Permissions
+    description: Solo administradores (`role = admin`).
+  - name: Lines
+  - name: Positions
+  - name: LineDependencies
+  - name: Clients
+  - name: Skus
+  - name: Performances
+    description: Rendimientos (relación línea ↔ SKU).
+  - name: SkuPackingMaterials
+    description: Receta de material de empaque por SKU.
+  - name: SkuRawMaterials
+    description: Receta de materia prima por SKU.
+  - name: PackingMaterials
+  - name: RawMaterials
+  - name: PackingMaterialTransactions
+  - name: PackingMaterialTransactionItems
+  - name: Timeouts
+    description: Tiempos muertos.
+  - name: DraftWeeklyPlans
+  - name: DraftWeeklyPlanTasks
+  - name: WeeklyPlans
+  - name: WeeklyPlanEmployees
+  - name: WeeklyPlanTasks
+  - name: WeeklyPlanTaskEmployees
+  - name: WeeklyPlanTaskObservations
+
+paths:
+  # ───────────────────────────── AUTH ─────────────────────────────
+  /login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Sesión Iniciada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Session' }
+        '400':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /check-status:
+    get:
+      tags: [Auth]
+      summary: Validar token y obtener sesión actual (refresca el token)
+      responses:
+        '200':
+          description: Usuario Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Session' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── USERS ─────────────────────────────
+  /users:
+    get:
+      tags: [Users]
+      summary: Listar usuarios
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: username, in: query, schema: { type: string }, description: Filtro parcial por username }
+      responses:
+        '200':
+          description: Usuarios Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/User' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/User' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Users]
+      summary: Crear usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        '201': { $ref: '#/components/responses/NullData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /users/{username}:
+    parameters:
+      - { name: username, in: path, required: true, schema: { type: string }, description: Username del usuario }
+    get:
+      tags: [Users]
+      summary: Obtener usuario por username
+      responses:
+        '200':
+          description: Usuario Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Users]
+      summary: Actualizar usuario
+      description: La contraseña siempre es requerida y se vuelve a encriptar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /users/getUserPermissions/{username}:
+    get:
+      tags: [Users]
+      summary: Permisos asignados a un usuario
+      parameters:
+        - { name: username, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Permisos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/UserPermission' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── USER PERMISSIONS ─────────────────────────────
+  /user-permissions:
+    get:
+      tags: [UserPermissions]
+      summary: Listar permisos de un usuario
+      parameters:
+        - { name: userId, in: query, required: true, schema: { type: integer }, description: ID del usuario }
+      responses:
+        '200':
+          description: Permisos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/UserPermissionModel' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [UserPermissions]
+      summary: Asignar permiso a usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, permission_id]
+              properties:
+                user_id: { type: integer }
+                permission_id: { type: integer }
+      responses:
+        '201':
+          description: Permiso Agregado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/UserPermissionModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /user-permissions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [UserPermissions]
+      summary: Obtener asignación de permiso
+      responses:
+        '200':
+          description: Permiso Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/UserPermissionModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [UserPermissions]
+      summary: Quitar permiso a usuario
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── PERMISSIONS ─────────────────────────────
+  /permissions:
+    get:
+      tags: [Permissions]
+      summary: Listar permisos
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Permisos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Permission' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Permission' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Permissions]
+      summary: Crear permiso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PermissionInput' }
+      responses:
+        '201': { $ref: '#/components/responses/NullData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /permissions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Permissions]
+      summary: Obtener permiso
+      responses:
+        '200':
+          description: Permiso Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Model' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Permissions]
+      summary: Actualizar permiso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PermissionInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/AdminForbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── LINES ─────────────────────────────
+  /lines:
+    get:
+      tags: [Lines]
+      summary: Listar líneas
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
+        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
+        - { name: skuId, in: query, schema: { type: integer }, description: Solo líneas con rendimiento activo para este SKU }
+      responses:
+        '200':
+          description: Líneas Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Line' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Line' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Lines]
+      summary: Crear línea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /lines/uploadFile:
+    post:
+      tags: [Lines]
+      summary: Carga masiva de líneas (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /lines/{code}:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [Lines]
+      summary: Obtener línea por código
+      responses:
+        '200':
+          description: Línea Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Line' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Lines]
+      summary: Actualizar línea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Lines]
+      summary: Eliminar línea
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── POSITIONS ─────────────────────────────
+  /positions:
+    get:
+      tags: [Positions]
+      summary: Listar puestos
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: lineCode, in: query, schema: { type: string }, description: Código exacto de la línea }
+        - { name: line, in: query, schema: { type: string }, description: Filtro parcial por nombre de línea }
+        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
+        - { name: activity, in: query, schema: { type: string }, description: Filtro parcial por actividad }
+      responses:
+        '200':
+          description: Puestos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Position' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Position' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Positions]
+      summary: Crear puesto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PositionInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /positions/uploadFile:
+    post:
+      tags: [Positions]
+      summary: Carga masiva de puestos (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /positions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Positions]
+      summary: Obtener puesto
+      responses:
+        '200':
+          description: Puesto Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Position' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Positions]
+      summary: Actualizar puesto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PositionInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Positions]
+      summary: Eliminar puesto
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── LINE DEPENDENCIES ─────────────────────────────
+  /line-dependencies:
+    get:
+      tags: [LineDependencies]
+      summary: Listar dependencias de una línea
+      parameters:
+        - { name: lineId, in: query, required: true, schema: { type: integer }, description: ID de la línea }
+      responses:
+        '200':
+          description: Dependencias Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LineDependency' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [LineDependencies]
+      summary: Crear dependencia entre líneas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [line_id, line_dependent_id]
+              properties:
+                line_id: { type: integer }
+                line_dependent_id: { type: integer, description: Debe ser distinta de `line_id` }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /line-dependencies/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    delete:
+      tags: [LineDependencies]
+      summary: Eliminar dependencia
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── CLIENTS ─────────────────────────────
+  /clients:
+    get:
+      tags: [Clients]
+      summary: Listar clientes
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
+      responses:
+        '200':
+          description: Clientes Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Client' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Client' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Clients]
+      summary: Crear cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NameInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /clients/uploadFile:
+    post:
+      tags: [Clients]
+      summary: Carga masiva de clientes (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /clients/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Clients]
+      summary: Obtener cliente
+      responses:
+        '200':
+          description: Cliente Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Client' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Clients]
+      summary: Actualizar cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NameInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Clients]
+      summary: Eliminar cliente
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── SKUS ─────────────────────────────
+  /skus:
+    get:
+      tags: [Skus]
+      summary: Listar SKUs
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
+        - { name: product_name, in: query, schema: { type: string }, description: Filtro parcial por nombre de producto }
+        - { name: client, in: query, schema: { type: string }, description: Filtro parcial por nombre de cliente }
+      responses:
+        '200':
+          description: SKUs Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Skus]
+      summary: Crear SKU
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /skus/uploadFile:
+    post:
+      tags: [Skus]
+      summary: Carga masiva de SKUs (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /skus/{code}:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [Skus]
+      summary: Obtener SKU por código
+      responses:
+        '200':
+          description: SKU Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Sku' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Skus]
+      summary: Actualizar SKU
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Skus]
+      summary: Eliminar SKU
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── PERFORMANCES (LINE SKUS) ─────────────────────────────
+  /performances:
+    get:
+      tags: [Performances]
+      summary: Listar rendimientos
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: sku, in: query, schema: { type: string }, description: Filtro parcial por código de SKU }
+        - { name: line, in: query, schema: { type: string }, description: Filtro parcial por nombre de línea }
+        - { name: payment_method, in: query, schema: { type: boolean } }
+        - { name: status, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: Rendimientos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/LineSku' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/LineSku' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Performances]
+      summary: Crear rendimiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineSkuInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /performances/uploadFile:
+    post:
+      tags: [Performances]
+      summary: Carga masiva de rendimientos (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /performances/{id}/toggle-status:
+    patch:
+      tags: [Performances]
+      summary: Activar/desactivar rendimiento
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /performances/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Performances]
+      summary: Obtener rendimiento
+      responses:
+        '200':
+          description: Rendimiento Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/LineSku' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Performances]
+      summary: Actualizar rendimiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/LineSkuInput'
+                - properties:
+                    status: { type: [boolean, 'null'] }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Performances]
+      summary: Eliminar rendimiento
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── SKU PACKING MATERIALS ─────────────────────────────
+  /sku-packing-materials:
+    get:
+      tags: [SkuPackingMaterials]
+      summary: Listar receta de material de empaque de un SKU
+      parameters:
+        - { name: skuId, in: query, required: true, schema: { type: string }, description: Código del SKU (coincidencia parcial) }
+      responses:
+        '200':
+          description: Materiales de Empaque de SKU Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/SkuPackingMaterial' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [SkuPackingMaterials]
+      summary: Agregar material de empaque a la receta de un SKU
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuPackingMaterialInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /sku-packing-materials/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [SkuPackingMaterials]
+      summary: Obtener item de receta de empaque
+      responses:
+        '200':
+          description: Material de Empaque de SKU Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/SkuPackingMaterial' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [SkuPackingMaterials]
+      summary: Actualizar item de receta de empaque
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuPackingMaterialInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [SkuPackingMaterials]
+      summary: Eliminar item de receta de empaque
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── SKU RAW MATERIALS ─────────────────────────────
+  /sku-raw-materials:
+    get:
+      tags: [SkuRawMaterials]
+      summary: Listar receta de materia prima de un SKU
+      parameters:
+        - { name: skuId, in: query, required: true, schema: { type: string }, description: Código del SKU (coincidencia parcial) }
+      responses:
+        '200':
+          description: Materiales Crudos de SKU Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/SkuRawMaterial' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [SkuRawMaterials]
+      summary: Agregar materia prima a la receta de un SKU
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuRawMaterialInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /sku-raw-materials/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [SkuRawMaterials]
+      summary: Obtener item de receta de materia prima
+      responses:
+        '200':
+          description: Material Crudo de SKU Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/SkuRawMaterial' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [SkuRawMaterials]
+      summary: Actualizar item de receta de materia prima
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuRawMaterialInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [SkuRawMaterials]
+      summary: Eliminar item de receta de materia prima
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── PACKING MATERIALS ─────────────────────────────
+  /packing-materials:
+    get:
+      tags: [PackingMaterials]
+      summary: Listar materiales de empaque
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
+        - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
+      responses:
+        '200':
+          description: Materiales de Empaque Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [PackingMaterials]
+      summary: Crear material de empaque
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PackingMaterialInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /packing-materials/uploadFile:
+    post:
+      tags: [PackingMaterials]
+      summary: Carga masiva de materiales de empaque (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /packing-materials/{code}:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [PackingMaterials]
+      summary: Obtener material de empaque por código
+      responses:
+        '200':
+          description: Material de Empaque Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/PackingMaterial' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [PackingMaterials]
+      summary: Actualizar material de empaque
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PackingMaterialInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [PackingMaterials]
+      summary: Eliminar material de empaque
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── RAW MATERIALS ─────────────────────────────
+  /raw-materials:
+    get:
+      tags: [RawMaterials]
+      summary: Listar materias primas
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
+        - { name: product_name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
+      responses:
+        '200':
+          description: Materias Primas Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/RawMaterial' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/RawMaterial' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [RawMaterials]
+      summary: Crear materia prima
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RawMaterialInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /raw-materials/uploadFile:
+    post:
+      tags: [RawMaterials]
+      summary: Carga masiva de materias primas (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /raw-materials/{code}:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [RawMaterials]
+      summary: Obtener materia prima por código
+      responses:
+        '200':
+          description: Materia Prima Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/RawMaterial' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [RawMaterials]
+      summary: Actualizar materia prima
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RawMaterialInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [RawMaterials]
+      summary: Eliminar materia prima
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── PACKING MATERIAL TRANSACTIONS ─────────────────────────────
+  /packing-material-transactions:
+    get:
+      tags: [PackingMaterialTransactions]
+      summary: Listar transacciones de material de empaque
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: reference, in: query, schema: { type: string }, description: Filtro parcial por referencia }
+        - { name: responsable, in: query, schema: { type: string }, description: Filtro parcial por responsable }
+        - { name: type, in: query, schema: { type: integer }, description: Tipo de transacción }
+      responses:
+        '200':
+          description: Transacciones de Material de Empaque Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterialTransaction' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterialTransaction' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [PackingMaterialTransactions]
+      summary: Crear transacción de material de empaque con sus items
+      description: Las firmas (PNG, máx. 1 MB) se suben a S3. `items` se envía como arreglo en el form-data (`items[0][quantity]`, ...).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [reference, responsable, responsable_signature, user_signature, type, items]
+              properties:
+                reference: { type: string }
+                responsable: { type: string }
+                observations: { type: [string, 'null'] }
+                responsable_signature: { type: string, format: binary, description: 'PNG, máx. 1024 KB' }
+                user_signature: { type: string, format: binary, description: 'PNG, máx. 1024 KB' }
+                type: { type: integer }
+                weekly_plan_task_id: { type: [integer, 'null'] }
+                items:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [quantity, lote, packing_material_id]
+                    properties:
+                      quantity: { type: number }
+                      lote: { type: string }
+                      destination: { type: [string, 'null'] }
+                      packing_material_id: { type: integer }
+      responses:
+        '201': { $ref: '#/components/responses/NullData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /packing-material-transactions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [PackingMaterialTransactions]
+      summary: Obtener transacción
+      responses:
+        '200':
+          description: Transacción de Material de Empaque Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/PackingMaterialTransaction' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [PackingMaterialTransactions]
+      summary: Actualizar transacción
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reference, responsable, type, user_id]
+              properties:
+                reference: { type: string }
+                responsable: { type: string }
+                observations: { type: [string, 'null'] }
+                type: { type: integer }
+                user_id: { type: integer }
+                weekly_plan_task_id: { type: [integer, 'null'] }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [PackingMaterialTransactions]
+      summary: Eliminar transacción
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── PM TRANSACTION ITEMS ─────────────────────────────
+  /pm-transaction-items:
+    get:
+      tags: [PackingMaterialTransactionItems]
+      summary: Listar items de transacciones de material de empaque
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: transactionId, in: query, schema: { type: integer }, description: ID de la transacción }
+      responses:
+        '200':
+          description: Detalles de Transacción de Material de Empaque Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterialTransactionItem' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterialTransactionItem' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [PackingMaterialTransactionItems]
+      summary: Crear item de transacción
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PackingMaterialTransactionItemInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /pm-transaction-items/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [PackingMaterialTransactionItems]
+      summary: Obtener item de transacción
+      responses:
+        '200':
+          description: Detalle de Transacción de Material de Empaque Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/PackingMaterialTransactionItem' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [PackingMaterialTransactionItems]
+      summary: Actualizar item de transacción
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PackingMaterialTransactionItemInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [PackingMaterialTransactionItems]
+      summary: Eliminar item de transacción
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── TIMEOUTS ─────────────────────────────
+  /timeouts:
+    get:
+      tags: [Timeouts]
+      summary: Listar tiempos muertos
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
+      responses:
+        '200':
+          description: Tiempos Muertos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Timeout' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Timeout' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Timeouts]
+      summary: Crear tiempo muerto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NameInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /timeouts/uploadFile:
+    post:
+      tags: [Timeouts]
+      summary: Carga masiva de tiempos muertos (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /timeouts/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Timeouts]
+      summary: Obtener tiempo muerto
+      responses:
+        '200':
+          description: Tiempo Muerto Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Timeout' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Timeouts]
+      summary: Actualizar tiempo muerto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NameInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Timeouts]
+      summary: Eliminar tiempo muerto
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── DRAFT WEEKLY PLANS ─────────────────────────────
+  /draft-weekly-plans:
+    get:
+      tags: [DraftWeeklyPlans]
+      summary: Listar planes borrador
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: week, in: query, schema: { type: integer } }
+        - { name: year, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Planes Borrador Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/DraftWeeklyPlan' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/DraftWeeklyPlan' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [DraftWeeklyPlans]
+      summary: Crear plan borrador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeekYearInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /draft-weekly-plans/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [DraftWeeklyPlans]
+      summary: Obtener plan borrador
+      responses:
+        '200':
+          description: Plan Borrador Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/DraftWeeklyPlan' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [DraftWeeklyPlans]
+      summary: Actualizar plan borrador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeekYearInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [DraftWeeklyPlans]
+      summary: Eliminar plan borrador
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /draft-weekly-plans/{id}/confirm:
+    post:
+      tags: [DraftWeeklyPlans]
+      summary: Confirmar plan borrador (genera el plan semanal y sus tareas)
+      description: |
+        Falla con `400` si ya existe un plan confirmado para la misma semana/año, si el borrador no tiene
+        tareas, si alguna tarea no tiene línea o si no existe rendimiento para la combinación línea/SKU.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /draft-weekly-plans/{id}/hoursPerLine:
+    get:
+      tags: [DraftWeeklyPlans]
+      summary: Horas planificadas por línea
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Horas Por linea obtenidas correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LabelValue' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /draft-weekly-plans/{id}/packingMaterialNecessity:
+    get:
+      tags: [DraftWeeklyPlans]
+      summary: Necesidad de material de empaque del plan
+      description: Agrupado por material; `value` = Σ (cajas × presentación) / lbs_per_item.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Necesidad de material de empaque obtenida correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LabelValue' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /draft-weekly-plans/{id}/rawMaterialNecessity:
+    get:
+      tags: [DraftWeeklyPlans]
+      summary: Necesidad de materia prima del plan
+      description: Agrupado por materia prima; `value` = Σ (cajas × presentación) × porcentaje.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Necesidad de materia prima obtenida correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LabelValue' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── DRAFT WEEKLY PLAN TASKS ─────────────────────────────
+  /draft-weekly-plan-tasks:
+    get:
+      tags: [DraftWeeklyPlanTasks]
+      summary: Listar tareas de planes borrador
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: draftWeeklyPlanId, in: query, schema: { type: integer } }
+        - { name: noOperationDate, in: query, schema: { type: boolean }, description: Solo tareas sin fecha de operación }
+        - { name: line, in: query, schema: { type: string }, description: Filtro parcial por nombre de línea }
+        - { name: sku, in: query, schema: { type: string }, description: Filtro parcial por código de SKU }
+        - { name: destination, in: query, schema: { type: string }, description: Filtro parcial por destino }
+      responses:
+        '200':
+          description: Tareas del Plan Borrador Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/DraftWeeklyPlanTask' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/DraftWeeklyPlanTask' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [DraftWeeklyPlanTasks]
+      summary: Crear tarea de plan borrador
+      description: Si se envía `line_id`, las horas se calculan con el rendimiento línea/SKU (400 si no existe).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DraftWeeklyPlanTaskInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /draft-weekly-plan-tasks/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [DraftWeeklyPlanTasks]
+      summary: Obtener tarea de plan borrador
+      responses:
+        '200':
+          description: Tarea del Plan Borrador Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/DraftWeeklyPlanTask' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [DraftWeeklyPlanTasks]
+      summary: Actualizar tarea de plan borrador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DraftWeeklyPlanTaskInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [DraftWeeklyPlanTasks]
+      summary: Eliminar tarea de plan borrador
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLANS ─────────────────────────────
+  /weekly-plans:
+    get:
+      tags: [WeeklyPlans]
+      summary: Listar planes semanales
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: week, in: query, schema: { type: integer } }
+        - { name: year, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Planes Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlan' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlan' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plans/tasksForCalendar/{id}:
+    get:
+      tags: [WeeklyPlans]
+      summary: Eventos de calendario (horas por línea y día)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Tareas Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/CalendarEvent' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plans/summaryToday/{id}:
+    get:
+      tags: [WeeklyPlans]
+      summary: Resumen de tareas por línea para una fecha
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - { name: date, in: query, schema: { type: string, format: date }, description: Fecha de operación (por defecto hoy) }
+      responses:
+        '200':
+          description: Resumen Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LineSummary' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plans/{id}:
+    get:
+      tags: [WeeklyPlans]
+      summary: Obtener plan semanal
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Plan Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlan' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLAN EMPLOYEES ─────────────────────────────
+  /weekly-plan-employees:
+    get:
+      tags: [WeeklyPlanEmployees]
+      summary: Listar empleados de planes semanales
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Empleados del Plan Semanal Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanEmployees]
+      summary: Agregar empleado a un plan semanal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-employees/uploadFile:
+    post:
+      tags: [WeeklyPlanEmployees]
+      summary: Carga masiva de empleados del plan (Excel)
+      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
+      responses:
+        '200': { $ref: '#/components/responses/UploadResult' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-employees/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanEmployees]
+      summary: Obtener empleado del plan
+      responses:
+        '200':
+          description: Empleado del Plan Semanal Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanEmployee' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanEmployees]
+      summary: Actualizar empleado del plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanEmployees]
+      summary: Eliminar empleado del plan
+      description: Falla con `400` si el empleado tiene asignaciones en tareas.
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLAN TASKS ─────────────────────────────
+  /weekly-plan-tasks:
+    get:
+      tags: [WeeklyPlanTasks]
+      summary: Listar tareas de planes semanales
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: weeklyPlanId, in: query, schema: { type: integer } }
+        - { name: lineCode, in: query, schema: { type: string }, description: Código exacto de la línea }
+        - { name: lineId, in: query, schema: { type: integer } }
+        - { name: skuCode, in: query, schema: { type: string }, description: Filtro parcial por código de SKU }
+        - { name: operationDate, in: query, schema: { type: string, format: date } }
+        - { name: noOperationDate, in: query, schema: { type: boolean }, description: Solo tareas sin fecha de operación }
+      responses:
+        '200':
+          description: Tareas del Plan Semanal Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTask' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTask' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Crear tarea de plan semanal
+      description: '`pallets` y `hours` se calculan a partir del rendimiento y el SKU.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [boxes, destination, operation_date, weekly_plan_id, line_sku_id]
+              properties:
+                boxes: { type: integer }
+                destination: { type: string }
+                operation_date: { type: string, format: date }
+                weekly_plan_id: { type: integer }
+                line_sku_id: { type: integer, description: ID del rendimiento (línea/SKU) }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/assignOperationDate:
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Asignar fecha de operación a varias tareas
+      description: Notifica por correo las tareas cuya fecha cambió.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tasksIds, operation_date]
+              properties:
+                tasksIds: { type: array, minItems: 1, items: { type: integer } }
+                operation_date: { type: string, format: date }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/splitTask:
+    post:
+      tags: [WeeklyPlanTasks]
+      summary: Dividir una tarea en porciones
+      description: La suma de `boxes` de las porciones debe coincidir con las cajas de la tarea; no aplica a tareas iniciadas o con producción.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [task_id, portions]
+              properties:
+                task_id: { type: integer }
+                portions:
+                  type: array
+                  minItems: 2
+                  items:
+                    type: object
+                    required: [boxes, operation_date]
+                    properties:
+                      boxes: { type: integer, minimum: 1 }
+                      operation_date: { type: string, format: date }
+      responses:
+        '201':
+          description: Tarea Dividida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTask' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanTasks]
+      summary: Obtener tarea de plan semanal
+      responses:
+        '200':
+          description: Tarea del Plan Semanal Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTask' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanTasks]
+      summary: Actualizar tarea de plan semanal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [boxes, pallets, hours, destination, weekly_plan_id, line_sku_id]
+              properties:
+                boxes: { type: integer }
+                produced_boxes: { type: [integer, 'null'] }
+                pallets: { type: number }
+                produced_pallets: { type: [number, 'null'] }
+                hours: { type: number }
+                weighed_pounds: { type: [number, 'null'] }
+                destination: { type: string }
+                operation_date: { type: [string, 'null'], format: date }
+                start_date: { type: [string, 'null'], format: date-time }
+                end_date: { type: [string, 'null'], format: date-time }
+                weekly_plan_id: { type: integer }
+                line_sku_id: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTasks]
+      summary: Eliminar tarea de plan semanal
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/packingMaterialItems:
+    get:
+      tags: [WeeklyPlanTasks]
+      summary: Material de empaque requerido por la tarea
+      description: Precarga para crear una transacción de material de empaque a partir de la receta del SKU.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Materiales de Empaque Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/TaskPackingMaterialItem' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLAN TASK EMPLOYEES ─────────────────────────────
+  /weekly-plan-tasks/{id}/availableEmployees:
+    get:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Empleados del plan disponibles para la tarea
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Candidatos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/employees:
+    get:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Personal asignado a la tarea
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Personal Asignado Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/confirmEmployees:
+    post:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Confirmar asignación de personal de la tarea
+      description: |
+        Parte de los candidatos disponibles y aplica reemplazos, adiciones y remociones.
+        Requiere tarea lista para confirmación y sin personal asignado.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                replacements:
+                  type: [array, 'null']
+                  items:
+                    type: object
+                    required: [weekly_plan_employee_id, replacement_weekly_plan_employee_id]
+                    properties:
+                      weekly_plan_employee_id: { type: integer }
+                      replacement_weekly_plan_employee_id: { type: integer }
+                additions: { type: [array, 'null'], items: { type: integer }, description: IDs de weekly_plan_employees }
+                removals: { type: [array, 'null'], items: { type: integer }, description: IDs de weekly_plan_employees }
+      responses:
+        '201': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-tasks/{id}/addEmployee:
+    post:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Agregar empleado a la tarea
+      description: Solo tareas listas para ejecución o en progreso; el empleado debe pertenecer al plan y no estar asignado.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeIdInput' }
+      responses:
+        '201': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-employees/{id}/replace:
+    patch:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Reemplazar empleado de una asignación
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeIdInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-employees/{id}:
+    delete:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Retirar empleado de la tarea
+      description: La tarea debe conservar al menos un empleado.
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── WEEKLY PLAN TASK OBSERVATIONS ─────────────────────────────
+  /weekly-plan-task-observations:
+    get:
+      tags: [WeeklyPlanTaskObservations]
+      summary: Listar observaciones de una tarea
+      parameters:
+        - { name: weeklyPlanTaskId, in: query, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Observaciones Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskObservation' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanTaskObservations]
+      summary: Crear observación (autor = usuario autenticado)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [weekly_plan_task_id, observation]
+              properties:
+                weekly_plan_task_id: { type: integer }
+                observation: { type: string, maxLength: 1000 }
+      responses:
+        '201': { $ref: '#/components/responses/CreatedModel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-observations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanTaskObservations]
+      summary: Obtener observación
+      responses:
+        '200':
+          description: Observación Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskObservation' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanTaskObservations]
+      summary: Actualizar observación (solo el autor)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [observation]
+              properties:
+                observation: { type: string, maxLength: 1000 }
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTaskObservations]
+      summary: Eliminar observación (solo el autor)
+      responses:
+        '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token obtenido en `POST /login`.
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+    Code:
+      name: code
+      in: path
+      required: true
+      schema: { type: string }
+      description: Código del registro (no el ID).
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Si se envía, la respuesta es paginada con este tamaño de página.
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+      description: Página a obtener (solo con `limit`).
+
+  requestBodies:
+    UploadFile:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required: [file]
+            properties:
+              file: { type: string, format: binary, description: 'Archivo Excel (xls o xlsx)' }
+
+  responses:
+    TrueData:
+      description: Operación exitosa (`data` = true)
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Envelope'
+              - properties:
+                  data: { const: true }
+    NullData:
+      description: Operación exitosa (`data` = null)
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Envelope'
+              - properties:
+                  data: { type: 'null' }
+    CreatedModel:
+      description: Registro creado
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Envelope'
+              - properties:
+                  data: { $ref: '#/components/schemas/Model' }
+    UploadResult:
+      description: Archivo Subido Correctamente
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/Envelope'
+              - properties:
+                  data:
+                    type: object
+                    properties:
+                      created: { type: integer, description: Registros creados }
+    BadRequest:
+      description: Error de negocio
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Forbidden:
+      description: Acción no permitida
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+    Unauthorized:
+      description: Token ausente, inválido o expirado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string, examples: ['Token not provided'] }
+    ValidationError:
+      description: Error de validación
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: string }
+              errors:
+                type: object
+                additionalProperties: { type: array, items: { type: string } }
+    ServerError:
+      description: Error interno
+      content:
+        application/json:
+          schema:
+            anyOf:
+              - $ref: '#/components/schemas/ApiError'
+              - type: object
+                properties:
+                  message: { type: string }
+    AdminForbidden:
+      description: El usuario no tiene rol `admin` (No autorizado)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+  schemas:
+    # ── Envolturas ──
+    Envelope:
+      type: object
+      required: [statusCode, message, data]
+      properties:
+        statusCode: { type: integer, examples: [200] }
+        message: { type: string }
+        data: {}
+    PaginatedEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/Envelope'
+        - type: object
+          required: [total, currentPage, lastPage]
+          properties:
+            data: { type: array }
+            total: { type: integer }
+            currentPage: { type: integer }
+            lastPage: { type: integer }
+    ApiError:
+      type: object
+      properties:
+        statusCode: { type: integer, examples: [404] }
+        message: { type: string }
+        data: { type: 'null' }
+    Model:
+      type: object
+      description: Registro devuelto tal cual por Eloquent (columnas de la tabla en snake_case).
+      properties:
+        id: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      additionalProperties: true
+    LabelValue:
+      type: object
+      properties:
+        label: { type: string }
+        value: { type: number }
+
+    # ── Auth / Users ──
+    Session:
+      type: object
+      properties:
+        name: { type: string }
+        role: { type: string }
+        token: { type: string }
+        permissions: { type: array, items: { type: string } }
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        username: { type: string }
+        role: { type: string }
+    UserInput:
+      type: object
+      required: [name, username, role, password]
+      properties:
+        name: { type: string, maxLength: 255 }
+        username: { type: string, maxLength: 255, description: Único (solo validado al crear) }
+        role: { type: string }
+        password: { type: string, format: password, minLength: 8 }
+    UserPermission:
+      type: object
+      properties:
+        id: { type: integer }
+        user_id: { type: integer }
+        permission_id: { type: integer }
+        permission: { type: string, description: Nombre del permiso }
+    UserPermissionModel:
+      allOf:
+        - $ref: '#/components/schemas/Model'
+        - type: object
+          properties:
+            user_id: { type: integer }
+            permission_id: { type: integer }
+    Permission:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    PermissionInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 255, description: Único }
+
+    # ── Catálogos ──
+    NameInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+    Line:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        shift: { type: integer }
+    LineInput:
+      type: object
+      required: [name, code, shift]
+      properties:
+        name: { type: string }
+        code: { type: string, description: Único }
+        shift: { type: number }
+    Position:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        activity: { type: string }
+        line_id: { type: integer }
+        line: { type: string, description: Nombre de la línea }
+        status: { type: boolean }
+    PositionInput:
+      type: object
+      required: [code, activity, line_id]
+      properties:
+        code: { type: string, maxLength: 255, description: Único }
+        activity: { type: string, maxLength: 255 }
+        line_id: { type: integer }
+        status: { type: boolean }
+    LineDependency:
+      type: object
+      properties:
+        id: { type: integer }
+        line_dependant_name: { type: string }
+        positions: { type: integer, description: Cantidad de puestos de la línea dependiente }
+    Client:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    Timeout:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    Sku:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        product_name: { type: string }
+        presentation: { type: [number, 'null'], description: Libras por caja }
+        boxes_per_pallet: { type: [integer, 'null'] }
+        client: { type: string, description: Nombre del cliente }
+        client_id: { type: integer }
+    SkuInput:
+      type: object
+      required: [code, product_name, client_id]
+      properties:
+        code: { type: string, description: Único }
+        product_name: { type: string }
+        presentation: { type: [number, 'null'] }
+        boxes_per_pallet: { type: [integer, 'null'] }
+        client_id: { type: integer }
+    LineSku:
+      type: object
+      properties:
+        id: { type: integer }
+        sku: { type: string, description: Código del SKU }
+        sku_id: { type: integer }
+        line: { type: string, description: Nombre de la línea }
+        line_id: { type: integer }
+        lbs_performance: { type: number }
+        accepted_percentage: { type: number }
+        payment_method: { type: integer, enum: [0, 1] }
+        status: { type: boolean }
+    LineSkuInput:
+      type: object
+      required: [sku_id, line_id, lbs_performance, accepted_percentage, payment_method]
+      properties:
+        sku_id: { type: integer }
+        line_id: { type: integer }
+        lbs_performance: { type: number }
+        accepted_percentage: { type: number }
+        payment_method: { type: boolean }
+    SkuPackingMaterial:
+      type: object
+      properties:
+        id: { type: integer }
+        lbs_per_item: { type: number }
+        sku: { type: string, description: Código del SKU }
+        sku_id: { type: integer }
+        packing_material: { type: string }
+        packing_material_code: { type: string }
+        packing_material_id: { type: integer }
+        created_at: { type: string, examples: ['01-10-2026 08:30:00 AM'] }
+        updated_at: { type: string, examples: ['01-10-2026 08:30:00 AM'] }
+    SkuPackingMaterialInput:
+      type: object
+      required: [lbs_per_item, sku_code, packing_material_id]
+      properties:
+        lbs_per_item: { type: number }
+        sku_code: { type: string }
+        packing_material_id: { type: integer }
+    SkuRawMaterial:
+      type: object
+      properties:
+        id: { type: integer }
+        percentage: { type: number }
+        sku: { type: string, description: Código del SKU }
+        stock_keeping_unit_id: { type: integer }
+        raw_material: { type: string }
+        raw_material_id: { type: integer }
+    SkuRawMaterialInput:
+      type: object
+      required: [percentage, stock_keeping_unit_code, raw_material_id]
+      properties:
+        percentage: { type: number }
+        stock_keeping_unit_code: { type: string }
+        raw_material_id: { type: integer }
+    PackingMaterial:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        description: { type: string }
+        blocked: { type: boolean }
+    PackingMaterialInput:
+      type: object
+      required: [name, description, code]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        code: { type: string, description: Único }
+        blocked: { type: [boolean, 'null'] }
+    RawMaterial:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        product_name: { type: string }
+    RawMaterialInput:
+      type: object
+      required: [code, product_name]
+      properties:
+        code: { type: string, description: Único }
+        product_name: { type: string }
+
+    # ── Bodega ──
+    PackingMaterialTransaction:
+      type: object
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        responsable: { type: string }
+        observations: { type: string }
+        responsable_signature: { type: string, format: uri, description: URL pública en S3 }
+        user_signature: { type: string, format: uri, description: URL pública en S3 }
+        type: { type: integer }
+        user_id: { type: integer }
+        user_name: { type: string }
+        weekly_plan_task_id: { type: [integer, 'null'] }
+    PackingMaterialTransactionItem:
+      type: object
+      properties:
+        id: { type: integer }
+        quantity: { type: number }
+        lote: { type: string }
+        destination: { type: [string, 'null'] }
+        packing_material_id: { type: integer }
+        packing_material_name: { type: [string, 'null'] }
+        packing_material_code: { type: [string, 'null'] }
+        pm_transaction_id: { type: integer }
+    PackingMaterialTransactionItemInput:
+      type: object
+      required: [quantity, lote, packing_material_id, pm_transaction_id]
+      properties:
+        quantity: { type: number }
+        lote: { type: string }
+        destination: { type: [string, 'null'] }
+        packing_material_id: { type: integer }
+        pm_transaction_id: { type: integer }
+
+    # ── Planes ──
+    WeekYearInput:
+      type: object
+      required: [week, year]
+      properties:
+        week: { type: integer }
+        year: { type: integer }
+    DraftWeeklyPlan:
+      type: object
+      properties:
+        id: { type: integer }
+        week: { type: integer }
+        year: { type: integer }
+        confirmation_date: { type: [string, 'null'], format: date-time }
+    DraftWeeklyPlanTask:
+      type: object
+      properties:
+        id: { type: integer }
+        boxes: { type: integer }
+        destination: { type: string }
+        hours: { type: number }
+        operation_date: { type: [string, 'null'], format: date }
+        operation_date_string: { type: string, description: "`d-m-Y` o 'SIN PROGRAMACIÓN'" }
+        draft_weekly_plan_id: { type: integer }
+        sku_id: { type: integer }
+        line_id: { type: [integer, 'null'] }
+        sku_name: { type: string }
+        sku_code: { type: string }
+        line_name: { type: [string, 'null'] }
+        line_code: { type: [string, 'null'] }
+    DraftWeeklyPlanTaskInput:
+      type: object
+      required: [boxes, destination, draft_weekly_plan_id, sku_id]
+      properties:
+        boxes: { type: integer }
+        destination: { type: string }
+        operation_date: { type: [string, 'null'], format: date }
+        draft_weekly_plan_id: { type: integer }
+        sku_id: { type: integer }
+        line_id: { type: [integer, 'null'] }
+    WeeklyPlan:
+      type: object
+      properties:
+        id: { type: integer }
+        week: { type: integer }
+        year: { type: integer }
+    CalendarEvent:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string, examples: ['L01 | 12.5 h'] }
+        date: { type: string, format: date }
+        color: { type: string }
+    LineSummary:
+      type: object
+      properties:
+        line_id: { type: integer }
+        line_code: { type: string }
+        line_name: { type: string }
+        total_tasks: { type: integer }
+    WeeklyPlanEmployee:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        position: { type: string, description: Código del puesto }
+        biometric_position: { type: [string, 'null'], description: Puesto según el biométrico }
+        position_id: { type: integer }
+        employee_id: { type: integer }
+    WeeklyPlanEmployeeInput:
+      type: object
+      required: [position_id, employee_id, weekly_plan_id]
+      properties:
+        position_id: { type: integer }
+        employee_id: { type: integer }
+        weekly_plan_id: { type: integer }
+    WeeklyPlanEmployeeIdInput:
+      type: object
+      required: [weekly_plan_employee_id]
+      properties:
+        weekly_plan_employee_id: { type: integer }
+    WeeklyPlanTask:
+      type: object
+      properties:
+        id: { type: integer }
+        boxes: { type: integer }
+        produced_boxes: { type: [integer, 'null'] }
+        pallets: { type: number }
+        produced_pallets: { type: [number, 'null'] }
+        hours: { type: number }
+        weighed_pounds: { type: [number, 'null'] }
+        destination: { type: string }
+        operation_date: { type: [string, 'null'], format: date }
+        operation_date_string: { type: string, description: "`d-m-Y` o 'SIN PROGRAMACIÓN'" }
+        start_date: { type: [string, 'null'] }
+        end_date: { type: [string, 'null'] }
+        weekly_plan_id: { type: integer }
+        line_sku_id: { type: integer }
+        sku_name: { type: string }
+        sku_code: { type: string }
+        sku_client: { type: string }
+        line_name: { type: string }
+        line_code: { type: string }
+        status:
+          type: integer
+          enum: [1, 2, 3, 4, 5]
+          description: |
+            1 = Pendiente Entrega Material de Empaque,
+            2 = Lista para confirmación de asignaciónes,
+            3 = Lista para ejecución,
+            4 = En Progreso,
+            5 = Finalizada
+        status_message: { type: string }
+    TaskPackingMaterialItem:
+      type: object
+      properties:
+        quantity: { type: number, description: (cajas × presentación) / lbs_per_item }
+        lote: { type: string, description: Siempre vacío }
+        destination: { type: string, description: Nombre de la línea }
+        packing_material_id: { type: integer }
+        packing_material_name: { type: [string, 'null'] }
+        packing_material_code: { type: [string, 'null'] }
+        lbs_per_item: { type: number }
+    WeeklyPlanTaskEmployee:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_employee_id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        position_id: { type: integer }
+        position: { type: string, description: Código del puesto }
+        replaced_weekly_plan_employee_id: { type: [integer, 'null'] }
+        replaced_name: { type: [string, 'null'] }
+        replaced_code: { type: [string, 'null'] }
+    WeeklyPlanTaskObservation:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_task_id: { type: integer }
+        observation: { type: string }
+        user_id: { type: integer }
+        user_name: { type: string }
+        created_at: { type: string, examples: ['01-10-2026 08:30'] }
+        updated_at: { type: string, examples: ['01-10-2026 08:30'] }
+        was_edited: { type: boolean }

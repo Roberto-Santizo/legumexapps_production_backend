@@ -1,3 +1,51 @@
+# Proyecto: Legumex Production Backend
+
+API REST (Laravel 13, PHP 8.5) para planificación de producción: líneas, SKUs, materiales, planes semanales y tareas.
+
+## Arquitectura por capas (seguir siempre)
+
+Cada feature `<Feature>` (plural, PascalCase) tiene:
+
+- `app/Interfaces/<Feature>/<Feature>ServiceInterface.php` — contrato del servicio.
+- `app/Services/<Feature>/<Feature>Service.php` — lógica de negocio; métodos con `#[Override]`. Devuelve modelos/colecciones/paginadores crudos, **nunca** arma el JSON.
+- `app/Providers/<Feature>/<Feature>Provider.php` — `bind(Interface, Service)`; registrar en `bootstrap/providers.php`.
+- `app/Http/Requests/<Feature>/` — FormRequests (`Create…Request`, `Update…Request`). Compartidos en `app/Http/Requests/shared/`.
+- `app/Http/Resources/<Feature>/` — `<Model>Resource` + `Paginated<Feature>Resource` (`data`, `total`, `currentPage`, `lastPage`). Todo formateo de salida va aquí.
+- `app/Http/Controllers/<Feature>Controller.php` — inyecta la interface por método; cada acción en `try/catch` devolviendo `ResponseHandler::success($data, '<Mensaje en español>', $code)` o `ResponseHandler::error($th)`.
+- `routes/<feature>.php` — rutas bajo `Route::middleware('jwt.auth')`; incluir con `require` en `routes/api.php`. Rutas custom (ej. `uploadFile`) antes de `apiResource`.
+  - Sub-recursos de una feature padre (ej. `WeeklyPlanTaskEmployees`, `WeeklyPlanTaskObservations`) van en el archivo de rutas del padre (`routes/weeklyplantasks.php`), no en uno propio. Acciones custom en el grupo `// FUNCTIONALITYS`, en camelCase (`/weekly-plan-tasks/{id}/confirmEmployees`).
+
+Un Service puede depender de otro inyectando su **interface** por constructor (ej. `WeeklyPlanTaskEmployeesService` → `WeeklyPlanTasksServiceInterface`) para reusar `get…ById` y sus `NotFoundError`.
+
+Usar el skill `model-feature-scaffold` para generar una feature nueva.
+
+## Convenciones
+
+- Listados: `?limit=` → paginado (`Paginated…Resource`), sin `limit` → colección (`…Resource::collection`). Filtros por query params dentro del Service.
+- Errores: lanzar subclases de `App\Errors\ApiException` (`NotFoundError` 404, `BadRequestError` 400, `ForbiddenError`, `NotAcceptable`). Cualquier otra excepción → 500.
+- Formato de respuesta: `{ statusCode, message, data, ...extras }` (ver `app/Helpers/ResponseHandler.php`).
+- Mensajes al usuario y errores de validación en español.
+- Carga masiva Excel: `maatwebsite/excel`, clases en `app/Imports/`, endpoint `POST /<feature>/uploadFile`; validar todas las filas y lanzar un único `BadRequestError` con errores por línea antes de insertar.
+- Escrituras multi-tabla dentro de `DB::transaction`.
+- Lógica de orquestación compleja en `app/Actions/<Feature>/`.
+
+## Infra
+
+- Auth: JWT (`tymon/jwt-auth`, middleware `jwt.auth`); `admin` = `App\Http\Middleware\IsAdmin`.
+- Archivos: S3 (`Storage::disk('s3')`), URLs públicas expuestas desde Resources.
+- Correo: Resend vía `App\Helpers\MailHandler`; Mailables en `app/Mail/`.
+- Cola: `database`. Job `SyncBiometricEmployees` usa `App\Singletons\Biometric` (API externa).
+- Observers: `WeeklyPlanTaskObserver` (bitácora de cambios / notificaciones).
+
+## Flujo spec-driven
+
+- Specs en `specs/NN-nombre.md`. `/spec` diseña una spec; `/spec-impl <NN-nombre>` la implementa en rama `spec-NN-…` (requiere `> **Estado:** Aprobado` en la spec).
+- Commits: `feat(spec-NN): …`, `fix(spec-NN): …`.
+
+## Tests
+
+- No existe carpeta `tests/` aún. Si se agregan, usar Pest (ver skill `pest-testing`).
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

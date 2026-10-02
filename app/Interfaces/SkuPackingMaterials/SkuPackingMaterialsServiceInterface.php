@@ -6,7 +6,7 @@ interface SkuPackingMaterialsServiceInterface
 {
     public function createSkuPackingMaterial(array $data);
 
-    public function getSkuPackingMaterials(string $skuId);
+    public function getSkuPackingMaterials(?string $skuId);
 
     public function getSkuPackingMaterialById(string $id);
 

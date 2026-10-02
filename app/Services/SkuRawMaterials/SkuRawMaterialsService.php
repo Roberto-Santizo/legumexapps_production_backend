@@ -2,6 +2,7 @@
 
 namespace App\Services\SkuRawMaterials;
 
+use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\SkuRawMaterials\SkuRawMaterialsServiceInterface;
 use App\Models\Sku;
@@ -16,9 +17,9 @@ class SkuRawMaterialsService implements SkuRawMaterialsServiceInterface
         $sku = Sku::where('code', '=', $data['stock_keeping_unit_code'])->first();
 
         $payload = [
-            'percentage'=> $data['percentage'],
-            'stock_keeping_unit_id' => $sku->id, 
-            'raw_material_id'=> $data['raw_material_id']
+            'percentage' => $data['percentage'],
+            'stock_keeping_unit_id' => $sku->id,
+            'raw_material_id' => $data['raw_material_id'],
         ];
 
         $newSkuRawMaterial = SkuRawMaterial::create($payload);
@@ -27,8 +28,12 @@ class SkuRawMaterialsService implements SkuRawMaterialsServiceInterface
     }
 
     #[Override]
-    public function getSkuRawMaterials(string $skuId)
+    public function getSkuRawMaterials(?string $skuId)
     {
+        if (! $skuId) {
+            throw new BadRequestError('El código del SKU es requerido');
+        }
+
         $query = SkuRawMaterial::query();
         $query->whereHas('sku', function ($p0) use ($skuId) {
             $p0->where('code', 'LIKE', '%'.$skuId.'%');
@@ -55,9 +60,9 @@ class SkuRawMaterialsService implements SkuRawMaterialsServiceInterface
         $skuRawMaterial = $this->getSkuRawMaterialById($id);
 
         $payload = [
-            'percentage'=> $data['percentage'],
-            'stock_keeping_unit_id' => $sku->id, 
-            'raw_material_id'=> $data['raw_material_id']
+            'percentage' => $data['percentage'],
+            'stock_keeping_unit_id' => $sku->id,
+            'raw_material_id' => $data['raw_material_id'],
         ];
         $skuRawMaterial->update($payload);
 

@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Errors\ForbiddenError;
+use App\Helpers\ResponseHandler;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Validation\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response;
 
 class IsAdmin
@@ -19,7 +20,7 @@ class IsAdmin
         $user = auth()->user();
 
         if ($user->role != 'admin') {
-            throw new UnauthorizedException('No autorizado');
+            return ResponseHandler::error(new ForbiddenError('No autorizado'));
         }
 
         return $next($request);

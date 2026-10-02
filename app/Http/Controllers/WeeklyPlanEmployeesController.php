@@ -20,7 +20,7 @@ class WeeklyPlanEmployeesController extends Controller
     {
         try {
             $limit = $request->query('limit');
-            $weeklyPlanEmployees = $service->getWeeklyPlanEmployees($limit);
+            $weeklyPlanEmployees = $service->getWeeklyPlanEmployees($limit, $request);
 
             $response = $limit ? new PaginatedWeeklyPlanEmployeesResource($weeklyPlanEmployees) : WeeklyPlanEmployeeResource::collection($weeklyPlanEmployees);
 

@@ -82,7 +82,7 @@ class LinesController extends Controller
         try {
             $result = $service->deleteLineById($id);
 
-            return ResponseHandler::success(new LineResource($result), 'Línea Eliminada Correctamente', 200);
+            return ResponseHandler::success($result, 'Línea Eliminada Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }

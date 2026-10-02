@@ -22,6 +22,7 @@ return [
     App\Providers\Users\UserPermissionProvider::class,
     App\Providers\Users\UserProvider::class,
     App\Providers\WeeklyPlanEmployees\WeeklyPlanEmployeesProvider::class,
+    App\Providers\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesProvider::class,
     App\Providers\WeeklyPlanTaskObservations\WeeklyPlanTaskObservationsProvider::class,
     App\Providers\WeeklyPlanTasks\WeeklyPlanTasksProvider::class,
     App\Providers\WeeklyPlans\WeeklyPlansProvider::class,
