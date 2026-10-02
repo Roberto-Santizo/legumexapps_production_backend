@@ -46,4 +46,14 @@ class WeeklyPlanTask extends Model
     {
         return $this->hasMany(WeeklyPlanTaskPerformanceRecord::class);
     }
+
+    public function timeouts()
+    {
+        return $this->hasMany(WeeklyPlanTaskTimeout::class);
+    }
+
+    public function openTimeout()
+    {
+        return $this->hasOne(WeeklyPlanTaskTimeout::class)->whereNull('end_date');
+    }
 }
