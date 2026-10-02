@@ -26,6 +26,7 @@ use App\Providers\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesProvider;
 use App\Providers\WeeklyPlanTaskObservations\WeeklyPlanTaskObservationsProvider;
 use App\Providers\WeeklyPlanTaskPerformanceRecords\WeeklyPlanTaskPerformanceRecordsProvider;
 use App\Providers\WeeklyPlanTasks\WeeklyPlanTasksProvider;
+use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 
 return [
     AppServiceProvider::class,
@@ -53,5 +54,6 @@ return [
     WeeklyPlanTaskObservationsProvider::class,
     WeeklyPlanTaskPerformanceRecordsProvider::class,
     WeeklyPlanTasksProvider::class,
+    WeeklyPlanTaskTimeoutsProvider::class,
     WeeklyPlansProvider::class,
 ];
