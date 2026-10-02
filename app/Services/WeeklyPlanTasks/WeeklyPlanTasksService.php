@@ -43,6 +43,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     {
         $query = WeeklyPlanTask::query();
         $query->with(['performance', 'performance.sku', 'performance.line']);
+        $query->withSum('performanceRecords', 'weighed_pounds');
 
         if ($request->query('weeklyPlanId')) {
             $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
@@ -86,7 +87,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     #[Override]
     public function getWeeklyPlanTaskById(string $id)
     {
-        $weeklyPlanTask = WeeklyPlanTask::find($id);
+        $weeklyPlanTask = WeeklyPlanTask::withSum('performanceRecords', 'weighed_pounds')->find($id);
         if (! $weeklyPlanTask) {
             throw new NotFoundError('La tarea del plan semanal no existe');
         }
@@ -204,7 +205,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             return $newTaskIds;
         });
 
-        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->get();
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->withSum('performanceRecords', 'weighed_pounds')->get();
     }
 
     /**
@@ -277,6 +278,6 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             $lockedTask->save();
         });
 
-        return $task->fresh(['performance.sku.client', 'performance.line']);
+        return $task->fresh(['performance.sku.client', 'performance.line'])->loadSum('performanceRecords', 'weighed_pounds');
     }
 }
