@@ -34,7 +34,7 @@ class CaptureFieldsService implements CaptureFieldsServiceInterface
     #[Override]
     public function getCaptureFields(?string $limit, Request $request)
     {
-        $query = CaptureField::query();
+        $query = CaptureField::query()->withExists('lineFields');
 
         if ($request->filled('captureType')) {
             $query->where(function ($p0) use ($request) {
@@ -59,7 +59,7 @@ class CaptureFieldsService implements CaptureFieldsServiceInterface
     #[Override]
     public function getCaptureFieldById(string $id)
     {
-        $captureField = CaptureField::find($id, ['*']);
+        $captureField = CaptureField::withExists('lineFields')->find($id, ['*']);
         if (! $captureField) {
             throw new NotFoundError('El campo no existe');
         }

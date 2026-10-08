@@ -27,4 +27,9 @@ class Line extends Model
     {
         return $this->hasMany(Position::class);
     }
+
+    public function lineFields()
+    {
+        return $this->hasMany(LineField::class);
+    }
 }

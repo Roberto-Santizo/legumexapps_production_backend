@@ -18,4 +18,9 @@ class CaptureField extends Model
         'depends_on' => 'array',
         'options' => 'array',
     ];
+
+    public function lineFields()
+    {
+        return $this->hasMany(LineField::class);
+    }
 }
