@@ -8,6 +8,7 @@ use App\Interfaces\CaptureFields\CaptureFieldsServiceInterface;
 use App\Interfaces\LineFields\LineFieldsServiceInterface;
 use App\Interfaces\Lines\LinesServiceInterface;
 use App\Models\CaptureField;
+use App\Models\Line;
 use App\Models\LineField;
 use Override;
 
@@ -49,6 +50,7 @@ class LineFieldsService implements LineFieldsServiceInterface
 
         $isRequired = $data['is_required'] ?? false;
         $this->ensureCalculatedIsNotRequired($captureField, $isRequired);
+        $this->ensureDependenciesAreAssigned($line, $captureField);
 
         return LineField::create([
             'line_id' => $line->id,
@@ -91,6 +93,8 @@ class LineFieldsService implements LineFieldsServiceInterface
     {
         $lineField = $this->getLineFieldById($id);
 
+        $this->ensureIsNotUsedByCalculated($lineField);
+
         $lineField->delete();
 
         return true;
@@ -100,6 +104,53 @@ class LineFieldsService implements LineFieldsServiceInterface
     {
         if ($captureField->is_calculated && $isRequired) {
             throw new BadRequestError('Un campo calculado no puede ser obligatorio');
+        }
+    }
+
+    /**
+     * A calculated field can only be assigned once every key in its depends_on (same capture type) is assigned to the line.
+     */
+    private function ensureDependenciesAreAssigned(Line $line, CaptureField $captureField): void
+    {
+        if (! $captureField->is_calculated || empty($captureField->depends_on)) {
+            return;
+        }
+
+        $assignedKeys = CaptureField::where('capture_type', $captureField->capture_type)
+            ->whereHas('lineFields', fn ($p0) => $p0->where('line_id', $line->id))
+            ->pluck('key');
+
+        $missingKeys = array_values(array_diff($captureField->depends_on, $assignedKeys->all()));
+
+        if (empty($missingKeys)) {
+            return;
+        }
+
+        $labels = CaptureField::where('capture_type', $captureField->capture_type)
+            ->whereIn('key', $missingKeys)
+            ->pluck('label', 'key');
+
+        $missingLabels = array_map(fn (string $key) => $labels[$key] ?? $key, $missingKeys);
+
+        throw new BadRequestError("Para asignar {$captureField->label} primero asigna: ".implode(', ', $missingLabels));
+    }
+
+    /**
+     * A field cannot be removed while a calculated field assigned to the same line depends on its key.
+     */
+    private function ensureIsNotUsedByCalculated(LineField $lineField): void
+    {
+        $captureField = $lineField->captureField;
+
+        $dependentLabels = LineField::with('captureField')
+            ->where('line_id', $lineField->line_id)
+            ->whereHas('captureField', fn ($p0) => $p0->where('is_calculated', true)->where('capture_type', $captureField->capture_type))
+            ->get()
+            ->filter(fn (LineField $assigned) => in_array($captureField->key, $assigned->captureField->depends_on ?? [], true))
+            ->map(fn (LineField $assigned) => $assigned->captureField->label);
+
+        if ($dependentLabels->isNotEmpty()) {
+            throw new BadRequestError("No se puede quitar {$captureField->label}: lo usa ".$dependentLabels->implode(', '));
         }
     }
 }
