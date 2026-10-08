@@ -2,6 +2,7 @@
 
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
+use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
@@ -31,6 +32,7 @@ use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 return [
     AppServiceProvider::class,
     AuthProvider::class,
+    CaptureFieldsProvider::class,
     ClientsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
