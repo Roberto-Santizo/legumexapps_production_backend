@@ -7,6 +7,7 @@ use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
 use App\Providers\LineDependencies\LineDependenciesProvider;
+use App\Providers\LineFields\LineFieldsProvider;
 use App\Providers\Lines\LinesProvider;
 use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
@@ -37,6 +38,7 @@ return [
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
     LineDependenciesProvider::class,
+    LineFieldsProvider::class,
     LineSkusProvider::class,
     LinesProvider::class,
     PackingMaterialTransactionItemsProvider::class,
