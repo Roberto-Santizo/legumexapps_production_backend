@@ -62,6 +62,11 @@ class TimeoutsService implements TimeoutsServiceInterface
     public function deleteTimeoutById(string $id)
     {
         $timeout = $this->getTimeoutById($id);
+
+        if ($timeout->taskTimeouts()->exists()) {
+            throw new BadRequestError('No se puede eliminar un tiempo muerto registrado en tareas');
+        }
+
         $timeout->delete();
 
         return true;

@@ -42,8 +42,9 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     public function getWeeklyPlanTasks(?string $limit, Request $request)
     {
         $query = WeeklyPlanTask::query();
-        $query->with(['performance', 'performance.sku', 'performance.line']);
+        $query->with(['performance', 'performance.sku', 'performance.line', 'openTimeout']);
         $query->withSum('performanceRecords', 'weighed_pounds');
+        $query->withSum('timeouts', 'duration_hours');
 
         if ($request->query('weeklyPlanId')) {
             $query->where('weekly_plan_id', $request->query('weeklyPlanId'));
@@ -87,7 +88,10 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     #[Override]
     public function getWeeklyPlanTaskById(string $id)
     {
-        $weeklyPlanTask = WeeklyPlanTask::withSum('performanceRecords', 'weighed_pounds')->find($id);
+        $weeklyPlanTask = WeeklyPlanTask::with('openTimeout')
+            ->withSum('performanceRecords', 'weighed_pounds')
+            ->withSum('timeouts', 'duration_hours')
+            ->find($id);
         if (! $weeklyPlanTask) {
             throw new NotFoundError('La tarea del plan semanal no existe');
         }
@@ -205,7 +209,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             return $newTaskIds;
         });
 
-        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line'])->withSum('performanceRecords', 'weighed_pounds')->get();
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'openTimeout'])->withSum('performanceRecords', 'weighed_pounds')->withSum('timeouts', 'duration_hours')->get();
     }
 
     /**
@@ -238,6 +242,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     /**
      * End a task in progress: record its production, set its end date and move it from status 4 to 5.
      * Produced pallets are derived from the SKU boxes per pallet, or 0 when the SKU does not define it.
+     * The open timeout check runs under the task row lock so it cannot race with a timeout being started.
      *
      * @param  array{produced_boxes: int, weighed_pounds: float}  $data
      */
@@ -245,6 +250,10 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     public function endWeeklyPlanTask(string $id, array $data)
     {
         return $this->transitionWeeklyPlanTask($id, 4, 5, function (WeeklyPlanTask $task) use ($data) {
+            if ($task->openTimeout()->exists()) {
+                throw new BadRequestError('No se puede finalizar la tarea con un tiempo muerto abierto');
+            }
+
             $boxesPerPallet = $task->performance?->sku?->boxes_per_pallet;
 
             return [
@@ -278,6 +287,8 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             $lockedTask->save();
         });
 
-        return $task->fresh(['performance.sku.client', 'performance.line'])->loadSum('performanceRecords', 'weighed_pounds');
+        return $task->fresh(['performance.sku.client', 'performance.line', 'openTimeout'])
+            ->loadSum('performanceRecords', 'weighed_pounds')
+            ->loadSum('timeouts', 'duration_hours');
     }
 }

@@ -32,6 +32,8 @@ class WeeklyPlanTaskResource extends JsonResource
             'weighed_pounds' => $this->weighed_pounds,
             'recorded_pounds' => round((float) ($this->performance_records_sum_weighed_pounds ?? 0), 2),
             'planned_pounds' => round($this->boxes * ($this->performance->sku->presentation ?? 0), 2),
+            'timeout_hours' => round((float) ($this->timeouts_sum_duration_hours ?? 0), 2),
+            'open_timeout_id' => $this->openTimeout?->id,
             'destination' => $this->destination,
             'operation_date' => $this->operation_date ? $this->operation_date->format('Y-m-d') : null,
             'operation_date_string' => $this->operation_date ? $this->operation_date->format('d-m-Y') : 'SIN PROGRAMACIÓN',
