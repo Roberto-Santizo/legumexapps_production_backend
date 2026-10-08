@@ -76,11 +76,17 @@ class CaptureFieldsService implements CaptureFieldsServiceInterface
             throw new BadRequestError('Los campos de sistema no se pueden modificar');
         }
 
-        if (isset($data['key']) && $data['key'] !== $captureField->key) {
+        $isKeyChanged = isset($data['key']) && $data['key'] !== $captureField->key;
+        $dataType = CaptureFieldDataType::from($data['data_type'] ?? $captureField->data_type->value);
+
+        if (($isKeyChanged || $dataType !== $captureField->data_type) && $captureField->line_fields_exists) {
+            throw new BadRequestError('No se puede cambiar la clave o el tipo de un campo asignado a líneas');
+        }
+
+        if ($isKeyChanged) {
             $this->ensureKeyIsAvailable($data['key'], $captureField->id);
         }
 
-        $dataType = CaptureFieldDataType::from($data['data_type'] ?? $captureField->data_type->value);
         if ($dataType !== CaptureFieldDataType::Select) {
             $data['options'] = null;
         }
@@ -97,6 +103,10 @@ class CaptureFieldsService implements CaptureFieldsServiceInterface
 
         if ($captureField->is_system) {
             throw new BadRequestError('Los campos de sistema no se pueden eliminar');
+        }
+
+        if ($captureField->line_fields_exists) {
+            throw new BadRequestError('No se puede eliminar un campo asignado a líneas');
         }
 
         $captureField->delete();
