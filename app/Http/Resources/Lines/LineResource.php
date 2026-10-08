@@ -18,7 +18,8 @@ class LineResource extends JsonResource
             'id' =>         $this->id,
             'name'=>        $this->name,
             'code'=>        $this->code,
-            'shift'=>       $this->shift
+            'shift'=>       $this->shift,
+            'capture_type'=> $this->capture_type,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Lines;
 
+use App\Enums\CaptureType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,7 +27,8 @@ class UpdateLineRequest extends FormRequest
         return [
             'name' =>           ['required', 'string'],
             'code'=>            ['required', 'string', Rule::unique('lines', 'code')->ignore($this->route('line'), 'code')],
-            'shift'=>           ['required', 'numeric']
+            'shift'=>           ['required', 'numeric'],
+            'capture_type'=>    ['sometimes', Rule::enum(CaptureType::class)],
         ];
     }
 
@@ -42,6 +44,8 @@ class UpdateLineRequest extends FormRequest
 
             'shift.required'  => 'El turno es obligatorio.',
             'shift.numeric'   => 'El turno debe ser un valor numérico.',
+
+            'capture_type.enum' => 'La familia de captura no es válida.',
         ];
     }
 }
