@@ -25,25 +25,25 @@ class CreateLineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' =>           ['required', 'string'],
-            'code'=>            ['required', 'string', 'unique:lines,code'],
-            'shift'=>           ['required', 'numeric'],
-            'capture_type'=>    ['sometimes', Rule::enum(CaptureType::class)],
+            'name' => ['required', 'string'],
+            'code' => ['required', 'string', 'unique:lines,code'],
+            'shift' => ['required', 'numeric'],
+            'capture_type' => ['sometimes', Rule::enum(CaptureType::class)],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required'   => 'El nombre es obligatorio.',
-            'name.string'     => 'El nombre debe ser una cadena de texto.',
+            'name.required' => 'El nombre es obligatorio.',
+            'name.string' => 'El nombre debe ser una cadena de texto.',
 
-            'code.required'   => 'El código es obligatorio.',
-            'code.unique'     => 'El código ya existe.',
-            'code.string'     => 'El código debe ser una cadena de texto.',
+            'code.required' => 'El código es obligatorio.',
+            'code.unique' => 'El código ya existe.',
+            'code.string' => 'El código debe ser una cadena de texto.',
 
-            'shift.required'  => 'El turno es obligatorio.',
-            'shift.numeric'   => 'El turno debe ser un valor numérico.',
+            'shift.required' => 'El turno es obligatorio.',
+            'shift.numeric' => 'El turno debe ser un valor numérico.',
 
             'capture_type.enum' => 'La familia de captura no es válida.',
         ];
