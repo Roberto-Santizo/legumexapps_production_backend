@@ -45,7 +45,7 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
             'user_id' => auth()->user()->id,
             'pallet_number' => $palletNumber,
             'boxes' => $boxes,
-            'weighed_pounds' => $data['weighed_pounds'],
+            'net_weight' => $data['weighed_pounds'],
             ...$this->calculatePounds($task, $boxes, (float) $data['weighed_pounds']),
         ]);
     }
@@ -71,13 +71,13 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
 
         $palletNumber = array_key_exists('pallet_number', $data) ? $data['pallet_number'] : $record->pallet_number;
         $boxes = array_key_exists('boxes', $data) ? $data['boxes'] : $record->boxes;
-        $weighedPounds = (float) ($data['weighed_pounds'] ?? $record->weighed_pounds);
+        $weighedPounds = (float) ($data['weighed_pounds'] ?? $record->net_weight);
         $this->ensurePalletNumberIsAvailable($task, $palletNumber, $record->id);
 
         $record->update([
             'pallet_number' => $palletNumber,
             'boxes' => $boxes,
-            'weighed_pounds' => $weighedPounds,
+            'net_weight' => $weighedPounds,
             ...$this->calculatePounds($task, $boxes, $weighedPounds),
         ]);
 
@@ -127,21 +127,21 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
     /**
      * Theoretical pounds are the boxes times the SKU presentation; both values are 0 when either is missing.
      *
-     * @return array{theoretical_pounds: float, difference_pounds: float}
+     * @return array{ticket_weight: float, difference: float}
      */
     private function calculatePounds(WeeklyPlanTask $task, ?int $boxes, float $weighedPounds): array
     {
         $presentation = $task->performance?->sku?->presentation;
 
         if (! $boxes || ! $presentation) {
-            return ['theoretical_pounds' => 0, 'difference_pounds' => 0];
+            return ['ticket_weight' => 0, 'difference' => 0];
         }
 
         $theoreticalPounds = $boxes * $presentation;
 
         return [
-            'theoretical_pounds' => $theoreticalPounds,
-            'difference_pounds' => $weighedPounds - $theoreticalPounds,
+            'ticket_weight' => $theoreticalPounds,
+            'difference' => $weighedPounds - $theoreticalPounds,
         ];
     }
 }
