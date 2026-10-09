@@ -64,14 +64,21 @@ class CreateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
     }
 
     /**
-     * Rules of the fields assigned to the task line; empty when the task does not exist or its line has no pallet fields,
+     * Rules of the fields assigned to the task line; empty when the task does not exist, its line is not pallet or has no fields,
      * the service responds those cases.
      *
      * @return array{rules: array<string, array<mixed>>, attributes: array<string, string>}
      */
     private function captureValueRules(): array
     {
-        return $this->captureValueRules ??= CaptureValueRules::forLineFields($this->palletLineFields(), false);
+        if ($this->captureValueRules === null) {
+            $lineFields = $this->palletLineFields();
+            $this->captureValueRules = $lineFields->isEmpty()
+                ? ['rules' => [], 'attributes' => []]
+                : CaptureValueRules::forLineFields($lineFields, false);
+        }
+
+        return $this->captureValueRules;
     }
 
     /**
