@@ -2,11 +2,21 @@
 
 namespace App\Http\Requests\WeeklyPlanTaskPerformanceRecords;
 
+use App\Enums\CaptureType;
+use App\Http\Requests\Shared\CaptureValueRules;
+use App\Models\LineField;
+use App\Models\WeeklyPlanTaskPerformanceRecord;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
 
 class UpdateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
 {
+    /**
+     * @var array{rules: array<string, array<mixed>>, attributes: array<string, string>}|null
+     */
+    private ?array $captureValueRules = null;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,25 +32,56 @@ class UpdateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
      */
     public function rules(): array
     {
+        $captureRules = $this->captureValueRules()['rules'];
+
         return [
-            'pallet_number' => ['sometimes', 'nullable', 'integer', 'min:1'],
-            'boxes' => ['sometimes', 'nullable', 'integer', 'min:0'],
-            'weighed_pounds' => ['sometimes', 'required', 'numeric', 'min:0'],
+            ...$captureRules,
+            'values' => ['required', 'array', ...($captureRules['values'] ?? [])],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'pallet_number.integer' => 'El número de pallet debe ser un número entero.',
-            'pallet_number.min' => 'El número de pallet debe ser mayor a 0.',
+            'values.required' => 'Los valores de la captura son obligatorios.',
+            'values.array' => 'Los valores de la captura deben ser un objeto.',
 
-            'boxes.integer' => 'Las cajas deben ser un número entero.',
-            'boxes.min' => 'Las cajas no pueden ser negativas.',
-
-            'weighed_pounds.required' => 'Las libras pesadas son obligatorias.',
-            'weighed_pounds.numeric' => 'Las libras pesadas deben ser un valor numérico.',
-            'weighed_pounds.min' => 'Las libras pesadas no pueden ser negativas.',
+            ...CaptureValueRules::messages(),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return $this->captureValueRules()['attributes'];
+    }
+
+    /**
+     * Rules of the fields assigned to the record task line; empty when the record does not exist or its line has no
+     * pallet fields, the service responds those cases.
+     *
+     * @return array{rules: array<string, array<mixed>>, attributes: array<string, string>}
+     */
+    private function captureValueRules(): array
+    {
+        return $this->captureValueRules ??= CaptureValueRules::forLineFields($this->palletLineFields(), true);
+    }
+
+    /**
+     * @return Collection<int, LineField>
+     */
+    private function palletLineFields(): Collection
+    {
+        $recordId = $this->route('id');
+        $record = is_numeric($recordId) ? WeeklyPlanTaskPerformanceRecord::with('task.performance.line.lineFields.captureField')->find($recordId) : null;
+        $line = $record?->task?->performance?->line;
+
+        if ($line?->capture_type !== CaptureType::Pallet) {
+            return collect();
+        }
+
+        return $line->lineFields;
     }
 }
