@@ -61,9 +61,9 @@ class WeeklyPlanTaskLotRecordsController extends Controller
     {
         try {
             $data = $request->validated();
-            $result = $service->updateWeeklyPlanTaskLotRecordById($data, $id);
+            $service->updateWeeklyPlanTaskLotRecordById($data, $id);
 
-            return ResponseHandler::success($result, 'Registro de Lote Actualizado Correctamente', 200);
+            return ResponseHandler::success(null, 'Registro de Lote Actualizado Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
@@ -75,9 +75,9 @@ class WeeklyPlanTaskLotRecordsController extends Controller
     public function destroy(string $id, WeeklyPlanTaskLotRecordsServiceInterface $service)
     {
         try {
-            $result = $service->deleteWeeklyPlanTaskLotRecordById($id);
+            $service->deleteWeeklyPlanTaskLotRecordById($id);
 
-            return ResponseHandler::success($result, 'Registro de Lote Eliminado Correctamente', 200);
+            return ResponseHandler::success(null, 'Registro de Lote Eliminado Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
