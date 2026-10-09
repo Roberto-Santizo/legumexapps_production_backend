@@ -3,13 +3,33 @@
 namespace App\Http\Requests\Shared;
 
 use App\Enums\CaptureFieldDataType;
+use App\Enums\CaptureType;
 use App\Models\LineField;
+use App\Models\WeeklyPlanTask;
 use Closure;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
 class CaptureValueRules
 {
+    /**
+     * Build the validation rules of the "values" object from the fields of the task line; empty when the task does not exist,
+     * its line is not of the given family or has no fields, the service responds those cases.
+     *
+     * @param  WeeklyPlanTask|null  $task  with performance.line.lineFields.captureField loaded
+     * @return array{rules: array<string, array<mixed>>, attributes: array<string, string>}
+     */
+    public static function forTask(?WeeklyPlanTask $task, CaptureType $captureType, bool $isUpdate): array
+    {
+        $line = $task?->performance?->line;
+
+        if ($line?->capture_type !== $captureType || $line->lineFields->isEmpty()) {
+            return ['rules' => [], 'attributes' => []];
+        }
+
+        return self::forLineFields($line->lineFields, $isUpdate);
+    }
+
     /**
      * Build the validation rules of the "values" object from the fields assigned to a line.
      *

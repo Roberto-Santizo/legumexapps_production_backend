@@ -2,15 +2,18 @@
 
 namespace App\Services\WeeklyPlanTasks;
 
+use App\Enums\CaptureType;
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Helpers\MailHandler;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Mail\WeeklyPlanTasksOperationDateAssigned;
+use App\Models\LineField;
 use App\Models\LineSku;
 use App\Models\WeeklyPlanTask;
 use App\Observers\WeeklyPlanTaskObserver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Override;
 
@@ -263,6 +266,29 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
                 'end_date' => now(),
             ];
         }, 'Solo se puede finalizar una tarea en progreso');
+    }
+
+    /**
+     * Records can only be captured on lines of the given family that already have their capture fields configured.
+     *
+     * @return Collection<int, LineField>
+     */
+    #[Override]
+    public function getCaptureLineFields(WeeklyPlanTask $task, CaptureType $captureType): Collection
+    {
+        $line = $task->performance?->line;
+
+        if ($line?->capture_type !== $captureType) {
+            throw new BadRequestError("La línea de la tarea no captura por {$captureType->unitLabel()}");
+        }
+
+        $lineFields = $line->lineFields()->with('captureField')->get();
+
+        if ($lineFields->isEmpty()) {
+            throw new BadRequestError('La línea no tiene campos de captura configurados');
+        }
+
+        return $lineFields;
     }
 
     /**

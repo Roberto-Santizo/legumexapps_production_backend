@@ -4,11 +4,9 @@ namespace App\Http\Requests\WeeklyPlanTaskPerformanceRecords;
 
 use App\Enums\CaptureType;
 use App\Http\Requests\Shared\CaptureValueRules;
-use App\Models\LineField;
 use App\Models\WeeklyPlanTask;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Collection;
 
 class CreateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
 {
@@ -64,36 +62,18 @@ class CreateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
     }
 
     /**
-     * Rules of the fields assigned to the task line; empty when the task does not exist, its line is not pallet or has no fields,
-     * the service responds those cases.
+     * Rules of the fields assigned to the task line, see CaptureValueRules::forTask.
      *
      * @return array{rules: array<string, array<mixed>>, attributes: array<string, string>}
      */
     private function captureValueRules(): array
     {
         if ($this->captureValueRules === null) {
-            $lineFields = $this->palletLineFields();
-            $this->captureValueRules = $lineFields->isEmpty()
-                ? ['rules' => [], 'attributes' => []]
-                : CaptureValueRules::forLineFields($lineFields, false);
+            $taskId = $this->input('weekly_plan_task_id');
+            $task = is_numeric($taskId) ? WeeklyPlanTask::with('performance.line.lineFields.captureField')->find($taskId) : null;
+            $this->captureValueRules = CaptureValueRules::forTask($task, CaptureType::Pallet, false);
         }
 
         return $this->captureValueRules;
-    }
-
-    /**
-     * @return Collection<int, LineField>
-     */
-    private function palletLineFields(): Collection
-    {
-        $taskId = $this->input('weekly_plan_task_id');
-        $task = is_numeric($taskId) ? WeeklyPlanTask::with('performance.line.lineFields.captureField')->find($taskId) : null;
-        $line = $task?->performance?->line;
-
-        if ($line?->capture_type !== CaptureType::Pallet) {
-            return collect();
-        }
-
-        return $line->lineFields;
     }
 }

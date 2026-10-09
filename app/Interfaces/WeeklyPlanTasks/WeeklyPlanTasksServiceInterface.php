@@ -2,7 +2,10 @@
 
 namespace App\Interfaces\WeeklyPlanTasks;
 
+use App\Enums\CaptureType;
+use App\Models\WeeklyPlanTask;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 interface WeeklyPlanTasksServiceInterface
 {
@@ -25,4 +28,6 @@ interface WeeklyPlanTasksServiceInterface
     public function startWeeklyPlanTask(string $id);
 
     public function endWeeklyPlanTask(string $id, array $data);
+
+    public function getCaptureLineFields(WeeklyPlanTask $task, CaptureType $captureType): Collection;
 }
