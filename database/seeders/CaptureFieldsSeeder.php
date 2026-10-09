@@ -5,12 +5,13 @@ namespace Database\Seeders;
 use App\Enums\CaptureFieldDataType;
 use App\Enums\CaptureType;
 use App\Models\CaptureField;
+use App\Models\LineField;
 use Illuminate\Database\Seeder;
 
 class CaptureFieldsSeeder extends Seeder
 {
     /**
-     * Seed the system capture fields of every capture type.
+     * Seed the system capture fields of every capture type and make the line fields of calculated fields optional.
      */
     public function run(): void
     {
@@ -27,6 +28,11 @@ class CaptureFieldsSeeder extends Seeder
                 ]
             );
         }
+
+        LineField::query()
+            ->where('is_required', true)
+            ->whereHas('captureField', fn ($query) => $query->where('is_calculated', true))
+            ->update(['is_required' => false]);
     }
 
     /**
@@ -43,7 +49,7 @@ class CaptureFieldsSeeder extends Seeder
             $this->field(CaptureType::Pallet, 'boxes', 'Cajas', CaptureFieldDataType::Integer),
             $this->field(CaptureType::Pallet, 'liters', 'Litros', CaptureFieldDataType::Number),
             $this->field(CaptureType::Pallet, 'status', 'Estado', CaptureFieldDataType::Select, options: ['APROBADO', 'RECHAZADO']),
-            $this->field(CaptureType::Pallet, 'ticket_weight', 'Peso boleta', CaptureFieldDataType::Number),
+            $this->field(CaptureType::Pallet, 'ticket_weight', 'Peso boleta', CaptureFieldDataType::Number, ['boxes']),
             $this->field(CaptureType::Pallet, 'scale_weight', 'Peso báscula', CaptureFieldDataType::Number),
             $this->field(CaptureType::Pallet, 'tare', 'Tara', CaptureFieldDataType::Number),
             $this->field(CaptureType::Pallet, 'net_weight', 'Peso neto', CaptureFieldDataType::Number, ['scale_weight', 'tare']),
