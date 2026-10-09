@@ -66,7 +66,9 @@ tags:
   - name: WeeklyPlanTaskEmployees
   - name: WeeklyPlanTaskObservations
   - name: WeeklyPlanTaskPerformanceRecords
-    description: Tomas de rendimiento (pallet, cajas, libras) registradas durante una tarea en progreso.
+    description: |
+      Captura por tarima (familia `pallet`) durante una tarea en progreso. Los campos de cada registro
+      son los que la línea tiene configurados (`GET /lines/{code}/fields`).
   - name: WeeklyPlanTaskTimeouts
     description: Tiempos muertos (percances) registrados en vivo durante una tarea en progreso.
 
@@ -2694,16 +2696,35 @@ paths:
         '500': { $ref: '#/components/responses/ServerError' }
     post:
       tags: [WeeklyPlanTaskPerformanceRecords]
-      summary: Registrar toma de rendimiento (registrador = usuario autenticado)
+      summary: Registrar tarima (registrador = usuario autenticado)
       description: |
-        Solo tareas en status `4` (En Progreso). `pallet_number` y `boxes` son opcionales
-        (SKUs no paletizados solo registran peso). `pallet_number` no puede repetirse en la misma tarea.
+        Solo tareas en status `4` (En Progreso) cuya línea es `capture_type = pallet` y tiene campos
+        configurados. `values` lleva un valor por key de los campos **de entrada** asignados a la línea;
+        las keys de sistema se guardan en su columna y las custom en `extra_values`.
+        `pallet_number` no puede repetirse en la misma tarea.
 
-        El servidor calcula:
-        - `theoretical_pounds` = `boxes × sku.presentation`
-        - `difference_pounds` = `weighed_pounds − theoretical_pounds`
+        Validación de `values` (`422`):
+        - Cada campo según su `data_type`: `number` → numérico, `integer` → entero, `text` → máx. 500,
+          `date` → `Y-m-d`, `time` → `H:i`, `boolean`, `select` → una de sus `options`.
+        - Obligatorio si el campo está asignado con `is_required`; si no, acepta `null`.
+        - Campos de sistema numéricos `>= 0`; `pallet_number >= 1`; `lot` máx. 50.
+        - Los mensajes usan la etiqueta de la línea (ej. `El campo Tara es obligatorio.`), en `errors["values.{key}"]`.
+        - En `errors.values`: `El campo {key} no está configurado para la línea` y
+          `El campo {label} es calculado y no se puede enviar`.
 
-        Ambos quedan en `0` si no se envían `boxes` o el SKU no tiene `presentation`.
+        El servidor calcula solo los campos calculados asignados a la línea:
+        - `net_weight` = `scale_weight − tare`
+        - `ticket_weight` = `boxes × sku.presentation`
+        - `difference` = `net_weight − ticket_weight` (positivo = sobra peso)
+
+        Un calculado queda en `null` si no está asignado o le falta alguna entrada
+        (`presentation` vacía o `0` cuenta como faltante).
+
+        Errores `400`:
+        - `Solo se pueden registrar tomas de rendimiento en una tarea en progreso`
+        - `La línea de la tarea no captura por tarima`
+        - `La línea no tiene campos de captura configurados`
+        - `La pallet {n} ya fue registrada en la tarea`
       requestBody:
         required: true
         content:
@@ -2746,21 +2767,26 @@ paths:
         '500': { $ref: '#/components/responses/ServerError' }
     put:
       tags: [WeeklyPlanTaskPerformanceRecords]
-      summary: Actualizar toma de rendimiento
+      summary: Actualizar tarima
       description: |
-        Solo con la tarea en status `4`. Todos los campos son opcionales; los omitidos conservan su valor.
-        Enviar `null` en `pallet_number` o `boxes` los limpia. `theoretical_pounds` y `difference_pounds`
-        se recalculan.
+        Mismas reglas que el `POST`, pero todas las keys de `values` son opcionales: las omitidas conservan
+        su valor y una key con `null` lo borra (en `extra_values` queda la key con `null`).
+        Los calculados se recalculan con la configuración **actual** de la línea.
+
+        Errores `400`: los mismos del `POST`.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required: [values]
               properties:
-                pallet_number: { type: [integer, 'null'], minimum: 1 }
-                boxes: { type: [integer, 'null'], minimum: 0 }
-                weighed_pounds: { type: number, minimum: 0 }
+                values:
+                  type: object
+                  description: '`{ key: valor }` de los campos de entrada asignados a la línea'
+                  additionalProperties: true
+                  examples: [{ tare: 200, lot: null }]
       responses:
         '200': { $ref: '#/components/responses/TrueData' }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -3501,7 +3527,7 @@ components:
         produced_pallets: { type: [number, 'null'] }
         hours: { type: number }
         weighed_pounds: { type: [number, 'null'] }
-        recorded_pounds: { type: number, description: 'Suma de `weighed_pounds` de las tomas de rendimiento ("cuánto lleva")' }
+        recorded_pounds: { type: number, description: 'Suma de `net_weight` de las tarimas registradas ("cuánto lleva"); los `null` cuentan como `0`' }
         planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
         timeout_hours: { type: number, description: 'Suma de `duration_hours` de los tiempos muertos cerrados (2 decimales)' }
         open_timeout_id: { type: [integer, 'null'], description: 'ID del tiempo muerto abierto; `null` si no hay ninguno' }
@@ -3566,22 +3592,36 @@ components:
         id: { type: integer }
         weekly_plan_task_id: { type: integer }
         pallet_number: { type: [integer, 'null'] }
+        lot: { type: [string, 'null'] }
+        recorded_at: { type: [string, 'null'], description: '`H:i`', examples: ['07:25'] }
         boxes: { type: [integer, 'null'] }
-        weighed_pounds: { type: number, description: Peso real }
-        theoretical_pounds: { type: number, description: '`boxes × sku.presentation`; `0` sin cajas o sin `presentation`' }
-        difference_pounds: { type: number, description: '`weighed_pounds − theoretical_pounds`; `0` cuando no hay teórico' }
+        liters: { type: [number, 'null'] }
+        status: { type: [string, 'null'], examples: [APROBADO] }
+        scale_weight: { type: [number, 'null'], description: Peso báscula }
+        tare: { type: [number, 'null'] }
+        net_weight: { type: [number, 'null'], description: 'Calculado: `scale_weight − tare`' }
+        ticket_weight: { type: [number, 'null'], description: 'Calculado: `boxes × sku.presentation`' }
+        difference: { type: [number, 'null'], description: 'Calculado: `net_weight − ticket_weight`' }
+        observations: { type: [string, 'null'] }
+        extra_values:
+          type: object
+          description: 'Valores de los campos custom `{ key: valor }`; `{}` si no hay'
+          additionalProperties: true
         user_id: { type: integer }
         user_name: { type: string }
         created_at: { type: string, examples: ['02-10-2026 08:30'] }
         updated_at: { type: string, examples: ['02-10-2026 08:30'] }
     WeeklyPlanTaskPerformanceRecordInput:
       type: object
-      required: [weekly_plan_task_id, weighed_pounds]
+      required: [weekly_plan_task_id, values]
       properties:
         weekly_plan_task_id: { type: integer }
-        pallet_number: { type: [integer, 'null'], minimum: 1 }
-        boxes: { type: [integer, 'null'], minimum: 0 }
-        weighed_pounds: { type: number, minimum: 0 }
+        values:
+          type: object
+          description: '`{ key: valor }` de los campos de entrada asignados a la línea (sistema y custom); sin calculados'
+          additionalProperties: true
+          examples:
+            - { pallet_number: 1, lot: PA-26279-R5A, recorded_at: '07:25', boxes: 130, scale_weight: 2534, tare: 180, temperatura: 4 }
     WeeklyPlanTaskTimeout:
       type: object
       properties:

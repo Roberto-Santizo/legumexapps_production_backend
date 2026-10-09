@@ -2,18 +2,26 @@
 
 namespace App\Services\WeeklyPlanTaskPerformanceRecords;
 
+use App\Calculators\PalletCalculator;
+use App\Enums\CaptureType;
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlanTaskPerformanceRecords\WeeklyPlanTaskPerformanceRecordsServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
+use App\Models\LineField;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskPerformanceRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Override;
 
 class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerformanceRecordsServiceInterface
 {
-    public function __construct(private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService) {}
+    public function __construct(
+        private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService,
+        private PalletCalculator $palletCalculator,
+    ) {}
 
     #[Override]
     public function getWeeklyPlanTaskPerformanceRecords(Request $request)
@@ -35,18 +43,18 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($data['weekly_plan_task_id']);
         $this->ensureTaskInProgress($task);
+        $lineFields = $this->getPalletLineFields($task);
 
-        $palletNumber = $data['pallet_number'] ?? null;
-        $boxes = $data['boxes'] ?? null;
-        $this->ensurePalletNumberIsAvailable($task, $palletNumber);
+        $columns = Arr::only($data['values'], WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS);
+        $extraValues = Arr::except($data['values'], WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS);
+        $this->ensurePalletNumberIsAvailable($task, $columns['pallet_number'] ?? null);
 
         return WeeklyPlanTaskPerformanceRecord::create([
+            ...$columns,
+            ...$this->calculate($task, $lineFields, $columns),
             'weekly_plan_task_id' => $task->id,
             'user_id' => auth()->user()->id,
-            'pallet_number' => $palletNumber,
-            'boxes' => $boxes,
-            'weighed_pounds' => $data['weighed_pounds'],
-            ...$this->calculatePounds($task, $boxes, (float) $data['weighed_pounds']),
+            'extra_values' => $extraValues ?: null,
         ]);
     }
 
@@ -68,17 +76,22 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
         $record = $this->getWeeklyPlanTaskPerformanceRecordById($id);
         $task = $record->task;
         $this->ensureTaskInProgress($task);
+        $lineFields = $this->getPalletLineFields($task);
 
-        $palletNumber = array_key_exists('pallet_number', $data) ? $data['pallet_number'] : $record->pallet_number;
-        $boxes = array_key_exists('boxes', $data) ? $data['boxes'] : $record->boxes;
-        $weighedPounds = (float) ($data['weighed_pounds'] ?? $record->weighed_pounds);
-        $this->ensurePalletNumberIsAvailable($task, $palletNumber, $record->id);
+        $columns = [
+            ...$record->only(WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS),
+            ...Arr::only($data['values'], WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS),
+        ];
+        $extraValues = [
+            ...($record->extra_values ?? []),
+            ...Arr::except($data['values'], WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS),
+        ];
+        $this->ensurePalletNumberIsAvailable($task, $columns['pallet_number'], $record->id);
 
         $record->update([
-            'pallet_number' => $palletNumber,
-            'boxes' => $boxes,
-            'weighed_pounds' => $weighedPounds,
-            ...$this->calculatePounds($task, $boxes, $weighedPounds),
+            ...$columns,
+            ...$this->calculate($task, $lineFields, $columns),
+            'extra_values' => $extraValues ?: null,
         ]);
 
         return true;
@@ -106,6 +119,28 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
     }
 
     /**
+     * Records can only be captured on pallet lines that already have their capture fields configured.
+     *
+     * @return Collection<int, LineField>
+     */
+    private function getPalletLineFields(WeeklyPlanTask $task): Collection
+    {
+        $line = $task->performance?->line;
+
+        if ($line?->capture_type !== CaptureType::Pallet) {
+            throw new BadRequestError('La línea de la tarea no captura por tarima');
+        }
+
+        $lineFields = $line->lineFields()->with('captureField')->get();
+
+        if ($lineFields->isEmpty()) {
+            throw new BadRequestError('La línea no tiene campos de captura configurados');
+        }
+
+        return $lineFields;
+    }
+
+    /**
      * A pallet number can only be registered once per task; records without pallet are not restricted.
      */
     private function ensurePalletNumberIsAvailable(WeeklyPlanTask $task, ?int $palletNumber, ?int $ignoredRecordId = null): void
@@ -125,23 +160,17 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
     }
 
     /**
-     * Theoretical pounds are the boxes times the SKU presentation; both values are 0 when either is missing.
+     * Resolve the calculated fields with the current configuration of the line and the SKU presentation.
      *
-     * @return array{theoretical_pounds: float, difference_pounds: float}
+     * @param  Collection<int, LineField>  $lineFields
+     * @param  array<string, mixed>  $columns
+     * @return array{net_weight: ?float, ticket_weight: ?float, difference: ?float}
      */
-    private function calculatePounds(WeeklyPlanTask $task, ?int $boxes, float $weighedPounds): array
+    private function calculate(WeeklyPlanTask $task, Collection $lineFields, array $columns): array
     {
         $presentation = $task->performance?->sku?->presentation;
+        $assignedKeys = $lineFields->map(fn (LineField $lineField) => $lineField->captureField->key)->all();
 
-        if (! $boxes || ! $presentation) {
-            return ['theoretical_pounds' => 0, 'difference_pounds' => 0];
-        }
-
-        $theoreticalPounds = $boxes * $presentation;
-
-        return [
-            'theoretical_pounds' => $theoreticalPounds,
-            'difference_pounds' => $weighedPounds - $theoreticalPounds,
-        ];
+        return $this->palletCalculator->calculate($columns, $presentation !== null ? (float) $presentation : null, $assignedKeys);
     }
 }
