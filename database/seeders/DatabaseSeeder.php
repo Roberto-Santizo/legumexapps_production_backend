@@ -21,5 +21,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'password' => bcrypt('password'),
         ]);
+
+        $this->call(CaptureFieldsSeeder::class);
     }
 }

@@ -71,6 +71,12 @@ class LinesService implements LinesServiceInterface
     public function updateLineById(string $id, array $data)
     {
         $line = $this->getLineByCode($id);
+
+        $isCaptureTypeChanged = isset($data['capture_type']) && $data['capture_type'] !== $line->capture_type->value;
+        if ($isCaptureTypeChanged && $line->lineFields()->exists()) {
+            throw new BadRequestError('No se puede cambiar la familia de captura de una línea con campos configurados');
+        }
+
         $line->update($data);
         $line->save();
 

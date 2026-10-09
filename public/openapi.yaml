@@ -40,6 +40,10 @@ tags:
   - name: Lines
   - name: Positions
   - name: LineDependencies
+  - name: CaptureFields
+    description: Catálogo de campos de captura de producción (sistema y custom).
+  - name: LineFields
+    description: Campos de captura configurados por línea (formulario de captura).
   - name: Clients
   - name: Skus
   - name: Performances
@@ -450,6 +454,9 @@ paths:
     put:
       tags: [Lines]
       summary: Actualizar línea
+      description: |
+        Errores `400`:
+        - `No se puede cambiar la familia de captura de una línea con campos configurados`
       requestBody:
         required: true
         content:
@@ -457,6 +464,7 @@ paths:
             schema: { $ref: '#/components/schemas/LineInput' }
       responses:
         '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -615,6 +623,207 @@ paths:
       summary: Eliminar dependencia
       responses:
         '200': { $ref: '#/components/responses/TrueData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── CAPTURE FIELDS ─────────────────────────────
+  /capture-fields:
+    get:
+      tags: [CaptureFields]
+      summary: Listar catálogo de campos de captura
+      description: Ordenados por `capture_type` (globales al final) y luego `id`.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: captureType, in: query, schema: { $ref: '#/components/schemas/CaptureType' }, description: 'Campos de esa familia **más** los globales (`capture_type = null`). Es la lista para configurar una línea de esa familia.' }
+        - { name: isSystem, in: query, schema: { type: boolean }, description: Filtra por `is_system` }
+      responses:
+        '200':
+          description: Campos Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/CaptureField' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/CaptureField' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [CaptureFields]
+      summary: Crear campo custom
+      description: |
+        Se guarda siempre como global, de entrada y sin dependencias (`capture_type = null`,
+        `is_system = false`, `is_calculated = false`, `depends_on = null`).
+
+        Errores `400`:
+        - `Ya existe un campo con la clave {key}` (la `key` es única en todo el catálogo, incluidos los de sistema)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaptureFieldInput' }
+      responses:
+        '201':
+          description: Campo Creado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/CaptureField' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /capture-fields/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [CaptureFields]
+      summary: Obtener campo de captura
+      responses:
+        '200':
+          description: Campo Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/CaptureField' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    patch:
+      tags: [CaptureFields]
+      summary: Editar campo custom
+      description: |
+        Todos los campos son opcionales. `label` y `options` se pueden editar siempre. Si el tipo
+        resultante deja de ser `select`, `options` pasa a `null`.
+
+        Errores `400`:
+        - `Los campos de sistema no se pueden modificar`
+        - `No se puede cambiar la clave o el tipo de un campo asignado a líneas`
+        - `Ya existe un campo con la clave {key}`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaptureFieldUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [CaptureFields]
+      summary: Eliminar campo custom
+      description: |
+        Errores `400`:
+        - `Los campos de sistema no se pueden eliminar`
+        - `No se puede eliminar un campo asignado a líneas`
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── LINE FIELDS ─────────────────────────────
+  /lines/{code}/fields:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [LineFields]
+      summary: Campos configurados de una línea (formulario de captura)
+      description: Ordenados por `order` y luego `id`. Sin paginación.
+      responses:
+        '200':
+          description: Campos de la Línea Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LineField' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [LineFields]
+      summary: Asignar un campo del catálogo a la línea
+      description: |
+        Errores `400`:
+        - `El campo no pertenece a la familia de captura de la línea`
+        - `El campo ya está asignado a la línea`
+        - `Un campo calculado no puede ser obligatorio`
+        - `Para asignar {label} primero asigna: {labels faltantes}` (dependencias de un calculado)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineFieldInput' }
+      responses:
+        '201':
+          description: Campo Asignado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/LineField' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /line-fields/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (line_fields) }
+    patch:
+      tags: [LineFields]
+      summary: Editar obligatorio, orden o etiqueta de un campo de la línea
+      description: |
+        Todos los campos son opcionales. `label: null` vuelve a la etiqueta del catálogo.
+        `capture_field_id` no se edita: para cambiar de campo se quita y se asigna otro.
+
+        Errores `400`:
+        - `Un campo calculado no puede ser obligatorio`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineFieldUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [LineFields]
+      summary: Quitar un campo de la línea
+      description: |
+        Errores `400`:
+        - `No se puede quitar {label}: lo usa {labels de calculados}` (un calculado asignado depende de él)
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -2938,6 +3147,7 @@ components:
         name: { type: string }
         code: { type: string }
         shift: { type: integer }
+        capture_type: { $ref: '#/components/schemas/CaptureType' }
     LineInput:
       type: object
       required: [name, code, shift]
@@ -2945,6 +3155,10 @@ components:
         name: { type: string }
         code: { type: string, description: Único }
         shift: { type: number }
+        capture_type:
+          allOf:
+            - $ref: '#/components/schemas/CaptureType'
+          description: 'Opcional. Al crear, si no se envía queda `pallet`. No se puede cambiar si la línea tiene campos configurados.'
     Position:
       type: object
       properties:
@@ -2968,6 +3182,84 @@ components:
         id: { type: integer }
         line_dependant_name: { type: string }
         positions: { type: integer, description: Cantidad de puestos de la línea dependiente }
+    CaptureType:
+      type: string
+      enum: [pallet, lot, product]
+      description: 'Familia de captura: `pallet` (una fila = una tarima), `lot` (un lote GRN), `product` (una variante de producto o materia prima).'
+    CaptureFieldDataType:
+      type: string
+      enum: [number, integer, text, date, time, boolean, select]
+    CaptureField:
+      type: object
+      properties:
+        id: { type: integer }
+        key: { type: string, pattern: '^[a-z][a-z0-9_]*$', examples: [net_weight] }
+        label: { type: string, description: Etiqueta por default del catálogo }
+        data_type: { $ref: '#/components/schemas/CaptureFieldDataType' }
+        capture_type:
+          oneOf:
+            - $ref: '#/components/schemas/CaptureType'
+            - type: 'null'
+          description: '`null` = global (asignable a líneas de cualquier familia). Todos los custom son globales.'
+        is_system: { type: boolean, description: 'Sembrado por el sistema; solo lectura por API' }
+        is_calculated: { type: boolean, description: 'Salida calculada; el frontend lo muestra como solo lectura' }
+        depends_on: { type: array, items: { type: string }, description: '`key` de la misma familia que necesita un calculado; `[]` si no es calculado' }
+        options: { type: [array, 'null'], items: { type: string }, description: 'Solo para `data_type = select`' }
+        is_assigned: { type: boolean, description: 'Está asignado a alguna línea; si es `true`, `key` y `data_type` ya no se pueden editar' }
+    CaptureFieldInput:
+      type: object
+      required: [key, label, data_type]
+      properties:
+        key: { type: string, maxLength: 50, pattern: '^[a-z][a-z0-9_]*$', description: Única en todo el catálogo }
+        label: { type: string, maxLength: 100 }
+        data_type: { $ref: '#/components/schemas/CaptureFieldDataType' }
+        options:
+          type: array
+          minItems: 1
+          items: { type: string, maxLength: 100 }
+          description: 'Obligatorio si `data_type = select`; prohibido en otro tipo. Sin repetidos.'
+    CaptureFieldUpdateInput:
+      type: object
+      properties:
+        key: { type: string, maxLength: 50, pattern: '^[a-z][a-z0-9_]*$', description: 'Solo editable si el campo no está asignado' }
+        label: { type: string, maxLength: 100 }
+        data_type: { $ref: '#/components/schemas/CaptureFieldDataType' }
+        options:
+          type: array
+          minItems: 1
+          items: { type: string, maxLength: 100 }
+          description: 'Obligatorio si `data_type` llega como `select`; solo permitido si el tipo resultante es `select`.'
+    LineField:
+      type: object
+      properties:
+        id: { type: integer }
+        line_id: { type: integer }
+        capture_field_id: { type: integer }
+        key: { type: string }
+        label: { type: string, description: 'Etiqueta efectiva: `custom_label` si existe, si no `field_label`' }
+        field_label: { type: string, description: Etiqueta del catálogo }
+        custom_label: { type: [string, 'null'], description: Etiqueta propia de la línea }
+        data_type: { $ref: '#/components/schemas/CaptureFieldDataType' }
+        is_system: { type: boolean }
+        is_calculated: { type: boolean }
+        depends_on: { type: array, items: { type: string } }
+        options: { type: [array, 'null'], items: { type: string } }
+        is_required: { type: boolean, description: 'Siempre `false` en calculados' }
+        order: { type: integer, description: 'Posición en el formulario; empates por `id`' }
+    LineFieldInput:
+      type: object
+      required: [capture_field_id]
+      properties:
+        capture_field_id: { type: integer }
+        is_required: { type: boolean, default: false }
+        order: { type: integer, minimum: 0, default: 0 }
+        label: { type: [string, 'null'], maxLength: 100 }
+    LineFieldUpdateInput:
+      type: object
+      properties:
+        is_required: { type: boolean }
+        order: { type: integer, minimum: 0 }
+        label: { type: [string, 'null'], maxLength: 100, description: '`null` vuelve a la etiqueta del catálogo' }
     Client:
       type: object
       properties:

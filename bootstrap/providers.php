@@ -2,10 +2,12 @@
 
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
+use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
 use App\Providers\LineDependencies\LineDependenciesProvider;
+use App\Providers\LineFields\LineFieldsProvider;
 use App\Providers\Lines\LinesProvider;
 use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
@@ -31,10 +33,12 @@ use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 return [
     AppServiceProvider::class,
     AuthProvider::class,
+    CaptureFieldsProvider::class,
     ClientsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
     LineDependenciesProvider::class,
+    LineFieldsProvider::class,
     LineSkusProvider::class,
     LinesProvider::class,
     PackingMaterialTransactionItemsProvider::class,
