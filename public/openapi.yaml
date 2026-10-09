@@ -69,6 +69,10 @@ tags:
     description: |
       Captura por tarima (familia `pallet`) durante una tarea en progreso. Los campos de cada registro
       son los que la línea tiene configurados (`GET /lines/{code}/fields`).
+  - name: WeeklyPlanTaskLotRecords
+    description: |
+      Captura por lote GRN de materia prima (familia `lot`) durante una tarea en progreso. Los campos de cada
+      registro son los que la línea tiene configurados (`GET /lines/{code}/fields`).
   - name: WeeklyPlanTaskTimeouts
     description: Tiempos muertos (percances) registrados en vivo durante una tarea en progreso.
 
@@ -2805,6 +2809,150 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  # ───────────────────────────── WEEKLY PLAN TASK LOT RECORDS ─────────────────────────────
+  /weekly-plan-task-lot-records:
+    get:
+      tags: [WeeklyPlanTaskLotRecords]
+      summary: Listar registros de lote de una tarea
+      description: |
+        Ordenados por fecha de registro (más antiguo primero). Sin paginación.
+
+        Error `400`: `El id de la tarea del plan semanal es obligatorio`.
+      parameters:
+        - { name: weeklyPlanTaskId, in: query, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Registros de Lote Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskLotRecord' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanTaskLotRecords]
+      summary: Registrar lote (registrador = usuario autenticado)
+      description: |
+        Solo tareas en status `4` (En Progreso) cuya línea es `capture_type = lot` y tiene campos
+        configurados. `values` lleva un valor por key de los campos **de entrada** asignados a la línea;
+        las keys de sistema se guardan en su columna y las custom en `extra_values`.
+        `lot` no puede repetirse en la misma tarea (sin lote no se restringe).
+
+        Validación de `values` (`422`):
+        - Cada campo según su `data_type`: `number` → numérico, `integer` → entero, `text` → máx. 500,
+          `date` → `Y-m-d`, `time` → `H:i`, `boolean`, `select` → una de sus `options`.
+        - Obligatorio si el campo está asignado con `is_required`; si no, acepta `null`.
+        - Campos de sistema numéricos `>= 0`; `lot` máx. 50.
+        - Los mensajes usan la etiqueta de la línea (ej. `El campo Fecha de ingreso debe tener el formato Y-m-d.`),
+          en `errors["values.{key}"]`.
+        - En `errors.values`: `El campo {key} no está configurado para la línea` y
+          `El campo {label} es calculado y no se puede enviar`.
+
+        El servidor calcula solo los campos calculados asignados a la línea (porcentajes en escala 0–100):
+        - `recovery_pct` = `trimmed_lbs / applied_raw_lbs × 100`
+        - `overripe_pct` = `overripe_lbs / applied_raw_lbs × 100`
+        - `grn_balance` = `intake_lbs − applied_raw_lbs`
+
+        Un calculado queda en `null` si no está asignado o le falta alguna entrada
+        (`applied_raw_lbs` vacía o `0` cuenta como faltante para los porcentajes).
+
+        Errores `400`:
+        - `Solo se pueden registrar lotes en una tarea en progreso`
+        - `La línea de la tarea no captura por lote`
+        - `La línea no tiene campos de captura configurados`
+        - `El lote {lot} ya fue registrado en la tarea`
+        - `La MP aplicada no puede ser mayor a las libras al ingreso`
+        - `Las libras recortadas y sobremaduras no pueden superar la MP aplicada` (un `null` cuenta como `0`)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanTaskLotRecordInput' }
+      responses:
+        '201':
+          description: Registro de Lote Creado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskLotRecord' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-lot-records/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanTaskLotRecords]
+      summary: Obtener registro de lote
+      description: 'Error `404`: `El registro de lote no existe`.'
+      responses:
+        '200':
+          description: Registro de Lote Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskLotRecord' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanTaskLotRecords]
+      summary: Actualizar lote
+      description: |
+        Mismas reglas que el `POST`, pero todas las keys de `values` son opcionales: las omitidas conservan
+        su valor y una key con `null` lo borra (en `extra_values` queda la key con `null`).
+        Las validaciones entre campos usan los valores finales (guardados + recibidos) y los calculados
+        se recalculan con la configuración **actual** de la línea. Al validar el lote único se ignora
+        el propio registro.
+
+        Errores `400`: los mismos del `POST`. `404`: `El registro de lote no existe`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [values]
+              properties:
+                values:
+                  type: object
+                  description: '`{ key: valor }` de los campos de entrada asignados a la línea'
+                  additionalProperties: true
+                  examples: [{ trimmed_lbs: 8200, observations: null }]
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTaskLotRecords]
+      summary: Eliminar registro de lote
+      description: |
+        Borrado físico. Solo con la tarea en status `4`.
+
+        Errores: `400` `Solo se pueden registrar lotes en una tarea en progreso`; `404` `El registro de lote no existe`.
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK TIMEOUTS ─────────────────────────────
   /weekly-plan-tasks/{id}/timeouts:
     get:
@@ -3527,7 +3675,7 @@ components:
         produced_pallets: { type: [number, 'null'] }
         hours: { type: number }
         weighed_pounds: { type: [number, 'null'] }
-        recorded_pounds: { type: number, description: 'Suma de `net_weight` de las tarimas registradas ("cuánto lleva"); los `null` cuentan como `0`' }
+        recorded_pounds: { type: number, description: 'Avance ("cuánto lleva"): suma de `net_weight` de las tarimas + suma de `trimmed_lbs` de los lotes registrados; los `null` cuentan como `0`' }
         planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
         timeout_hours: { type: number, description: 'Suma de `duration_hours` de los tiempos muertos cerrados (2 decimales)' }
         open_timeout_id: { type: [integer, 'null'], description: 'ID del tiempo muerto abierto; `null` si no hay ninguno' }
@@ -3622,6 +3770,41 @@ components:
           additionalProperties: true
           examples:
             - { pallet_number: 1, lot: PA-26279-R5A, recorded_at: '07:25', boxes: 130, scale_weight: 2534, tare: 180, temperatura: 4 }
+    WeeklyPlanTaskLotRecord:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_task_id: { type: integer }
+        entry_date: { type: [string, 'null'], format: date, description: 'Fecha de ingreso `Y-m-d`', examples: ['2026-10-06'] }
+        lot: { type: [string, 'null'], description: Lote (GRN), examples: ['LX2 - 6791'] }
+        recorded_at: { type: [string, 'null'], description: '`H:i`', examples: ['15:00'] }
+        intake_lbs: { type: [number, 'null'], description: Peso de libras al ingreso }
+        applied_raw_lbs: { type: [number, 'null'], description: MP aplicada }
+        trimmed_lbs: { type: [number, 'null'], description: Libras recortadas }
+        overripe_lbs: { type: [number, 'null'], description: Libras sobremaduro }
+        recovery_pct: { type: [number, 'null'], description: 'Calculado: `trimmed_lbs / applied_raw_lbs × 100` (2 decimales)' }
+        overripe_pct: { type: [number, 'null'], description: 'Calculado: `overripe_lbs / applied_raw_lbs × 100` (2 decimales)' }
+        grn_balance: { type: [number, 'null'], description: 'Calculado: `intake_lbs − applied_raw_lbs`' }
+        observations: { type: [string, 'null'] }
+        extra_values:
+          type: object
+          description: 'Valores de los campos custom `{ key: valor }`; `{}` si no hay'
+          additionalProperties: true
+        user_id: { type: integer }
+        user_name: { type: string }
+        created_at: { type: string, examples: ['06-10-2026 15:02'] }
+        updated_at: { type: string, examples: ['06-10-2026 15:02'] }
+    WeeklyPlanTaskLotRecordInput:
+      type: object
+      required: [weekly_plan_task_id, values]
+      properties:
+        weekly_plan_task_id: { type: integer }
+        values:
+          type: object
+          description: '`{ key: valor }` de los campos de entrada asignados a la línea (sistema y custom); sin calculados'
+          additionalProperties: true
+          examples:
+            - { entry_date: '2026-10-06', lot: 'LX2 - 6791', recorded_at: '15:00', intake_lbs: 22803.5, applied_raw_lbs: 18064.5, trimmed_lbs: 8127, overripe_lbs: 47 }
     WeeklyPlanTaskTimeout:
       type: object
       properties:

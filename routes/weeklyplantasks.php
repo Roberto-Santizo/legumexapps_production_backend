@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
+use App\Http\Controllers\WeeklyPlanTaskLotRecordsController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
 use App\Http\Controllers\WeeklyPlanTaskPerformanceRecordsController;
 use App\Http\Controllers\WeeklyPlanTasksController;
@@ -12,6 +13,8 @@ Route::middleware('jwt.auth')->group(function () {
     Route::apiResource('/weekly-plan-task-observations', WeeklyPlanTaskObservationsController::class);
     Route::apiResource('/weekly-plan-task-performance-records', WeeklyPlanTaskPerformanceRecordsController::class)
         ->parameters(['weekly-plan-task-performance-records' => 'id']);
+    Route::apiResource('/weekly-plan-task-lot-records', WeeklyPlanTaskLotRecordsController::class)
+        ->parameters(['weekly-plan-task-lot-records' => 'id']);
 });
 
 // FUNCTIONALITYS

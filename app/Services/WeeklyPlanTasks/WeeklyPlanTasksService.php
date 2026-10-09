@@ -2,15 +2,18 @@
 
 namespace App\Services\WeeklyPlanTasks;
 
+use App\Enums\CaptureType;
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Helpers\MailHandler;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Mail\WeeklyPlanTasksOperationDateAssigned;
+use App\Models\LineField;
 use App\Models\LineSku;
 use App\Models\WeeklyPlanTask;
 use App\Observers\WeeklyPlanTaskObserver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Override;
 
@@ -25,7 +28,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
 
         $payload = [
             'boxes' => $data['boxes'],
-            'pallets' => $data['boxes'] / $sku->boxes_per_pallet,
+            'pallets' =>  $sku->boxes_per_pallet ? $data['boxes'] / $sku->boxes_per_pallet : 0,
             'hours' => $total_lbs / $performance->lbs_performance,
             'destination' => $data['destination'],
             'operation_date' => $data['operation_date'],
@@ -44,6 +47,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         $query = WeeklyPlanTask::query();
         $query->with(['performance', 'performance.sku', 'performance.line', 'openTimeout']);
         $query->withSum('performanceRecords', 'net_weight');
+        $query->withSum('lotRecords', 'trimmed_lbs');
         $query->withSum('timeouts', 'duration_hours');
 
         if ($request->query('weeklyPlanId')) {
@@ -90,6 +94,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     {
         $weeklyPlanTask = WeeklyPlanTask::with('openTimeout')
             ->withSum('performanceRecords', 'net_weight')
+            ->withSum('lotRecords', 'trimmed_lbs')
             ->withSum('timeouts', 'duration_hours')
             ->find($id);
         if (! $weeklyPlanTask) {
@@ -209,7 +214,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             return $newTaskIds;
         });
 
-        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'openTimeout'])->withSum('performanceRecords', 'net_weight')->withSum('timeouts', 'duration_hours')->get();
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'openTimeout'])->withSum('performanceRecords', 'net_weight')->withSum('lotRecords', 'trimmed_lbs')->withSum('timeouts', 'duration_hours')->get();
     }
 
     /**
@@ -266,6 +271,29 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     }
 
     /**
+     * Records can only be captured on lines of the given family that already have their capture fields configured.
+     *
+     * @return Collection<int, LineField>
+     */
+    #[Override]
+    public function getCaptureLineFields(WeeklyPlanTask $task, CaptureType $captureType): Collection
+    {
+        $line = $task->performance?->line;
+
+        if ($line?->capture_type !== $captureType) {
+            throw new BadRequestError("La línea de la tarea no captura por {$captureType->unitLabel()}");
+        }
+
+        $lineFields = $line->lineFields()->with('captureField')->get();
+
+        if ($lineFields->isEmpty()) {
+            throw new BadRequestError('La línea no tiene campos de captura configurados');
+        }
+
+        return $lineFields;
+    }
+
+    /**
      * Move a task between statuses applying the given attributes, revalidating the status under a row lock.
      *
      * @param  callable(WeeklyPlanTask): array<string, mixed>  $attributes
@@ -289,6 +317,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
 
         return $task->fresh(['performance.sku.client', 'performance.line', 'openTimeout'])
             ->loadSum('performanceRecords', 'net_weight')
+            ->loadSum('lotRecords', 'trimmed_lbs')
             ->loadSum('timeouts', 'duration_hours');
     }
 }

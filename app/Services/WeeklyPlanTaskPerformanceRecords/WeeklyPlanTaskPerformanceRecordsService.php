@@ -43,7 +43,7 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($data['weekly_plan_task_id']);
         $this->ensureTaskInProgress($task);
-        $lineFields = $this->getPalletLineFields($task);
+        $lineFields = $this->weeklyPlanTasksService->getCaptureLineFields($task, CaptureType::Pallet);
 
         $columns = Arr::only($data['values'], WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS);
         $extraValues = Arr::except($data['values'], WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS);
@@ -76,7 +76,7 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
         $record = $this->getWeeklyPlanTaskPerformanceRecordById($id);
         $task = $record->task;
         $this->ensureTaskInProgress($task);
-        $lineFields = $this->getPalletLineFields($task);
+        $lineFields = $this->weeklyPlanTasksService->getCaptureLineFields($task, CaptureType::Pallet);
 
         $columns = [
             ...$record->only(WeeklyPlanTaskPerformanceRecord::SYSTEM_KEYS),
@@ -116,28 +116,6 @@ class WeeklyPlanTaskPerformanceRecordsService implements WeeklyPlanTaskPerforman
         if ($task->status != 4) {
             throw new BadRequestError('Solo se pueden registrar tomas de rendimiento en una tarea en progreso');
         }
-    }
-
-    /**
-     * Records can only be captured on pallet lines that already have their capture fields configured.
-     *
-     * @return Collection<int, LineField>
-     */
-    private function getPalletLineFields(WeeklyPlanTask $task): Collection
-    {
-        $line = $task->performance?->line;
-
-        if ($line?->capture_type !== CaptureType::Pallet) {
-            throw new BadRequestError('La línea de la tarea no captura por tarima');
-        }
-
-        $lineFields = $line->lineFields()->with('captureField')->get();
-
-        if ($lineFields->isEmpty()) {
-            throw new BadRequestError('La línea no tiene campos de captura configurados');
-        }
-
-        return $lineFields;
     }
 
     /**

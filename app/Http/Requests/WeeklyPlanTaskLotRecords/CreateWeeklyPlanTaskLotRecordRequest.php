@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\WeeklyPlanTaskPerformanceRecords;
+namespace App\Http\Requests\WeeklyPlanTaskLotRecords;
 
 use App\Enums\CaptureType;
 use App\Http\Requests\Shared\CaptureValueRules;
@@ -8,7 +8,7 @@ use App\Models\WeeklyPlanTask;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
+class CreateWeeklyPlanTaskLotRecordRequest extends FormRequest
 {
     /**
      * @var array{rules: array<string, array<mixed>>, attributes: array<string, string>}|null
@@ -71,7 +71,7 @@ class CreateWeeklyPlanTaskPerformanceRecordRequest extends FormRequest
         if ($this->captureValueRules === null) {
             $taskId = $this->input('weekly_plan_task_id');
             $task = is_numeric($taskId) ? WeeklyPlanTask::with('performance.line.lineFields.captureField')->find($taskId) : null;
-            $this->captureValueRules = CaptureValueRules::forTask($task, CaptureType::Pallet, false);
+            $this->captureValueRules = CaptureValueRules::forTask($task, CaptureType::Lot, false);
         }
 
         return $this->captureValueRules;
