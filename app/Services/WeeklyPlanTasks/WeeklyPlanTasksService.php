@@ -28,7 +28,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
 
         $payload = [
             'boxes' => $data['boxes'],
-            'pallets' => $data['boxes'] / $sku->boxes_per_pallet,
+            'pallets' =>  $sku->boxes_per_pallet ? $data['boxes'] / $sku->boxes_per_pallet : 0,
             'hours' => $total_lbs / $performance->lbs_performance,
             'destination' => $data['destination'],
             'operation_date' => $data['operation_date'],
