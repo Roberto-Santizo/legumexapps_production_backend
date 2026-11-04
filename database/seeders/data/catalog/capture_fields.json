@@ -1,0 +1,338 @@
+[
+    {
+        "key": "observations",
+        "label": "Observaciones",
+        "data_type": "text",
+        "capture_type": null,
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "pallet_number",
+        "label": "Tarima #",
+        "data_type": "integer",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "lot",
+        "label": "Lote",
+        "data_type": "text",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "recorded_at",
+        "label": "Hora",
+        "data_type": "time",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "boxes",
+        "label": "Cajas",
+        "data_type": "integer",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "liters",
+        "label": "Litros",
+        "data_type": "number",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "status",
+        "label": "Estado",
+        "data_type": "select",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": [
+            "APROBADO",
+            "RECHAZADO"
+        ]
+    },
+    {
+        "key": "ticket_weight",
+        "label": "Peso boleta",
+        "data_type": "number",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "boxes"
+        ],
+        "options": null
+    },
+    {
+        "key": "scale_weight",
+        "label": "Peso báscula",
+        "data_type": "number",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "tare",
+        "label": "Tara",
+        "data_type": "number",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "net_weight",
+        "label": "Peso neto",
+        "data_type": "number",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "scale_weight",
+            "tare"
+        ],
+        "options": null
+    },
+    {
+        "key": "difference",
+        "label": "Diferencial",
+        "data_type": "number",
+        "capture_type": "pallet",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "net_weight",
+            "ticket_weight"
+        ],
+        "options": null
+    },
+    {
+        "key": "entry_date",
+        "label": "Fecha de ingreso",
+        "data_type": "date",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "lot",
+        "label": "Lote (GRN)",
+        "data_type": "text",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "recorded_at",
+        "label": "Hora",
+        "data_type": "time",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "intake_lbs",
+        "label": "Peso de libras al ingreso",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "applied_raw_lbs",
+        "label": "MP aplicada",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "trimmed_lbs",
+        "label": "Libras recortadas",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "overripe_lbs",
+        "label": "Libras sobremaduro",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "recovery_pct",
+        "label": "% Recuperación",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "trimmed_lbs",
+            "applied_raw_lbs"
+        ],
+        "options": null
+    },
+    {
+        "key": "overripe_pct",
+        "label": "% Sobremadurez",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "overripe_lbs",
+            "applied_raw_lbs"
+        ],
+        "options": null
+    },
+    {
+        "key": "grn_balance",
+        "label": "Saldo GRN",
+        "data_type": "number",
+        "capture_type": "lot",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "intake_lbs",
+            "applied_raw_lbs"
+        ],
+        "options": null
+    },
+    {
+        "key": "raw_material",
+        "label": "Materia prima",
+        "data_type": "text",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "raw_lbs",
+        "label": "Libras materia prima",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "classified_lbs",
+        "label": "Libras clasificadas",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "trimmed_lbs",
+        "label": "Libras recortadas",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "rejected_lbs",
+        "label": "Rechazo",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "packed_lbs",
+        "label": "Empacado",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    },
+    {
+        "key": "recovery_pct",
+        "label": "% Recuperación",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "trimmed_lbs",
+            "raw_lbs"
+        ],
+        "options": null
+    },
+    {
+        "key": "rejection_pct",
+        "label": "% Rechazo",
+        "data_type": "number",
+        "capture_type": "product",
+        "is_system": true,
+        "is_calculated": true,
+        "depends_on": [
+            "rejected_lbs",
+            "raw_lbs"
+        ],
+        "options": null
+    },
+    {
+        "key": "temperature",
+        "label": "TEMPERATURA",
+        "data_type": "number",
+        "capture_type": null,
+        "is_system": false,
+        "is_calculated": false,
+        "depends_on": null,
+        "options": null
+    }
+]

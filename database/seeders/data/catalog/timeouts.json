@@ -1,0 +1,150 @@
+[
+    {
+        "id": 1,
+        "name": "LIMPIEZA GENERAL/PROFUNDA"
+    },
+    {
+        "id": 2,
+        "name": "ARANQUE"
+    },
+    {
+        "id": 3,
+        "name": "ABASTECIMIENTO Y CAIDA"
+    },
+    {
+        "id": 4,
+        "name": "LIMPIEZA POR DEFROST"
+    },
+    {
+        "id": 5,
+        "name": "LIMPIEZA FINAL DE TURNO"
+    },
+    {
+        "id": 6,
+        "name": "ESPACIO POR CAMBIO DE PRODUCTO/VARIEDAD"
+    },
+    {
+        "id": 7,
+        "name": "LIMPIEZA Y SANITIZACIÓN DE ARRANQUE"
+    },
+    {
+        "id": 8,
+        "name": "FALLAS DE SUMINISTRO DE AGUA"
+    },
+    {
+        "id": 9,
+        "name": "FALLAS EN MAQUINARIA"
+    },
+    {
+        "id": 10,
+        "name": "FALTA DE ENERGÍA ELÉCTRICA"
+    },
+    {
+        "id": 11,
+        "name": "FALTA DE MATERIA PRIMA"
+    },
+    {
+        "id": 12,
+        "name": "PRODUCTO AGUADO"
+    },
+    {
+        "id": 13,
+        "name": "REGULACIÓN DE TEMPERATURA"
+    },
+    {
+        "id": 14,
+        "name": "DESVIACIONES DE CALIDAD"
+    },
+    {
+        "id": 15,
+        "name": "INCIDENTES LABORALES"
+    },
+    {
+        "id": 16,
+        "name": "EVACUACIÓN POR EMERGENCIA"
+    },
+    {
+        "id": 17,
+        "name": "REUNIÓN CON PERSONAL"
+    },
+    {
+        "id": 18,
+        "name": "PRUEBAS INDUSTRIALES"
+    },
+    {
+        "id": 19,
+        "name": "ALIMENTACIÓN"
+    },
+    {
+        "id": 20,
+        "name": "ARMADO DE LINEA"
+    },
+    {
+        "id": 21,
+        "name": "ARMADO Y ABASTECIMIENTO DE LINEA"
+    },
+    {
+        "id": 22,
+        "name": "CAMBIO DE CODIGO"
+    },
+    {
+        "id": 23,
+        "name": "LIMPIEZA POR CAMBIO DE PRODUCTO"
+    },
+    {
+        "id": 24,
+        "name": "ACUMULACIÓN DE PRODUCTO"
+    },
+    {
+        "id": 25,
+        "name": "FALTA DE PERSONAL"
+    },
+    {
+        "id": 26,
+        "name": "LIBERACIÓN DE LIMPIEZA"
+    },
+    {
+        "id": 27,
+        "name": "CLASIFICACIÓN DE PRODUCTO"
+    },
+    {
+        "id": 28,
+        "name": "LLENADO DE TANQUE"
+    },
+    {
+        "id": 29,
+        "name": "SALIDA AL SANITARIO"
+    },
+    {
+        "id": 30,
+        "name": "ARMADO DE CAJAS"
+    },
+    {
+        "id": 31,
+        "name": "ETIQUETADO DE BOTELLAS"
+    },
+    {
+        "id": 32,
+        "name": "DESECHO DE JUGOS Y LAVADO DE ENVASES"
+    },
+    {
+        "id": 33,
+        "name": "ARMADO Y SECADO DE PLAQUETAS"
+    },
+    {
+        "id": 34,
+        "name": "FALTA DE MATERIAL DE EMPAQUE"
+    },
+    {
+        "id": 35,
+        "name": "ESPERA POR LLENADO DE TANQUE"
+    },
+    {
+        "id": 36,
+        "name": "FINALIZACIÓN DE TAREA"
+    },
+    {
+        "id": 37,
+        "name": "CAMBIO DE PLACAS"
+    }
+]
