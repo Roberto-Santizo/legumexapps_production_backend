@@ -1,0 +1,3202 @@
+[
+    {
+        "id": 4,
+        "code": "PAB1730305",
+        "product_name": "HPP COLD PRESSED BERRY JUICE 6 X  33 OZ",
+        "presentation": 12.38,
+        "boxes_per_pallet": 168,
+        "client_id": 1
+    },
+    {
+        "id": 5,
+        "code": "PAB1730306",
+        "product_name": "HPP COLD PRESSED GREEN JUICE 6 X 33 OZ",
+        "presentation": 12.38,
+        "boxes_per_pallet": 168,
+        "client_id": 1
+    },
+    {
+        "id": 6,
+        "code": "PAB1710301",
+        "product_name": "HPP PINEAPPLE JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 1
+    },
+    {
+        "id": 7,
+        "code": "PAB1730301",
+        "product_name": "HPP BERRY JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 1
+    },
+    {
+        "id": 8,
+        "code": "PAB1730302",
+        "product_name": "HPP CARROT PINEAPPLE JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 1
+    },
+    {
+        "id": 9,
+        "code": "PAB1730303",
+        "product_name": "HPP GINGER LIME JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 1
+    },
+    {
+        "id": 10,
+        "code": "PAB1730304",
+        "product_name": "HPP GREEN JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 1
+    },
+    {
+        "id": 11,
+        "code": "PTC1020140",
+        "product_name": "PIÑA CHUNKS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 2
+    },
+    {
+        "id": 12,
+        "code": "PTC1030127",
+        "product_name": "MANGO CONGELADO CHUNKS 10 X 2 LBS 20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 2
+    },
+    {
+        "id": 13,
+        "code": "PTC1060125",
+        "product_name": "FRESA ENTERA 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 2
+    },
+    {
+        "id": 14,
+        "code": "PTC1020139",
+        "product_name": "PIÑA CHUNKS 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 15,
+        "code": "PTC1030205",
+        "product_name": "MANGO CHUNKS 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 16,
+        "code": "PTC1040204",
+        "product_name": "MELON CANTALOUPE BALLS 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 17,
+        "code": "PTC1050112",
+        "product_name": "PAPAYA CHUNKS 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 18,
+        "code": "PTC1060124",
+        "product_name": "FRESA ENTERA 12 X 2 LBS 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 19,
+        "code": "PTC1220203",
+        "product_name": "MELON HONEY BALLS 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 20,
+        "code": "PTC1250107",
+        "product_name": "SANDIA BALLS 12 X 2 LBS 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 21,
+        "code": "PTC1260102",
+        "product_name": "FRAMBUESA ENTERA 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 22,
+        "code": "PTC1320107",
+        "product_name": "ARANDANO ENTERO 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 23,
+        "code": "PTC1010112",
+        "product_name": "BANANO RODAJAS 12 X 2 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 24,
+        "code": "PTC1070106",
+        "product_name": "MORA ENTERA 12 X 2 LBS 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 3
+    },
+    {
+        "id": 25,
+        "code": "PTC1020135",
+        "product_name": "PINEAPPLE CHUNKS 9X2KG",
+        "presentation": 39.68,
+        "boxes_per_pallet": 42,
+        "client_id": 4
+    },
+    {
+        "id": 26,
+        "code": "PTCCC2031201",
+        "product_name": "BROCCOLI FLORETS 6X5LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": 35,
+        "client_id": 5
+    },
+    {
+        "id": 27,
+        "code": "PTCK2060101",
+        "product_name": "FRENCH BEANS 6X5LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": 35,
+        "client_id": 6
+    },
+    {
+        "id": 28,
+        "code": "PTF2030301",
+        "product_name": "FRESH BROCCOLI FLORETS 10 X 3LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": 40,
+        "client_id": 7
+    },
+    {
+        "id": 29,
+        "code": "PTC2100104",
+        "product_name": "OKRA CUT 1/2\" 12X2",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 8
+    },
+    {
+        "id": 30,
+        "code": "PTC2031002",
+        "product_name": "BROCCOLI FLORETS 12X1LB",
+        "presentation": 12.0,
+        "boxes_per_pallet": null,
+        "client_id": 9
+    },
+    {
+        "id": 31,
+        "code": "PTC2100109",
+        "product_name": "OKRA 12X1LB",
+        "presentation": 12.0,
+        "boxes_per_pallet": null,
+        "client_id": 9
+    },
+    {
+        "id": 32,
+        "code": "PTC2032201",
+        "product_name": "BROCCOLI FLORETS 12X2LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 10
+    },
+    {
+        "id": 33,
+        "code": "PTC2100108",
+        "product_name": "OKRA CUT 1 X 20  LB",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 10
+    },
+    {
+        "id": 34,
+        "code": "PTC2100111",
+        "product_name": "OKRA 8X16OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 35,
+        "code": "PTC2031121",
+        "product_name": "BROCCOLI FLORETS 8X12OZ",
+        "presentation": 6.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 36,
+        "code": "PTC2031710",
+        "product_name": "BROCCOLI CUTS 8X12OZ",
+        "presentation": 6.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 37,
+        "code": "PTC2250113",
+        "product_name": "CALIFORNIA BLEND 12 X 32 OZ",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 38,
+        "code": "PTC2310103",
+        "product_name": "ASIAN BLEND 8X16 OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 39,
+        "code": "PTC2250108",
+        "product_name": "CALIFORNIA BLEND 8 X 16 OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 40,
+        "code": "PTC2250111",
+        "product_name": "WINTER BLEND 8 X 16 OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 41,
+        "code": "PTC2250120",
+        "product_name": "CALIFORNIA BLEND 8 X 52 OZ",
+        "presentation": 26.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 42,
+        "code": "PTC2031705",
+        "product_name": "BROCCOLI CUTS 8X16OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 43,
+        "code": "PTC1240133",
+        "product_name": "MIX FRUIT 8X16ONZ (PINEAPPLE, STRAWBERRY, PEACHES, MANGO)",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 44,
+        "code": "PTC1240134",
+        "product_name": "MIX FRUIT 6X48ONZ (PINEAPPLE, STRAWBERRY, PEACHES, MANGO)",
+        "presentation": 18.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 45,
+        "code": "PTC1240159",
+        "product_name": "STRAWBERRIES, BANANAS, PEACHES 12 X 12OZ",
+        "presentation": 9.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 46,
+        "code": "PTC2031109",
+        "product_name": "BROCCOLI FLORETS 8X16OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 47,
+        "code": "PTC2031107",
+        "product_name": "BROCCOLI FLORETS 12X32OZ",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 48,
+        "code": "PTC2031124",
+        "product_name": "BROCCOLI FLORETS 8X52OZ",
+        "presentation": 26.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 49,
+        "code": "PTC1020124",
+        "product_name": "PINEAPPLE CHUNKS 8X16 OZ",
+        "presentation": 8.0,
+        "boxes_per_pallet": null,
+        "client_id": 11
+    },
+    {
+        "id": 50,
+        "code": "PTC2032002",
+        "product_name": "BROCCOLI FLORETS 12X16OZ",
+        "presentation": 12.0,
+        "boxes_per_pallet": 110,
+        "client_id": 12
+    },
+    {
+        "id": 51,
+        "code": "PTC2032001",
+        "product_name": "BROCCOLI FLORETS 12X12OZ",
+        "presentation": 9.0,
+        "boxes_per_pallet": 143,
+        "client_id": 12
+    },
+    {
+        "id": 52,
+        "code": "PTC2250101",
+        "product_name": "NORMANDY BLEND 12X16OZ",
+        "presentation": 12.0,
+        "boxes_per_pallet": 143,
+        "client_id": 12
+    },
+    {
+        "id": 53,
+        "code": "PTC1230203",
+        "product_name": "AVOCADO 10X16OZ",
+        "presentation": 10.0,
+        "boxes_per_pallet": 169,
+        "client_id": 12
+    },
+    {
+        "id": 54,
+        "code": "PTC1240126",
+        "product_name": "MELON BALLS MIXED 10X16OZ",
+        "presentation": 10.0,
+        "boxes_per_pallet": 156,
+        "client_id": 12
+    },
+    {
+        "id": 55,
+        "code": "PTC1240101",
+        "product_name": "PEACHES STRAWBERRY BANANA 12X14OZ",
+        "presentation": 10.5,
+        "boxes_per_pallet": 182,
+        "client_id": 12
+    },
+    {
+        "id": 56,
+        "code": "PTC1240104",
+        "product_name": "STRAWBERRY BANANA 12X14OZ",
+        "presentation": 10.5,
+        "boxes_per_pallet": 182,
+        "client_id": 12
+    },
+    {
+        "id": 57,
+        "code": "PTC1240107",
+        "product_name": "TROPICAL MEDLEY 12X14OZ",
+        "presentation": 10.5,
+        "boxes_per_pallet": 182,
+        "client_id": 12
+    },
+    {
+        "id": 58,
+        "code": "PTC2030906",
+        "product_name": "BROCCOLI FLORETS 12X40 OZ",
+        "presentation": 30.0,
+        "boxes_per_pallet": 50,
+        "client_id": 12
+    },
+    {
+        "id": 59,
+        "code": "PTC1010105",
+        "product_name": "BANANA 6X24OZ",
+        "presentation": 9.0,
+        "boxes_per_pallet": 198,
+        "client_id": 12
+    },
+    {
+        "id": 60,
+        "code": "PTC1020105",
+        "product_name": "PINEAPPPLE CHUNKS 2X5LB",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 61,
+        "code": "PTC1020302",
+        "product_name": "PINEAPPLE TIDBITS 1X10KG",
+        "presentation": 22.046,
+        "boxes_per_pallet": 90,
+        "client_id": 13
+    },
+    {
+        "id": 62,
+        "code": "PTC1010103",
+        "product_name": "BANANA 1X10LB",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 63,
+        "code": "PTC2100202",
+        "product_name": "OKA WHOLE 12 X 2.5 LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 64,
+        "code": "PTC2100103",
+        "product_name": "OKRA CUT 1/2\" 12X3",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 65,
+        "code": "PTC2032608",
+        "product_name": "STALK BROCCOLI 1200 LBS",
+        "presentation": 1200.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 66,
+        "code": "PTC2031105",
+        "product_name": "BROCCOLI FLORETS 1X20LB",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 67,
+        "code": "PTC2020101",
+        "product_name": "ARVEJA DULCE CONGELADA  WHOLE  TOTE  1350LBS",
+        "presentation": 1350.0,
+        "boxes_per_pallet": null,
+        "client_id": 14
+    },
+    {
+        "id": 68,
+        "code": "PAB1410104",
+        "product_name": "PINEAPPLE JUICE 6 X 354 ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": 440,
+        "client_id": 15
+    },
+    {
+        "id": 69,
+        "code": "PTC1060128",
+        "product_name": "FRESA ENTERA 12 X 2 LBS 24LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 16
+    },
+    {
+        "id": 70,
+        "code": "PTC1310103",
+        "product_name": "COCO CONGELADO 12 X 2 LBS CAJA 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 16
+    },
+    {
+        "id": 71,
+        "code": "PAB1830305",
+        "product_name": "HPP COLD PRESSED PINEAPPLE JUICE 6 X 62.6 OZ",
+        "presentation": 23.47,
+        "boxes_per_pallet": 78,
+        "client_id": 17
+    },
+    {
+        "id": 72,
+        "code": "PAB1830306",
+        "product_name": "HPP COLD PRESSED STRAWBERRY/BANANA JUICE 6 X 62.6 OZ",
+        "presentation": 23.47,
+        "boxes_per_pallet": 78,
+        "client_id": 17
+    },
+    {
+        "id": 73,
+        "code": "PAB1830307",
+        "product_name": "HPP GREEN BOOST AVOCADO JUICE 6 X 62.6 OZ",
+        "presentation": 23.47,
+        "boxes_per_pallet": 78,
+        "client_id": 17
+    },
+    {
+        "id": 74,
+        "code": "PAB1810101",
+        "product_name": "HPP COLD PRESSED MANGO/PINEAPPLE JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 75,
+        "code": "PAB1830301",
+        "product_name": "HPP COLD PRESSED PINEAPPLE JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 76,
+        "code": "PAB1830302",
+        "product_name": "HPP COLD PRESSED CARROT PINEAPPLE JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 77,
+        "code": "PAB1830303",
+        "product_name": "HPP COLD PRESSED GINGER PINEAPPLE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 78,
+        "code": "PAB1830304",
+        "product_name": "HPP COLD PRESSED GREEN JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 79,
+        "code": "PTC2100117",
+        "product_name": "OKRA CUT 12 X 3 LB",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 18
+    },
+    {
+        "id": 80,
+        "code": "PTC2100107",
+        "product_name": "OKRA CUT 1 X 20  LB",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 18
+    },
+    {
+        "id": 81,
+        "code": "PTC2100201",
+        "product_name": "OKRA WHOLE 12 X 2 LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 19
+    },
+    {
+        "id": 82,
+        "code": "PTC2100112",
+        "product_name": "OKRA 12X2LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 19
+    },
+    {
+        "id": 83,
+        "code": "PTC1240166",
+        "product_name": "VIDASSA TRIPPLE BERRY BLEND 6 X 4PK/ 1 LB 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 84,
+        "code": "PTC2031130",
+        "product_name": "VIDASSA BROCCOLI FLORETS 6 X 3 LBS  18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 85,
+        "code": "PTC2190104",
+        "product_name": "VIDASSA BROCCOLI NORMANDY 5 X 4 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 86,
+        "code": "PTC2300103",
+        "product_name": "VIDASSA MIXED VEGETABLES 5 X 5 LBS 25 LBS",
+        "presentation": 25.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 87,
+        "code": "PTC1240165",
+        "product_name": "VIDASSA MIXED FRUIT 6 X 5 LB 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 88,
+        "code": "PTC1060126",
+        "product_name": "VIDASSA STRAWBERRIES 6 X 5 LB 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 89,
+        "code": "PTC1320110",
+        "product_name": "VIDASSA BLUEBERRIES 10 X 3 LB 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": 36,
+        "client_id": 20
+    },
+    {
+        "id": 90,
+        "code": "PTC2060108",
+        "product_name": "FRENCH BEANS 6X5LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": 40,
+        "client_id": 21
+    },
+    {
+        "id": 91,
+        "code": "PTF2030307",
+        "product_name": "FRESH BROCCOLI FLORETS 12 X 2LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": 48,
+        "client_id": 22
+    },
+    {
+        "id": 92,
+        "code": "PTC2031127",
+        "product_name": "BROCCOLI FLORETS 6X4 LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": 48,
+        "client_id": 22
+    },
+    {
+        "id": 93,
+        "code": "PTC2060120",
+        "product_name": "FINE WHOLE GREEN BEANS 6X5 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": 48,
+        "client_id": 22
+    },
+    {
+        "id": 94,
+        "code": "PTC2190103",
+        "product_name": "BROCCOLI NORMANDY 6X4LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": 54,
+        "client_id": 22
+    },
+    {
+        "id": 95,
+        "code": "PTC1240163",
+        "product_name": "MEMBERS MARK FRUIT MIX 8X5LB",
+        "presentation": 40.0,
+        "boxes_per_pallet": 48,
+        "client_id": 22
+    },
+    {
+        "id": 96,
+        "code": "PTC1010201",
+        "product_name": "BANANA 1X30LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 23
+    },
+    {
+        "id": 97,
+        "code": "PTC2100203",
+        "product_name": "OKA WHOLE 12 X 2.5 LB",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 23
+    },
+    {
+        "id": 98,
+        "code": "PTC2031708",
+        "product_name": "BROCCOLI CUT 35%H.M. 12X2LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 23
+    },
+    {
+        "id": 99,
+        "code": "PTC2100116",
+        "product_name": "OKRA CUT 12 X 3 LB",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 23
+    },
+    {
+        "id": 100,
+        "code": "PTC2100115",
+        "product_name": "OKRA CUT 1 X 20 LB",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 23
+    },
+    {
+        "id": 101,
+        "code": "PTC2031709",
+        "product_name": "BROCCOLI CUT 35%H.M. 1X20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 23
+    },
+    {
+        "id": 102,
+        "code": "PTC1010114",
+        "product_name": "BANANO RODAJAS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 103,
+        "code": "PTC1020142",
+        "product_name": "PIÑA CHUNKS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 104,
+        "code": "PTC1030126",
+        "product_name": "MANGO CHUNKS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 105,
+        "code": "PTC1040303",
+        "product_name": "MELON CANTALOUPE CHUNKS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 106,
+        "code": "PTC1050114",
+        "product_name": "PAPAYA CHUNKS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 107,
+        "code": "PTC1060207",
+        "product_name": "FRESA RODAJA BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 108,
+        "code": "PTC1130102",
+        "product_name": "MELOCOTON RODAJAS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 109,
+        "code": "PTC1220305",
+        "product_name": "MELON HONEY CHUNKS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 110,
+        "code": "PTC1250108",
+        "product_name": "SANDIA BALLS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 111,
+        "code": "PTC1310104",
+        "product_name": "COCO CHUNKS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 112,
+        "code": "PTC1320113",
+        "product_name": "ARANDANO ENTERO BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 113,
+        "code": "PTC2031131",
+        "product_name": "BROCOLI PARTIDO BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 114,
+        "code": "PTC2050102",
+        "product_name": "CHILE PIMIENTO BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 115,
+        "code": "PTC2150102",
+        "product_name": "CEBOLLA RODAJAS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 116,
+        "code": "PTC2180104",
+        "product_name": "CALIFORNIA VEGETALES MIX BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 117,
+        "code": "PTC2700101",
+        "product_name": "CHAMPIÑON RODAJAS BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": 350,
+        "client_id": 24
+    },
+    {
+        "id": 118,
+        "code": "PTC2031103",
+        "product_name": "BROCCOLI FLORETS 12X2LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 25
+    },
+    {
+        "id": 119,
+        "code": "PTF2030309",
+        "product_name": "FRESH BROCCOLI FLORETS 16 X 12OZ",
+        "presentation": 12.0,
+        "boxes_per_pallet": 90,
+        "client_id": 26
+    },
+    {
+        "id": 120,
+        "code": "PAB1110101",
+        "product_name": "PINEAPPLE JUICE 24 X 354 ML",
+        "presentation": 18.76,
+        "boxes_per_pallet": 91,
+        "client_id": 26
+    },
+    {
+        "id": 121,
+        "code": "PTC1020301",
+        "product_name": "PINEAPPLE TIDBITS 24X1LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": 76,
+        "client_id": 26
+    },
+    {
+        "id": 122,
+        "code": "PTC1320112",
+        "product_name": "ARANDANO CONGELADO 1 X 30 LB 30LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 123,
+        "code": "PTC1010113",
+        "product_name": "BANANO RODAJAS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 124,
+        "code": "PTC1020141",
+        "product_name": "PIÑA CHUNKS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 125,
+        "code": "PTC1050113",
+        "product_name": "PAPAYA CHUNKS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 126,
+        "code": "PTC1060127",
+        "product_name": "FRESA ENTERA 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 127,
+        "code": "PTC1060208",
+        "product_name": "FRESA CONGELADA RODAJA 10 X 2 LBS 20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 128,
+        "code": "PTC1120102",
+        "product_name": "FRESA, ARANDANO 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 129,
+        "code": "PTC1120103",
+        "product_name": "FRESA, DURAZNO, BANANO 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 130,
+        "code": "PTC1240164",
+        "product_name": "PIÑA, MANGO, PAPAYA 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 131,
+        "code": "PTC1260104",
+        "product_name": "FRAMBUESA ENTERA 10 X 1 LB 10LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 132,
+        "code": "PTC1320108",
+        "product_name": "ARANDANO ENTERO 10 X 1 LB 10 LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 133,
+        "code": "PTC1320109",
+        "product_name": "ARANDANO ENTERO 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 134,
+        "code": "PTC2250123",
+        "product_name": "CALIFORNIA BLEND VEGETALES MIXTOS 8 X 2 LBS  16 LBS",
+        "presentation": 16.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 135,
+        "code": "PTC3010109",
+        "product_name": "PIÑA ORGANICA CHUNKS 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 136,
+        "code": "PTC1020129",
+        "product_name": "PINEAPPLE CHUNKS 6X48 OZ",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 28
+    },
+    {
+        "id": 137,
+        "code": "PAB1310105",
+        "product_name": "BETTER GOODS PINEAPPLE JUICE 6X12OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 385,
+        "client_id": 28
+    },
+    {
+        "id": 138,
+        "code": "PAB1330301",
+        "product_name": "CARROT JUICE 6X12OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 385,
+        "client_id": 28
+    },
+    {
+        "id": 139,
+        "code": "PAB1330302",
+        "product_name": "GREEN JUICE 6X12OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 385,
+        "client_id": 28
+    },
+    {
+        "id": 140,
+        "code": "PTC2031128",
+        "product_name": "GV BROCCOLI FLORETS 10 X 12 OZ",
+        "presentation": 7.5,
+        "boxes_per_pallet": 169,
+        "client_id": 28
+    },
+    {
+        "id": 141,
+        "code": "PTC2100114",
+        "product_name": "OKRA CUT 6X12OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 142,
+        "code": "PTC1240143",
+        "product_name": "MIXED FRUIT 6X64OZ",
+        "presentation": 24.0,
+        "boxes_per_pallet": 80,
+        "client_id": 28
+    },
+    {
+        "id": 143,
+        "code": "PTC1240162",
+        "product_name": "GV FRUIT SALAD MEDLEY 6 X 48 OZ 18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 117,
+        "client_id": 28
+    },
+    {
+        "id": 144,
+        "code": "PTC1240141",
+        "product_name": "STRAWBERRY BANANA 6X48 OZ",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 28
+    },
+    {
+        "id": 145,
+        "code": "PTC1240142",
+        "product_name": "TROPICAL FRUIT MIX 6X48 OZ",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 28
+    },
+    {
+        "id": 146,
+        "code": "PTC2180103",
+        "product_name": "GV CALIFORNIA MIX 14 X 12 OZ",
+        "presentation": 10.5,
+        "boxes_per_pallet": 156,
+        "client_id": 28
+    },
+    {
+        "id": 147,
+        "code": "PTC1240140",
+        "product_name": "MIXED FRUIT 5X16 OZ",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 148,
+        "code": "PTC3010104",
+        "product_name": "ORGANIC PINEAPPLE CHUNKS 5X10 OZ",
+        "presentation": 3.125,
+        "boxes_per_pallet": 544,
+        "client_id": 28
+    },
+    {
+        "id": 149,
+        "code": "PTC2031129",
+        "product_name": "GV BROCCOLI FLORETS 6 X 64 OZ",
+        "presentation": 24.0,
+        "boxes_per_pallet": 60,
+        "client_id": 28
+    },
+    {
+        "id": 150,
+        "code": "PTC1060117",
+        "product_name": "WHOLE STRAWBERRRY 6X64 OZ",
+        "presentation": 24.0,
+        "boxes_per_pallet": 80,
+        "client_id": 28
+    },
+    {
+        "id": 151,
+        "code": "PTC1060205",
+        "product_name": "SLICED STRAWBERRY 6X64 OZ",
+        "presentation": 24.0,
+        "boxes_per_pallet": 80,
+        "client_id": 28
+    },
+    {
+        "id": 152,
+        "code": "PTC2031122",
+        "product_name": "GV BROCCOLI FLORETS 8 X 32 OZ",
+        "presentation": 16.0,
+        "boxes_per_pallet": 91,
+        "client_id": 28
+    },
+    {
+        "id": 153,
+        "code": "PTC1030121",
+        "product_name": "MANGO CHUNKS 6X48 OZ",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 28
+    },
+    {
+        "id": 154,
+        "code": "PTC1060116",
+        "product_name": "WHOLE STRAWBERRY 10X16 OZ",
+        "presentation": 10.0,
+        "boxes_per_pallet": 180,
+        "client_id": 28
+    },
+    {
+        "id": 155,
+        "code": "PTC1010107",
+        "product_name": "BANANA SLICE 5X16 OZ",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 156,
+        "code": "PTC1020128",
+        "product_name": "PINEAPPLE CHUNKS 5X16 OZ",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 157,
+        "code": "PTC1030120",
+        "product_name": "MANGO CHUNKS 5X16 OZ",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 158,
+        "code": "PTC1130101",
+        "product_name": "PEACHES SLICES 5X16 OZ",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 159,
+        "code": "PTC2100204",
+        "product_name": "OKRA WHOLE 12 X 2 LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 29
+    },
+    {
+        "id": 160,
+        "code": "PTC2100118",
+        "product_name": "OKRA CUT 12 X 2 LB",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 29
+    },
+    {
+        "id": 161,
+        "code": "PTC2100113",
+        "product_name": "OKRA CUT 1/2\" 1 X 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 29
+    },
+    {
+        "id": 162,
+        "code": "PTC2100205",
+        "product_name": "WHOLE OKRA 1 X 20 LB",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 29
+    },
+    {
+        "id": 163,
+        "code": "PCS1030302",
+        "product_name": "MANGO CONGELADO CHUNKS URSHELL LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 164,
+        "code": "PCS1050201",
+        "product_name": "PAPAYA CONGELADA CHUNKS 20X25 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 165,
+        "code": "PCS1060301",
+        "product_name": "FRESA CONGELADA RODAJAS 25-40 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 166,
+        "code": "PCS1060303",
+        "product_name": "FRESA CONGELADA SIN MEDIDA LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 167,
+        "code": "PCS2031102",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 168,
+        "code": "PCS2100201",
+        "product_name": "OKRA CONGELADA WHOLE LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 169,
+        "code": "PCS2130102",
+        "product_name": "ARVEJA CRIOLLA CONGELADA LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 170,
+        "code": "PCS2280101",
+        "product_name": "BROCOLINI CONGELADO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 171,
+        "code": "PCS1010102",
+        "product_name": "BANANO CONGELADO SLICED 12-22 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 172,
+        "code": "PCS1020102",
+        "product_name": "PIÑA MD2 CONGELADA CHUNKS 25X35 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 173,
+        "code": "PCS1020202",
+        "product_name": "PIÑA CONGELADA TIDBITS 17X21 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 174,
+        "code": "PCS1040202",
+        "product_name": "MELON CANTALOUPE CONGELADO BALLS 3/4\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 175,
+        "code": "PCS1220202",
+        "product_name": "MELON HONEY CONGELADO BALLS 3/4\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 176,
+        "code": "PCS1260105",
+        "product_name": "PIÑA HAWAIANA CONGELADA CHUNKS 20X45 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 177,
+        "code": "PCS1310101",
+        "product_name": "SANDIA CONGELADA BALLS 3/4\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 178,
+        "code": "PCS2020102",
+        "product_name": "ARVEJA DULCE CONGELADA WHOLE 2\" - 3 1/2\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 179,
+        "code": "PCS2031802",
+        "product_name": "TALLO DE BROCOLI CONGELADO STALK 3/4\"x3/4\"X1\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 180,
+        "code": "PCS2060102",
+        "product_name": "EJOTE CONGELADO 2-3 SIEVES LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 181,
+        "code": "PCS2100102",
+        "product_name": "OKRA CONGELADA CUT 1/2\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 182,
+        "code": "PCS3010101",
+        "product_name": "PIÑA CONGELADA ORGANICA CHUNKS 25-35 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 183,
+        "code": "PAB1730307",
+        "product_name": "HPP COLD PRESSED BEET JUICE 6 X 12 OZ",
+        "presentation": 4.5,
+        "boxes_per_pallet": 424,
+        "client_id": 1
+    },
+    {
+        "id": 184,
+        "code": "PAB1230303",
+        "product_name": "CAJA DE JUGO DE PIÑA-MANGO 2 PACK 8 UND / 976 ML",
+        "presentation": 34.4,
+        "boxes_per_pallet": 45,
+        "client_id": 7
+    },
+    {
+        "id": 185,
+        "code": "PAB1230304",
+        "product_name": "GREEN JUICE WITH AVOCADO- 2 PACK 8 UND/976ML",
+        "presentation": 34.4,
+        "boxes_per_pallet": 45,
+        "client_id": 7
+    },
+    {
+        "id": 186,
+        "code": "PAB1230305",
+        "product_name": "STRAWBERRY PINEAPPLE BANANA- 2 PACK 8 UND/976ML",
+        "presentation": 34.4,
+        "boxes_per_pallet": 45,
+        "client_id": 7
+    },
+    {
+        "id": 187,
+        "code": "PAB1230306",
+        "product_name": "JUICE VEG 7 2 PACK 8 UND/976ML",
+        "presentation": 34.4,
+        "boxes_per_pallet": 45,
+        "client_id": 7
+    },
+    {
+        "id": 188,
+        "code": "PAB11010102",
+        "product_name": "JUGO PIÑA VIDASSA 6 UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 189,
+        "code": "PAB11030310",
+        "product_name": "JUGO VERDE VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 190,
+        "code": "PAB11030311",
+        "product_name": "JUGO PIÑA ZANAHORIA VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 191,
+        "code": "PAB11030312",
+        "product_name": "JUGO PIÑA FRESA  VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 192,
+        "code": "PAB11030313",
+        "product_name": "JUGO PIÑA BANANO VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 193,
+        "code": "PAB11030314",
+        "product_name": "JUGO PIÑA MANGO VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 194,
+        "code": "PAB11030315",
+        "product_name": "JUGO SUPER VERDE VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 195,
+        "code": "PAB11030316",
+        "product_name": "JUGO BOOSTER VIDASSA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 196,
+        "code": "PAB11030317",
+        "product_name": "JUGO VERDE VIDASSA/BARISTA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 197,
+        "code": "PAB11030318",
+        "product_name": "JUGO PIÑA FRESA  VIDASSA/BARISTA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 198,
+        "code": "PAB11030319",
+        "product_name": "JUGO DETOX VIDASSA/BARISTA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 199,
+        "code": "PAB11030320",
+        "product_name": "JUGO OXI VIDASSA/BARISTA 6UND/354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 200,
+        "code": "PAB11010101",
+        "product_name": "JUGO PIÑA VIDASSA 6 UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 201,
+        "code": "PAB11010601",
+        "product_name": "JUGO NARANJA VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 202,
+        "code": "PAB11030301",
+        "product_name": "JUGO PIÑA ZANAHORIA VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 203,
+        "code": "PAB11030302",
+        "product_name": "JUGO PIÑA FRESA  VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 204,
+        "code": "PAB11030303",
+        "product_name": "JUGO PIÑA BANANO VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 205,
+        "code": "PAB11030304",
+        "product_name": "JUGO PIÑA MANGO VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 206,
+        "code": "PAB11030305",
+        "product_name": "JUGO VERDE VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 207,
+        "code": "PAB11030306",
+        "product_name": "JUGO SUPER VERDE VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 208,
+        "code": "PAB11030307",
+        "product_name": "JUGO CLEANSE VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 209,
+        "code": "PAB11030308",
+        "product_name": "JUGO BOOSTER VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 210,
+        "code": "PAB11030309",
+        "product_name": "JUGO FUEL VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 211,
+        "code": "PAB51030321",
+        "product_name": "ATOL DE ELOTE VIDASSA 6UND/976ML",
+        "presentation": 12.91,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 212,
+        "code": "PTC1010115",
+        "product_name": "BANANO RODAJAS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 31
+    },
+    {
+        "id": 213,
+        "code": "PTC1020143",
+        "product_name": "PIÑA CHUNKS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 31
+    },
+    {
+        "id": 214,
+        "code": "PTC1050115",
+        "product_name": "PAPAYA CHUNKS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 31
+    },
+    {
+        "id": 215,
+        "code": "PTC1060131",
+        "product_name": "FRESA ENTERA 10 x 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 31
+    },
+    {
+        "id": 216,
+        "code": "PTC1070107",
+        "product_name": "MORA ENTERA 10 x 2 LBS 10 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 31
+    },
+    {
+        "id": 217,
+        "code": "PTC1320115",
+        "product_name": "ARANDANO ENTERO 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 31
+    },
+    {
+        "id": 218,
+        "code": "PTC1260105",
+        "product_name": "FRAMBUESA ENTERA 2 X 5 LB 10LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 219,
+        "code": "PTC1020303",
+        "product_name": "PIÑA CONGELADA TIDBITS 1 X 22 LBS 22LBS",
+        "presentation": 22.0,
+        "boxes_per_pallet": null,
+        "client_id": 32
+    },
+    {
+        "id": 220,
+        "code": "PTC1020202",
+        "product_name": "PIÑA CONGELADA CHUNKS 1 X 22 LBS 22 LBS",
+        "presentation": 22.0,
+        "boxes_per_pallet": null,
+        "client_id": 19
+    },
+    {
+        "id": 221,
+        "code": "PTC1020144",
+        "product_name": "PIÑA CHUNKS 1 X 30 LB 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": 70,
+        "client_id": 27
+    },
+    {
+        "id": 222,
+        "code": "PTC2031132",
+        "product_name": "BROCOLI CONGELADO 10 X 2 LBS 20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 223,
+        "code": "PTC5010101",
+        "product_name": "BANANO CON CHOCOLATE 12 X 150 GRS 3.97 LBS",
+        "presentation": 3.97,
+        "boxes_per_pallet": 90,
+        "client_id": 33
+    },
+    {
+        "id": 224,
+        "code": "PTC5020101",
+        "product_name": "PIÑA CON CHOCOLATE 12 X 150 GRS 3.97 LBS",
+        "presentation": 3.97,
+        "boxes_per_pallet": 90,
+        "client_id": 33
+    },
+    {
+        "id": 225,
+        "code": "PTC5030101",
+        "product_name": "MANGO CON CHOCOLATE 12 X 150 GRS 3.97 LBS",
+        "presentation": 3.97,
+        "boxes_per_pallet": 90,
+        "client_id": 33
+    },
+    {
+        "id": 226,
+        "code": "PTC5060101",
+        "product_name": "FRESA CON CHOCOLATE 12 X 150 GRS 3.97 LBS",
+        "presentation": 3.97,
+        "boxes_per_pallet": 90,
+        "client_id": 33
+    },
+    {
+        "id": 227,
+        "code": "PTC2031133",
+        "product_name": "BROCOLI CONGELADO 1 X 10 LBS 10 LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 228,
+        "code": "PTF2030101",
+        "product_name": "BROCOLI FRESCO  CROWN  1 x 20 LBS 20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": 64,
+        "client_id": 34
+    },
+    {
+        "id": 229,
+        "code": "SEC20311",
+        "product_name": "BROCOLI FL 30-50 MM PARTIDO",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 230,
+        "code": "SEC20318",
+        "product_name": "TALLO DE BROCOLI 3/4\"x3/4\"X1\"",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 231,
+        "code": "SEC20601",
+        "product_name": "EJOTE 2-3 SIEVES",
+        "presentation": 25.0,
+        "boxes_per_pallet": 0,
+        "client_id": 35
+    },
+    {
+        "id": 232,
+        "code": "SEC21002",
+        "product_name": "OKRA WHOLE",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 233,
+        "code": "PCI1040101",
+        "product_name": "DURAZNO CHUNKS 15-40 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 234,
+        "code": "PCI2070201",
+        "product_name": "EJOTE CORTADO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 235,
+        "code": "PTC1320114",
+        "product_name": "VIDASSA ARANDANO ENTERO 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 236,
+        "code": "PTC2031134",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 1000 LBS",
+        "presentation": 1000.0,
+        "boxes_per_pallet": null,
+        "client_id": 36
+    },
+    {
+        "id": 237,
+        "code": "PTC2032609",
+        "product_name": "TALLO DE BROCOLI CONGELADO  TOTE 1200 LBS",
+        "presentation": 1200.0,
+        "boxes_per_pallet": null,
+        "client_id": 36
+    },
+    {
+        "id": 238,
+        "code": "PTC2100108-PRO",
+        "product_name": "OKRA CUT 1X20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 10
+    },
+    {
+        "id": 239,
+        "code": "PTC2100108-REE",
+        "product_name": "OKRA CUT 1X20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 10
+    },
+    {
+        "id": 240,
+        "code": "PTC1060129",
+        "product_name": "VIDASSA FRESA ENTERA 10 x 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 241,
+        "code": "PAB1930301",
+        "product_name": "JUGO JOOPA SKIN BOTELLA 500 ML",
+        "presentation": 1.1023,
+        "boxes_per_pallet": null,
+        "client_id": 37
+    },
+    {
+        "id": 242,
+        "code": "PAB1930302",
+        "product_name": "JUGO JOOPA POWER BOTELLA 500 ML",
+        "presentation": 1.1023,
+        "boxes_per_pallet": null,
+        "client_id": 37
+    },
+    {
+        "id": 243,
+        "code": "PAB1930303",
+        "product_name": "JUGO JOOPA LEAN BOTELLA 500 ML",
+        "presentation": 1.1023,
+        "boxes_per_pallet": null,
+        "client_id": 37
+    },
+    {
+        "id": 244,
+        "code": "PAB1930304",
+        "product_name": "JUGO JOOPA JOY BOTELLA 500 ML",
+        "presentation": 1.1023,
+        "boxes_per_pallet": null,
+        "client_id": 37
+    },
+    {
+        "id": 245,
+        "code": "PTC1120104",
+        "product_name": "VIDASSA FRESA, ARANDANO 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 246,
+        "code": "PTC1120105",
+        "product_name": "VIDASSA FRESA, DURAZNO, BANANO 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 247,
+        "code": "PTC1120106",
+        "product_name": "VIDASSA PIÑA, MANGO, PAPAYA 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 248,
+        "code": "PCS2031102-REP",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 249,
+        "code": "PTC2031134-REP",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 1000 LBS",
+        "presentation": 999.0,
+        "boxes_per_pallet": null,
+        "client_id": 36
+    },
+    {
+        "id": 250,
+        "code": "PTC2250124",
+        "product_name": "VIDASSA CALIFORNIA BLEND VEGETALES MIXTOS 8 X 2 LBS  16 LBS",
+        "presentation": 16.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 251,
+        "code": "PTC1030123",
+        "product_name": "MANGO CONGELADO CHUNKS 20X20 MM 1 X 10 LBS  10LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 252,
+        "code": "PTC3010110",
+        "product_name": "VIDASSA PIÑA ORGANICA CHUNKS 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 253,
+        "code": "PTC1020144-REE",
+        "product_name": "PIÑA CHUNKS 1X30LB 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": 70,
+        "client_id": 27
+    },
+    {
+        "id": 254,
+        "code": "PTC2031711",
+        "product_name": "BROCCOLI CUTS 12 X 12 ONZ 9LBS",
+        "presentation": 9.0,
+        "boxes_per_pallet": 169,
+        "client_id": 28
+    },
+    {
+        "id": 255,
+        "code": "PTC2100103-PRO",
+        "product_name": "OKRA CUT 12X3LB 36 LBS",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 13
+    },
+    {
+        "id": 256,
+        "code": "PTC2100117-PRO",
+        "product_name": "OKRA CUT 12X3LB 36 LBS",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 18
+    },
+    {
+        "id": 257,
+        "code": "PTC2031136",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 36
+    },
+    {
+        "id": 258,
+        "code": "PTC2030903",
+        "product_name": "BROCOLI CONGELADO FL 20-40 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 38
+    },
+    {
+        "id": 259,
+        "code": "PTC2290102",
+        "product_name": "ELOTE GRANO 10 X 2 LBS 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 260,
+        "code": "PTC2290103",
+        "product_name": "ELOTE GRANO 1 X 30 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 261,
+        "code": "PTC2031137",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 38
+    },
+    {
+        "id": 262,
+        "code": "SEC20402",
+        "product_name": "COLIFLOR FL 30-50 MM PARTIDO",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 263,
+        "code": "PCS2040203",
+        "product_name": "COLIFLOR CONGELADA FL 30-50 MM PARTIDO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 264,
+        "code": "SEC20316",
+        "product_name": "BROCOLI 20-40 MM PARTIDO",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 265,
+        "code": "PTF2030304",
+        "product_name": "BROCOLI FRESCO FLORET 30-60 MM 6 X 3 LBS 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 64,
+        "client_id": 39
+    },
+    {
+        "id": 266,
+        "code": "PTF2030305",
+        "product_name": "BROCOLI FRESCO FLORET 30-60 MM 4 X 3 LBS 12LBS",
+        "presentation": 12.0,
+        "boxes_per_pallet": 90,
+        "client_id": 39
+    },
+    {
+        "id": 267,
+        "code": "PTC2030909",
+        "product_name": "BROCOLI CONGELADO FL 20-40 MM PARTIDO TOTE 900LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 40
+    },
+    {
+        "id": 268,
+        "code": "PCS2031601",
+        "product_name": "BROCOLI CONGELADO FL 20-40 MM PARTIDO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 269,
+        "code": "PCS2020102-INS",
+        "product_name": "ARVEJA DULCE CONGELADA WHOLE 2\" - 3 1/2\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 270,
+        "code": "PCS2020102-REP",
+        "product_name": "ARVEJA DULCE CONGELADA WHOLE 2\" - 3 1/2\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 271,
+        "code": "PTC2020101-REP",
+        "product_name": "ARVEJA DULCE WHOLE 1350LBS",
+        "presentation": 1350.0,
+        "boxes_per_pallet": null,
+        "client_id": 41
+    },
+    {
+        "id": 272,
+        "code": "PTC2031135",
+        "product_name": "VIDASSA BROCCOLI CONGELADO 8 X 2 LBS 16 LBS",
+        "presentation": 16.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 273,
+        "code": "PTC2310104",
+        "product_name": "VIDASSA MIXED VEGETABLE 8 X 2 LBS 16 LBS",
+        "presentation": 16.0,
+        "boxes_per_pallet": null,
+        "client_id": 27
+    },
+    {
+        "id": 274,
+        "code": "PTC2100119",
+        "product_name": "OKRA CONGELADA CUT 12 X 2 24LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 42
+    },
+    {
+        "id": 275,
+        "code": "SEC20202",
+        "product_name": "ARVEJA DULCE WHOLE 2- 3 1/2\" CLASIFICADA",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 276,
+        "code": "PTC2030910",
+        "product_name": "BROCOLI CONGELADO FL 20-40 MM PARTIDO TOTE 900LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 43
+    },
+    {
+        "id": 277,
+        "code": "PTC2031138",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 43
+    },
+    {
+        "id": 278,
+        "code": "PTC2031136-REP",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 36
+    },
+    {
+        "id": 279,
+        "code": "PTC2031138-REP",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 43
+    },
+    {
+        "id": 280,
+        "code": "PTC2031139-REP",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 44
+    },
+    {
+        "id": 281,
+        "code": "PTC2030910-REP",
+        "product_name": "BROCOLI CONGELADO FL 20-40 MM PARTIDO TOTE 900LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 43
+    },
+    {
+        "id": 282,
+        "code": "PTC2031139",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 44
+    },
+    {
+        "id": 283,
+        "code": "PTC1010116",
+        "product_name": "GV BANANO RODAJAS 5 X 16 OZ 5 LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 45
+    },
+    {
+        "id": 284,
+        "code": "PTC1020145",
+        "product_name": "GV PIÑA CHUNKS 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": null,
+        "client_id": 28
+    },
+    {
+        "id": 285,
+        "code": "PTC1210104",
+        "product_name": "GV MIX TRIPLE BERRIES 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 45
+    },
+    {
+        "id": 286,
+        "code": "PTC1210105",
+        "product_name": "GV MIX TRIPLE BERRIES 5 X 16 OZ 5LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": null,
+        "client_id": 28
+    },
+    {
+        "id": 287,
+        "code": "PTC1210106",
+        "product_name": "GV MIX FRESA BANANO 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 45
+    },
+    {
+        "id": 288,
+        "code": "PTC1320116",
+        "product_name": "GV ARANDANO CONGELADO 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 46
+    },
+    {
+        "id": 289,
+        "code": "PTC1320117",
+        "product_name": "GV ARANDANO CONGELADO 5 X 16 OZ 5LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 28
+    },
+    {
+        "id": 290,
+        "code": "PTC1210103",
+        "product_name": "GV MIX FRUTAS TROPICAL  (PIÑA, MANGO, PAPAYA, COCO)  6X48OZ",
+        "presentation": 18.0,
+        "boxes_per_pallet": null,
+        "client_id": 47
+    },
+    {
+        "id": 291,
+        "code": "PCS1230101",
+        "product_name": "AGUACATE CONGELADO CHUNKS 40X55 MM CAJA 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 292,
+        "code": "PTC1020132",
+        "product_name": "PINEAPPPLE CHUNKS 2X5LB 10 LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 19
+    },
+    {
+        "id": 293,
+        "code": "PTC2100107-REE",
+        "product_name": "OKRA CUT 1X20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 18
+    },
+    {
+        "id": 294,
+        "code": "PCS2100102-REP",
+        "product_name": "OKRA CONGELADA CUT 1/2\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 295,
+        "code": "PCS2031102-INS",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 296,
+        "code": "PTC1030128",
+        "product_name": "GV MANGO CONGELADO CHUNKS 5 X 16 OZ 5LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 45
+    },
+    {
+        "id": 297,
+        "code": "PTC1020203",
+        "product_name": "PIÑA CHUNKS 1 X 10 KG 22.046LBS",
+        "presentation": 22.05,
+        "boxes_per_pallet": null,
+        "client_id": 48
+    },
+    {
+        "id": 298,
+        "code": "PTC1210104-CEM",
+        "product_name": "GV MIX TRIPLE BERRIES 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 45
+    },
+    {
+        "id": 299,
+        "code": "PTC1020145-CEM",
+        "product_name": "GV PIÑA CHUNKS 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 49
+    },
+    {
+        "id": 300,
+        "code": "PTC1210106-CEM",
+        "product_name": "GV MIX FRESA BANANO 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 46
+    },
+    {
+        "id": 301,
+        "code": "PTC1320116-CEM",
+        "product_name": "GV ARANDANO CONGELADO 6 X 48 OZ 18LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 46
+    },
+    {
+        "id": 302,
+        "code": "PTC2031140",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO TOTE 900 LBS",
+        "presentation": 900.0,
+        "boxes_per_pallet": null,
+        "client_id": 14
+    },
+    {
+        "id": 303,
+        "code": "PTC1260106",
+        "product_name": "FRAMBUESA ENTERA 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 50
+    },
+    {
+        "id": 304,
+        "code": "SEC20311-INS",
+        "product_name": "BROCOLI FL 30-50 MM PARTIDO",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 305,
+        "code": "PCI1060101-INS",
+        "product_name": "FRESA ENTERA 25-35 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 306,
+        "code": "PTC1020146",
+        "product_name": "PIÑA CHUNKS 1 X 10 KG 22.046LBS",
+        "presentation": 22.05,
+        "boxes_per_pallet": null,
+        "client_id": 51
+    },
+    {
+        "id": 307,
+        "code": "PAB1830308",
+        "product_name": "HPP CARROT WITH A TOUCH OF LIME JUICE 6 X 62.6 OZ",
+        "presentation": 23.47,
+        "boxes_per_pallet": null,
+        "client_id": 17
+    },
+    {
+        "id": 308,
+        "code": "PTC1020147",
+        "product_name": "PINEAPPLE CHUNKS 1 X 30LBS 30LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 52
+    },
+    {
+        "id": 309,
+        "code": "PTC1050116",
+        "product_name": "PAPAYA CONGELADA  1 X 10 KG 22.046LBS",
+        "presentation": 22.046,
+        "boxes_per_pallet": null,
+        "client_id": 53
+    },
+    {
+        "id": 310,
+        "code": "PAB1910404",
+        "product_name": "MAQUILA CACAO DRINK 100% SUGAR FREE 100 X 60ML 13.23LBS",
+        "presentation": 13.23,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 311,
+        "code": "PAB1910405",
+        "product_name": "MAQUILA CACAO DRINK ORIGINAL 100 X 60ML 13.23LBS",
+        "presentation": 13.23,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 312,
+        "code": "PAB1910406",
+        "product_name": "MAQUILA CACAO DRINK 100% CARDAMOM 100 X 60ML 13.23LBS",
+        "presentation": 13.23,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 313,
+        "code": "PCI1040201-CEM",
+        "product_name": "DURAZNO GAJOS LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 314,
+        "code": "PCI1060201-CEM",
+        "product_name": "FRESA SLICED LBS (Rodaja)",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 315,
+        "code": "PCI1070101-CEM",
+        "product_name": "MANGO CHUNKS 20-20 MM LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 316,
+        "code": "PCI1060101-CEM",
+        "product_name": "FRESA ENTERA 25-35 MM LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 317,
+        "code": "SEC10601",
+        "product_name": "FRESA ENTERA 25-35 MM",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 55
+    },
+    {
+        "id": 318,
+        "code": "PCS1060102",
+        "product_name": "FRESA CONGELADA ENTERA 25-35 MM LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 319,
+        "code": "PAB11030321",
+        "product_name": "HPP GREEN JUICE 6 X 354MIL",
+        "presentation": 4.683,
+        "boxes_per_pallet": null,
+        "client_id": 56
+    },
+    {
+        "id": 320,
+        "code": "PAB11030322",
+        "product_name": "HPP STARAWBERRY PINEAPPLE JUICE 6 X 354ML",
+        "presentation": 4.683,
+        "boxes_per_pallet": null,
+        "client_id": 56
+    },
+    {
+        "id": 321,
+        "code": "SEC10605",
+        "product_name": "FRESA ENTERA SIN MEDIDA",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 322,
+        "code": "PAB1010401",
+        "product_name": "MAQUILLA CACAO DRINK 100% SUGAR FREE 6X12OZ 4.5LB",
+        "presentation": 4.5,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 323,
+        "code": "PAB1010402",
+        "product_name": "MAQUILLA CACAO DRINK 100% ORIGINAL 6X12OZ 4.5LB",
+        "presentation": 4.5,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 324,
+        "code": "PAB1010403",
+        "product_name": "MAQUILLA CACAO DRINK 100% CARDAMOM 6X12OZ 4.5LB",
+        "presentation": 4.5,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 325,
+        "code": "PAB1010404",
+        "product_name": "MAQUILLA CACAO DRINK 100% SUGAR FREE 100X60ML 13.23LB",
+        "presentation": 13.23,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 326,
+        "code": "PAB1010405",
+        "product_name": "MAQUILLA CACAO DRINK 100% ORIGINAL 100X60ML 13.23LB",
+        "presentation": 13.23,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 327,
+        "code": "PAB1010406",
+        "product_name": "MAQUILLA CACAO DRINK 100% CARDAMOM 100X60ML 13.23LB",
+        "presentation": 13.23,
+        "boxes_per_pallet": null,
+        "client_id": 54
+    },
+    {
+        "id": 328,
+        "code": "SEC12403",
+        "product_name": "MANGO CACHETES",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 329,
+        "code": "MP10502",
+        "product_name": "MANGO",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 330,
+        "code": "PTC1030131",
+        "product_name": "GV MANGO CHUNKS 6 X 48 OZ 18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 57
+    },
+    {
+        "id": 331,
+        "code": "PTC1010118",
+        "product_name": "GV BANANA SLICED 5 X 16 OZ 5 LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 57
+    },
+    {
+        "id": 332,
+        "code": "PTC1020150",
+        "product_name": "GV PINEAPPLE 6 X 48 OZ 18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 57
+    },
+    {
+        "id": 333,
+        "code": "PTC1240168",
+        "product_name": "GV MIXED FRUIT 5 X 16 OZ 5 LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 57
+    },
+    {
+        "id": 334,
+        "code": "PTC1240171",
+        "product_name": "GV STRAWBERRY BANANA BLEND 6 X 48 OZ 18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 57
+    },
+    {
+        "id": 335,
+        "code": "PTC3010111",
+        "product_name": "GV ORGANIC PINEAPPLE CHUNKS 5 X 10 OZ 3.125",
+        "presentation": 3.125,
+        "boxes_per_pallet": 544,
+        "client_id": 57
+    },
+    {
+        "id": 336,
+        "code": "PTC1060133",
+        "product_name": "GV WHOLE STRAWBERRY 6 X 64 OZ 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": 80,
+        "client_id": 57
+    },
+    {
+        "id": 337,
+        "code": "PTC1240170",
+        "product_name": "GV TROPICAL FRUIT MIX 6 X 48 OZ 18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 130,
+        "client_id": 57
+    },
+    {
+        "id": 338,
+        "code": "PTC1060132",
+        "product_name": "GV WHOLE STRAWBERRY 10 X 16 OZ 10 LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": 180,
+        "client_id": 57
+    },
+    {
+        "id": 339,
+        "code": "PTC1240169",
+        "product_name": "GV MIXED FRUIT 6 X 64 OZ 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": 80,
+        "client_id": 57
+    },
+    {
+        "id": 340,
+        "code": "PTC1030130",
+        "product_name": "GV MANGO CHUNKS 5 X 16 OZ 5 LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 57
+    },
+    {
+        "id": 341,
+        "code": "PTC1020149",
+        "product_name": "GV PINEAPPLE 5 X 16 OZ 5LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 57
+    },
+    {
+        "id": 342,
+        "code": "PTC1130103",
+        "product_name": "GV PEACH SLICED 5 X 16 OZ 5 LBS",
+        "presentation": 5.0,
+        "boxes_per_pallet": 360,
+        "client_id": 57
+    },
+    {
+        "id": 343,
+        "code": "PTC1060210",
+        "product_name": "GV STRAWBERRY SLICED 6 X 64 OZ 24LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": 80,
+        "client_id": 57
+    },
+    {
+        "id": 344,
+        "code": "PTC1240167",
+        "product_name": "GV FRUIT SALAD MEDLEY 6 X 48 OZ 18 LBS",
+        "presentation": 18.0,
+        "boxes_per_pallet": 117,
+        "client_id": 57
+    },
+    {
+        "id": 345,
+        "code": "PTF2030318",
+        "product_name": "BROCOLI FRESCO FLORET 30-60 MM 10 X 1 LBS 10 LBS S/EMPAQUE",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 58
+    },
+    {
+        "id": 346,
+        "code": "PTC1010117",
+        "product_name": "BANANO RODAJAS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 347,
+        "code": "PTC1020148",
+        "product_name": "PIÑA CHUNKS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 348,
+        "code": "PTC1030129",
+        "product_name": "MANGO CONGELADO CHUNKS 12 X 2 LBS 24LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 349,
+        "code": "PTC1060209",
+        "product_name": "FRESA CONGELADA RODAJA 10 X 2 LBS 20LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 350,
+        "code": "PTC1070108",
+        "product_name": "MORA ENTERA 12 x 2 LBS 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 351,
+        "code": "PTC1260108",
+        "product_name": "FRAMBUESA ENTERA 2 X 5 LB 10LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 352,
+        "code": "PTC1310105",
+        "product_name": "COCO CONGELADO 12 X 2 LBS CAJA 24 LBS",
+        "presentation": 24.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 353,
+        "code": "PTC1320118",
+        "product_name": "ARANDANO ENTERO 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 354,
+        "code": "SEC20311-DEM",
+        "product_name": "BROCOLI FL 30-50 MM PARTIDO LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 355,
+        "code": "PTC1050102",
+        "product_name": "PAPAYA CONGELADA CHUNKS 20X25 MM CAJA 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 60
+    },
+    {
+        "id": 356,
+        "code": "PTC1020136",
+        "product_name": "PINEAPPLE CHUNKS 6X5LB 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 60
+    },
+    {
+        "id": 357,
+        "code": "PTC1020102",
+        "product_name": "PINEAPPPLE CHUNKS 1X30LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 60
+    },
+    {
+        "id": 358,
+        "code": "PTC1020127",
+        "product_name": "PINEAPPPLE CHUNKS 2X5LB 10 LBS",
+        "presentation": 10.0,
+        "boxes_per_pallet": null,
+        "client_id": 60
+    },
+    {
+        "id": 359,
+        "code": "PTC2032607",
+        "product_name": "STALK BROCCOLI 1X30LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 61
+    },
+    {
+        "id": 360,
+        "code": "PTC1030109",
+        "product_name": "MANGO 9X4LB 36 LBS",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 62
+    },
+    {
+        "id": 361,
+        "code": "PTC3010101",
+        "product_name": "ORGANIC PINEAPPPLE CHUNKS 9X4LB 36 LBS",
+        "presentation": 36.0,
+        "boxes_per_pallet": null,
+        "client_id": 63
+    },
+    {
+        "id": 362,
+        "code": "PTC1220301",
+        "product_name": "MELON HONEY CHUNKS 1X10KG 22.046 LBS",
+        "presentation": 22.046,
+        "boxes_per_pallet": null,
+        "client_id": 64
+    },
+    {
+        "id": 363,
+        "code": "PTC1030203",
+        "product_name": "MANGO CHUNKS 1X30LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 19
+    },
+    {
+        "id": 364,
+        "code": "PTC2060119",
+        "product_name": "FRENCH BEANS 5X5LB 25 LBS",
+        "presentation": 25.0,
+        "boxes_per_pallet": null,
+        "client_id": 65
+    },
+    {
+        "id": 365,
+        "code": "PTC1230301",
+        "product_name": "AVOCADO 20X500GRS 22.046 LBS",
+        "presentation": 22.046,
+        "boxes_per_pallet": null,
+        "client_id": 66
+    },
+    {
+        "id": 366,
+        "code": "SEC21403",
+        "product_name": "ZANAHORIA PELADA",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 367,
+        "code": "PCS2140102",
+        "product_name": "ZANAHORIA ANARANJADA RODAJA RALLADA LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 368,
+        "code": "PCS2140601",
+        "product_name": "ZANAHORIA ANARANJADA CUADROS LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 369,
+        "code": "SEC21401",
+        "product_name": "ZANAHORIA ANARANJADA RODAJAS RALLADA LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 370,
+        "code": "SEC21402",
+        "product_name": "ZANAHORIA ANARANJADA RODAJAS LISA LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 371,
+        "code": "SEC21405",
+        "product_name": "ZANAHORIA ANARANJADA CUADROS LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 372,
+        "code": "PTC1020135-REE",
+        "product_name": "PINEAPPPLE CHUNKS 9X2KG 39.68 LBS",
+        "presentation": 39.68,
+        "boxes_per_pallet": 42,
+        "client_id": 4
+    },
+    {
+        "id": 373,
+        "code": "PAB1830309",
+        "product_name": "PINEAPPLE BEET WITH GINGER 6 X 354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 374,
+        "code": "PAB1830310",
+        "product_name": "WATERMELON JUICE 6 X 354ML",
+        "presentation": 4.68,
+        "boxes_per_pallet": 424,
+        "client_id": 17
+    },
+    {
+        "id": 375,
+        "code": "PTC2020101-REE",
+        "product_name": "ARVEJA DULCE WHOLE 1350LBS",
+        "presentation": 1350.0,
+        "boxes_per_pallet": null,
+        "client_id": 36
+    },
+    {
+        "id": 376,
+        "code": "PTC2020109",
+        "product_name": "ARVEJA DULCE CONGELADA  WHOLE  1 X 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 14
+    },
+    {
+        "id": 377,
+        "code": "PCS2031802-REP",
+        "product_name": "TALLO DE BROCOLI CONGELADO STALK 3/4\"X3/4\"X1\" LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 378,
+        "code": "PBS1010102",
+        "product_name": "JUGO DE PIÑA LBS TRADER JOES",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 67
+    },
+    {
+        "id": 379,
+        "code": "PBS1010103",
+        "product_name": "JUGO DE PIÑA LBS PRENSA",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 67
+    },
+    {
+        "id": 380,
+        "code": "PTC1320119",
+        "product_name": "ARANDANO ENTERO 1 X 10 KG 22.046 LBS",
+        "presentation": 22.046,
+        "boxes_per_pallet": null,
+        "client_id": 68
+    },
+    {
+        "id": 381,
+        "code": "PTC2020109-REP",
+        "product_name": "ARVEJA DULCE CONGELADA  WHOLE  1 X 30 LBS",
+        "presentation": 30.0,
+        "boxes_per_pallet": null,
+        "client_id": 14
+    },
+    {
+        "id": 382,
+        "code": "PCS2032801",
+        "product_name": "BROCOLI CONGELADO CHOPPED LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 383,
+        "code": "SEC20328",
+        "product_name": "BROCOLI CHOPPED LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 384,
+        "code": "PTC2032801",
+        "product_name": "GV CHOPPED BROCCOLI 12 X 12 OZ 9 LBS",
+        "presentation": 9.0,
+        "boxes_per_pallet": 169,
+        "client_id": 28
+    },
+    {
+        "id": 385,
+        "code": "SEC20329",
+        "product_name": "BROCOLI PARA CHOPPED LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 386,
+        "code": "PCS2032801-INS",
+        "product_name": "BROCOLI CONGELADO CHOPPED LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 387,
+        "code": "PCS1020102-REP",
+        "product_name": "PIÑA MD2 CONGELADA CHUNKS 25X35 MM LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 388,
+        "code": "PTC1020151",
+        "product_name": "PIÑA CHUNKS 1 X 10 KG 22.046 GRADO B",
+        "presentation": 22.046,
+        "boxes_per_pallet": null,
+        "client_id": 69
+    },
+    {
+        "id": 389,
+        "code": "PTC1060134",
+        "product_name": "FRESA ENTERA 1 X 10 KG 22.046 LBS GRADO B",
+        "presentation": 22.046,
+        "boxes_per_pallet": null,
+        "client_id": 69
+    },
+    {
+        "id": 390,
+        "code": "PTC1130104",
+        "product_name": "MELOCOTÓN GAJOS 10 X 2 LB 20 LBS",
+        "presentation": 20.0,
+        "boxes_per_pallet": null,
+        "client_id": 59
+    },
+    {
+        "id": 391,
+        "code": "SEF20303",
+        "product_name": "BROCOLI FLORET 30-60 MM",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 392,
+        "code": "PCI1060201",
+        "product_name": "FRESA SLICED LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 393,
+        "code": "SEC20329-INS",
+        "product_name": "BROCOLI PARA CHOPPED LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 35
+    },
+    {
+        "id": 394,
+        "code": "PCI2150101-INS",
+        "product_name": "ZANAHORIA AMARILLA RODAJA RALLADA LBS",
+        "presentation": null,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 395,
+        "code": "PCS1060303-SUB",
+        "product_name": "FRESA CONGELADA SIN MEDIDA LBS",
+        "presentation": 0.0,
+        "boxes_per_pallet": null,
+        "client_id": 30
+    },
+    {
+        "id": 396,
+        "code": "PTC5010102",
+        "product_name": "BANANO CON CHOCOLATE 6 X 8 OZ 3 LBS",
+        "presentation": 3.0,
+        "boxes_per_pallet": 200,
+        "client_id": 33
+    },
+    {
+        "id": 397,
+        "code": "PTC5020102",
+        "product_name": "PIÑA CON CHOCOLATE 6 X 8 OZ 3 LBS",
+        "presentation": 3.0,
+        "boxes_per_pallet": 200,
+        "client_id": 33
+    },
+    {
+        "id": 398,
+        "code": "PTC5030102",
+        "product_name": "MANGO CON CHOCOLATE 6 X 8 OZ 3 LBS",
+        "presentation": 3.0,
+        "boxes_per_pallet": 200,
+        "client_id": 33
+    },
+    {
+        "id": 399,
+        "code": "PTC5060102",
+        "product_name": "FRESA CON CHOCOLATE 6 X 8 OZ 3 LBS",
+        "presentation": 3.0,
+        "boxes_per_pallet": 200,
+        "client_id": 33
+    },
+    {
+        "id": 400,
+        "code": "PTC1060130",
+        "product_name": "FRESA ENTERA BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 401,
+        "code": "PTC1260107",
+        "product_name": "FRAMBUESA ENTERA BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 402,
+        "code": "PTC1290101",
+        "product_name": "UVA ENTERA BOLSA 2 LBS",
+        "presentation": 2.0,
+        "boxes_per_pallet": null,
+        "client_id": 24
+    },
+    {
+        "id": 403,
+        "code": "PTC2031128-GUA",
+        "product_name": "BROCCOLI FL 10X12OZ 7.5 LBS",
+        "presentation": 7.5,
+        "boxes_per_pallet": null,
+        "client_id": 28
+    }
+]

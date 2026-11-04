@@ -1,1 +1,0 @@
-PARA SINCRONIZAR LOS EMPLEADOS SE NECECITA EJECUTAR (new \App\Jobs\SyncBiometricEmployees())->handle();

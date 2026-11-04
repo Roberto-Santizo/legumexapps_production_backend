@@ -1,0 +1,62 @@
+[
+    {
+        "id": 2,
+        "lbs_per_item": 24.0,
+        "sku_id": 91,
+        "packing_material_id": 117
+    },
+    {
+        "id": 3,
+        "lbs_per_item": 2.0,
+        "sku_id": 91,
+        "packing_material_id": 362
+    },
+    {
+        "id": 4,
+        "lbs_per_item": 2.0,
+        "sku_id": 91,
+        "packing_material_id": 534
+    },
+    {
+        "id": 5,
+        "lbs_per_item": 24.0,
+        "sku_id": 91,
+        "packing_material_id": 525
+    },
+    {
+        "id": 6,
+        "lbs_per_item": 3.0,
+        "sku_id": 28,
+        "packing_material_id": 231
+    },
+    {
+        "id": 7,
+        "lbs_per_item": 3.0,
+        "sku_id": 28,
+        "packing_material_id": 524
+    },
+    {
+        "id": 8,
+        "lbs_per_item": 30.0,
+        "sku_id": 28,
+        "packing_material_id": 532
+    },
+    {
+        "id": 9,
+        "lbs_per_item": 30.0,
+        "sku_id": 28,
+        "packing_material_id": 5
+    },
+    {
+        "id": 10,
+        "lbs_per_item": 2.0,
+        "sku_id": 117,
+        "packing_material_id": 1
+    },
+    {
+        "id": 11,
+        "lbs_per_item": 25.0,
+        "sku_id": 231,
+        "packing_material_id": 396
+    }
+]

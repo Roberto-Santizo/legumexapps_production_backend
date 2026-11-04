@@ -1,0 +1,352 @@
+[
+    {
+        "id": 1,
+        "code": "PCS1230103",
+        "product_name": "AGUACATE CHUNKS 25X45 MM LBS"
+    },
+    {
+        "id": 2,
+        "code": "PCS2800101",
+        "product_name": "APIO DICED CONGELADO"
+    },
+    {
+        "id": 3,
+        "code": "PCI2200101",
+        "product_name": "APIO DICED LBS"
+    },
+    {
+        "id": 4,
+        "code": "PCI1010102",
+        "product_name": "ARANDANO ENTERO GRADO B LBS"
+    },
+    {
+        "id": 5,
+        "code": "PCI1010101",
+        "product_name": "ARANDANO ENTERO LBS"
+    },
+    {
+        "id": 6,
+        "code": "PCI2170101",
+        "product_name": "ARVEJA CRIOLLA GRANO LBS"
+    },
+    {
+        "id": 7,
+        "code": "PCS2020102",
+        "product_name": "ARVEJA DULCE CONGELADA WHOLE 2\" - 3 1/2\"CAJA 30LBS"
+    },
+    {
+        "id": 8,
+        "code": "PCI2010101",
+        "product_name": "ARVEJA DULCE WHOLE 2\"-3 1/2\" LBS"
+    },
+    {
+        "id": 9,
+        "code": "PCS1010102",
+        "product_name": "BANANO CONGELADO SLICED 12-22 MM CAJA 30LBS"
+    },
+    {
+        "id": 10,
+        "code": "PCI1020101",
+        "product_name": "BANANO SLICED 12-22 MM LBS"
+    },
+    {
+        "id": 11,
+        "code": "PCS2030402",
+        "product_name": "BROCOLI CONGELADO FL 15-40 MM CAJA 28LBS"
+    },
+    {
+        "id": 12,
+        "code": "PCS2032701",
+        "product_name": "BROCOLI CONGELADO FL 20-85 MM PARTIDO"
+    },
+    {
+        "id": 13,
+        "code": "PCS2031202",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO CAJA 30LBS"
+    },
+    {
+        "id": 14,
+        "code": "PCS2031102",
+        "product_name": "BROCOLI CONGELADO FL 30-50 MM PARTIDO CAJA 30LBS"
+    },
+    {
+        "id": 15,
+        "code": "PCS2032501",
+        "product_name": "BROCOLI CONGELADO SIN MEDIDA (MEZCLAS)"
+    },
+    {
+        "id": 16,
+        "code": "PCI2020102",
+        "product_name": "BROCOLI FLORETS 30-50 MM GRADO B LBS"
+    },
+    {
+        "id": 17,
+        "code": "PCI2020101",
+        "product_name": "BROCOLI FLORETS 30-50 MM NATURAL LBS"
+    },
+    {
+        "id": 18,
+        "code": "PCS2150102",
+        "product_name": "CEBOLLA CONGELADA TIRAS 30-70 MM CAJA 30LBS"
+    },
+    {
+        "id": 19,
+        "code": "PCI2190101",
+        "product_name": "CEBOLLA RODAJA LBS"
+    },
+    {
+        "id": 20,
+        "code": "PCI2030101",
+        "product_name": "CHAMPIÑON RODAJAS 4.5 MM LBS"
+    },
+    {
+        "id": 21,
+        "code": "PCI2040101",
+        "product_name": "CHILE ROJO TIRAS 10-50 MM LBS"
+    },
+    {
+        "id": 22,
+        "code": "PCI1030101",
+        "product_name": "COCO CHUNKS 20-20 MM LBS"
+    },
+    {
+        "id": 23,
+        "code": "PCI2050101",
+        "product_name": "COLIFLOR FLORETS 30-50 MM PARTIDO LBS"
+    },
+    {
+        "id": 24,
+        "code": "PCI1040101",
+        "product_name": "DURAZNO CHUNKS 15-40 MM LBS"
+    },
+    {
+        "id": 25,
+        "code": "PCI1040201",
+        "product_name": "DURAZNO GAJOS LBS"
+    },
+    {
+        "id": 26,
+        "code": "PCS2060102",
+        "product_name": "EJOTE CONGELADO 2-3 SIEVES CAJA 30LBS"
+    },
+    {
+        "id": 27,
+        "code": "PCS2060202",
+        "product_name": "EJOTE CONGELADO CUT 40-50 MM LBS"
+    },
+    {
+        "id": 28,
+        "code": "PCI2070201",
+        "product_name": "EJOTE CORTADO LBS"
+    },
+    {
+        "id": 29,
+        "code": "PCI2070101",
+        "product_name": "EJOTE SIEVES 2-3 LBS"
+    },
+    {
+        "id": 30,
+        "code": "PCI2160101",
+        "product_name": "ELOTE GRANO LBS"
+    },
+    {
+        "id": 31,
+        "code": "PCI2080101",
+        "product_name": "ELOTIN CUT 25-50 MM LBS"
+    },
+    {
+        "id": 32,
+        "code": "PCI1050101",
+        "product_name": "FRAMBUESA ENTERA LBS"
+    },
+    {
+        "id": 33,
+        "code": "PCS1060404",
+        "product_name": "FRESA CONGELADA ENTERA KOSHER"
+    },
+    {
+        "id": 34,
+        "code": "PCS1060501",
+        "product_name": "FRESA CONGELADA PICADA"
+    },
+    {
+        "id": 35,
+        "code": "PCS1060303",
+        "product_name": "FRESA CONGELADA SIN MEDIDA CAJA 30LBS"
+    },
+    {
+        "id": 36,
+        "code": "PCI1060501",
+        "product_name": "FRESA DICED LBS"
+    },
+    {
+        "id": 37,
+        "code": "PCI1060101",
+        "product_name": "FRESA ENTERA 25-35 MM LBS"
+    },
+    {
+        "id": 38,
+        "code": "PCI1060201",
+        "product_name": "FRESA SLICED LBS"
+    },
+    {
+        "id": 39,
+        "code": "PCS2170101",
+        "product_name": "KALE CONGELADO 12.7X12.7 MM CAJA"
+    },
+    {
+        "id": 40,
+        "code": "PCI1150101",
+        "product_name": "KIWI SLICED 6-10 MM LBS"
+    },
+    {
+        "id": 41,
+        "code": "PCI1070101",
+        "product_name": "MANGO CHUNKS 20-20 MM LBS"
+    },
+    {
+        "id": 42,
+        "code": "PCS1030302",
+        "product_name": "MANGO CONGELADO CHUNKS URSHELL LBS"
+    },
+    {
+        "id": 43,
+        "code": "PCS1040202",
+        "product_name": "MELON CANTALOUPE CONGELADO BALLS 3/4\" CAJA 30LBS"
+    },
+    {
+        "id": 44,
+        "code": "PCS1040304",
+        "product_name": "MELON CANTALOUPE CONGELADO CHUNKS 25X25 MM CAJA 30 LBS"
+    },
+    {
+        "id": 45,
+        "code": "PCS1040401",
+        "product_name": "MELON CANTALOUPE CONGELADO PIECES CAJA 30LBS"
+    },
+    {
+        "id": 46,
+        "code": "PCS1220202",
+        "product_name": "MELON HONEY CONGELADO BALLS 3/4\" CAJA 30LBS"
+    },
+    {
+        "id": 47,
+        "code": "PCS1220402",
+        "product_name": "MELON HONEY CONGELADO CHUNKS 20X25 MM CAJA 30LBS"
+    },
+    {
+        "id": 48,
+        "code": "PCS1070102",
+        "product_name": "MORA CONGELADA ENTERA 20-32 MM"
+    },
+    {
+        "id": 49,
+        "code": "PCI1080101",
+        "product_name": "MORA ENTERO 20-32 MM LBS"
+    },
+    {
+        "id": 50,
+        "code": "PCS2100102",
+        "product_name": "OKRA CONGELADA CUT 1/2\" CAJA 30LBS"
+    },
+    {
+        "id": 51,
+        "code": "PCS2100201",
+        "product_name": "OKRA CONGELADA WHOLE"
+    },
+    {
+        "id": 52,
+        "code": "PCI1090101",
+        "product_name": "PAPAYA CHUNKS 20-25 MM LBS"
+    },
+    {
+        "id": 53,
+        "code": "PCS1050201",
+        "product_name": "PAPAYA CONGELADA CHUNKS 20X25 MM CAJA 30 LBS"
+    },
+    {
+        "id": 54,
+        "code": "PCS3010101",
+        "product_name": "PIÑA CONGELADA ORGANICA CHUNKS 25-35 MM CAJA 40 LBS"
+    },
+    {
+        "id": 55,
+        "code": "PCS1260105",
+        "product_name": "PIÑA HAWAIANA CONGELADA CHUNKS 20X45 MM CAJA 40LBS"
+    },
+    {
+        "id": 56,
+        "code": "PCS1260102",
+        "product_name": "PIÑA HAWAIANA CONGELADA CHUNKS 25X35 MM CAJA 40LBS"
+    },
+    {
+        "id": 57,
+        "code": "PCI1100101",
+        "product_name": "PIÑA MD2 CHUNKS 25-35 MM LBS"
+    },
+    {
+        "id": 58,
+        "code": "PCS1020102",
+        "product_name": "PIÑA MD2 CONGELADA CHUNKS 25X35 MM CAJA 1 X 40 40LBS"
+    },
+    {
+        "id": 59,
+        "code": "PCS1020202",
+        "product_name": "PIÑA MD2 CONGELADA TIDBITS 17X21 MM CAJA 40LBS"
+    },
+    {
+        "id": 60,
+        "code": "PCS1310101",
+        "product_name": "SANDIA CONGELADA BALLS 3/4\" CAJA 22.046LBS"
+    },
+    {
+        "id": 61,
+        "code": "PCS2031802",
+        "product_name": "TALLO DE BROCOLI CONGELADO STALK 3/4\"x3/4\"X1\" CAJA 50LBS"
+    },
+    {
+        "id": 62,
+        "code": "PCI1110101",
+        "product_name": "UVA ENTERA LBS"
+    },
+    {
+        "id": 63,
+        "code": "PCI2130101",
+        "product_name": "WATERCHESNUT 3/4\" - 1 1/2\" LBS"
+    },
+    {
+        "id": 64,
+        "code": "PCI2150101",
+        "product_name": "ZANAHORIA AMARILLA RODAJA RALLADA LBS"
+    },
+    {
+        "id": 65,
+        "code": "PCI2140201",
+        "product_name": "ZANAHORIA DICED LBS"
+    },
+    {
+        "id": 66,
+        "code": "PCI2140301",
+        "product_name": "ZANAHORIA RODAJA LISA 1\"-1 1/2\" LBS"
+    },
+    {
+        "id": 67,
+        "code": "PCI2140401",
+        "product_name": "ZANAHORIA RODAJA RALLADA 8-10 MM LBS"
+    },
+    {
+        "id": 68,
+        "code": "PCI2140101",
+        "product_name": "ZANAHORIA TIRAS 19-50 MM LBS"
+    },
+    {
+        "id": 69,
+        "code": "PCS2031601",
+        "product_name": "BROCOLI CONGELADO FL 20-40 MM PARTIDO CAJA 30 LBS"
+    },
+    {
+        "id": 70,
+        "code": "PCS2032801",
+        "product_name": "BROCOLI CONGELADO CHOPPED LBS"
+    }
+]

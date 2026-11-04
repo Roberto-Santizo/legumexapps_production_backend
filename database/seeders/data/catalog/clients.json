@@ -1,0 +1,278 @@
+[
+    {
+        "id": 1,
+        "name": "ACME"
+    },
+    {
+        "id": 2,
+        "name": "ALIMENTARTE"
+    },
+    {
+        "id": 3,
+        "name": "CONGELATTO"
+    },
+    {
+        "id": 4,
+        "name": "COSTCO CANADA"
+    },
+    {
+        "id": 5,
+        "name": "COSTCO JAPON"
+    },
+    {
+        "id": 6,
+        "name": "COSTCO KOREA"
+    },
+    {
+        "id": 7,
+        "name": "COSTCO USA"
+    },
+    {
+        "id": 8,
+        "name": "ENDICO"
+    },
+    {
+        "id": 9,
+        "name": "GOYA"
+    },
+    {
+        "id": 10,
+        "name": "HARVEST VALUE"
+    },
+    {
+        "id": 11,
+        "name": "HEALTHY PAC"
+    },
+    {
+        "id": 12,
+        "name": "HEB"
+    },
+    {
+        "id": 13,
+        "name": "JAMES FARM"
+    },
+    {
+        "id": 14,
+        "name": "JUST QUALITY"
+    },
+    {
+        "id": 15,
+        "name": "KROGER"
+    },
+    {
+        "id": 16,
+        "name": "LOGISTICA DE ENTREGA"
+    },
+    {
+        "id": 17,
+        "name": "MARKET BASKET"
+    },
+    {
+        "id": 18,
+        "name": "MONARCH"
+    },
+    {
+        "id": 19,
+        "name": "NONPAREIL"
+    },
+    {
+        "id": 20,
+        "name": "PRICESMART/VIDASSA"
+    },
+    {
+        "id": 21,
+        "name": "SAM'S MEXICO"
+    },
+    {
+        "id": 22,
+        "name": "SAM'S USA"
+    },
+    {
+        "id": 23,
+        "name": "SAVOR BRAND"
+    },
+    {
+        "id": 24,
+        "name": "SOCIOS LEGUM"
+    },
+    {
+        "id": 25,
+        "name": "TOP SOIL"
+    },
+    {
+        "id": 26,
+        "name": "TRADER JOE'S"
+    },
+    {
+        "id": 27,
+        "name": "VIDASSA"
+    },
+    {
+        "id": 28,
+        "name": "WALMART USA"
+    },
+    {
+        "id": 29,
+        "name": "WOOD FARMS ELITE"
+    },
+    {
+        "id": 30,
+        "name": "SEMIELABORADO"
+    },
+    {
+        "id": 31,
+        "name": "HOGOS COFFEE"
+    },
+    {
+        "id": 32,
+        "name": "DIVERSIFOOD"
+    },
+    {
+        "id": 33,
+        "name": "BIFRI"
+    },
+    {
+        "id": 34,
+        "name": "MIAMIAGRO"
+    },
+    {
+        "id": 35,
+        "name": "RECORTADO"
+    },
+    {
+        "id": 36,
+        "name": "BONDUELLE"
+    },
+    {
+        "id": 37,
+        "name": "JOOPA-MAQUILA"
+    },
+    {
+        "id": 38,
+        "name": "INFOODS"
+    },
+    {
+        "id": 39,
+        "name": "MIAMI AGRO"
+    },
+    {
+        "id": 40,
+        "name": "INN FOODS"
+    },
+    {
+        "id": 41,
+        "name": "BOUNDELLE"
+    },
+    {
+        "id": 42,
+        "name": "GORDON'S CHOICE"
+    },
+    {
+        "id": 43,
+        "name": "LAKESIDE/JQ"
+    },
+    {
+        "id": 44,
+        "name": "SEABROOK/JQ"
+    },
+    {
+        "id": 45,
+        "name": "WALMART-C.A."
+    },
+    {
+        "id": 46,
+        "name": "WALMART-C.A"
+    },
+    {
+        "id": 47,
+        "name": "WALMART"
+    },
+    {
+        "id": 48,
+        "name": "HG FOOD GMBH/JQ"
+    },
+    {
+        "id": 49,
+        "name": "WALMART C.A"
+    },
+    {
+        "id": 50,
+        "name": "HOGOS COFFE"
+    },
+    {
+        "id": 51,
+        "name": "DEL ANDE / JQ"
+    },
+    {
+        "id": 52,
+        "name": "COLUMBIA FOODS/JQ"
+    },
+    {
+        "id": 53,
+        "name": "AGROINDUSTRIAS VALEN"
+    },
+    {
+        "id": 54,
+        "name": "JOOPA"
+    },
+    {
+        "id": 55,
+        "name": "RECORTE"
+    },
+    {
+        "id": 56,
+        "name": "VIDASSA/STARBUCKS"
+    },
+    {
+        "id": 57,
+        "name": "WALMART DI"
+    },
+    {
+        "id": 58,
+        "name": "ROYAL PRODUCE"
+    },
+    {
+        "id": 59,
+        "name": "CARLOS RIVERA"
+    },
+    {
+        "id": 60,
+        "name": "BB 18 TRADING"
+    },
+    {
+        "id": 61,
+        "name": "BERTRAM FOODS"
+    },
+    {
+        "id": 62,
+        "name": "COSTCO UK"
+    },
+    {
+        "id": 63,
+        "name": "COSTCO USA/ NWF"
+    },
+    {
+        "id": 64,
+        "name": "FRUTYLINE"
+    },
+    {
+        "id": 65,
+        "name": "SAM'S"
+    },
+    {
+        "id": 66,
+        "name": "TIMES BIOTECHNOLOGY CO"
+    },
+    {
+        "id": 67,
+        "name": "SEMI JUGOS"
+    },
+    {
+        "id": 68,
+        "name": "IMAGINOVA S.A"
+    },
+    {
+        "id": 69,
+        "name": "HOGO'S COFFEE"
+    }
+]
