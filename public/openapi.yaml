@@ -709,6 +709,29 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [CaptureFields]
+      summary: Editar campo custom (equivalente a PATCH)
+      description: |
+        Todos los campos son opcionales. `label` y `options` se pueden editar siempre. Si el tipo
+        resultante deja de ser `select`, `options` pasa a `null`.
+
+        Errores `400`:
+        - `Los campos de sistema no se pueden modificar`
+        - `No se puede cambiar la clave o el tipo de un campo asignado a líneas`
+        - `Ya existe un campo con la clave {key}`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaptureFieldUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
     patch:
       tags: [CaptureFields]
       summary: Editar campo custom
@@ -2120,6 +2143,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Page'
+        - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre del empleado }
+        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código del empleado }
+        - { name: position, in: query, schema: { type: string }, description: Filtro parcial por código de la posición }
+        - { name: week, in: query, schema: { type: integer }, description: Semana del plan }
+        - { name: year, in: query, schema: { type: integer }, description: Año del plan }
       responses:
         '200':
           description: Empleados del Plan Semanal Obtenidos Correctamente
@@ -3236,7 +3264,7 @@ components:
         - type: object
           required: [total, currentPage, lastPage]
           properties:
-            data: { type: array }
+            data: { type: array, items: {} }
             total: { type: integer }
             currentPage: { type: integer }
             lastPage: { type: integer }
