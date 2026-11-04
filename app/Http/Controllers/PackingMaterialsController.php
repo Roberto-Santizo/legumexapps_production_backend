@@ -19,7 +19,7 @@ class PackingMaterialsController extends Controller
     public function index(Request $request, PackingMaterialsServiceInterface $service)
     {
         try {
-            $limit = $request->query('limit');
+            $limit = $request->query('limit') ?? 10;
             $response = $service->getPackingMaterials($limit, $request);
 
             $data = $limit ? new PaginatedPackingMaterialsResource($response) : PackingMaterialResource::collection($response);

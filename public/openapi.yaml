@@ -10,7 +10,8 @@ info:
     `total`, `currentPage` y `lastPage` al nivel raíz, junto a `data`.
 
     **Listados.** Con `?limit=N` la respuesta es paginada (usar `?page=` para navegar);
-    sin `limit` se devuelve la colección completa. Excepción: `GET /skus` siempre pagina (10 por defecto).
+    sin `limit` se devuelve la colección completa. Excepción: `GET /skus` y `GET /packing-materials`
+    siempre paginan (10 por defecto).
 
     **Actualizaciones.** Todo `PUT /recurso/{id}` acepta también `PATCH` con el mismo cuerpo
     (rutas `apiResource`); la validación sigue exigiendo todos los campos requeridos.
@@ -1316,9 +1317,10 @@ paths:
     get:
       tags: [PackingMaterials]
       summary: Listar materiales de empaque
+      description: Siempre paginado; sin `limit` se usan páginas de 10 registros.
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, default: 10 }, description: Tamaño de página }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 }, description: Página a obtener }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
         - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
       responses:
@@ -1327,15 +1329,10 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - allOf:
-                      - $ref: '#/components/schemas/Envelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
-                  - allOf:
-                      - $ref: '#/components/schemas/PaginatedEnvelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedEnvelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
     post:
@@ -1356,6 +1353,9 @@ paths:
     post:
       tags: [PackingMaterials]
       summary: Carga masiva de materiales de empaque (Excel)
+      description: |
+        Columnas obligatorias: `codigo`, `nombre` y `descripcion`. `codigo` no debe existir
+        ni repetirse en el archivo.
       requestBody: { $ref: '#/components/requestBodies/UploadFile' }
       responses:
         '200': { $ref: '#/components/responses/UploadResult' }
