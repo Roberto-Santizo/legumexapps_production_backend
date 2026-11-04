@@ -10,7 +10,7 @@ info:
     `total`, `currentPage` y `lastPage` al nivel raíz, junto a `data`.
 
     **Listados.** Con `?limit=N` la respuesta es paginada (usar `?page=` para navegar);
-    sin `limit` se devuelve la colección completa.
+    sin `limit` se devuelve la colección completa. Excepción: `GET /skus` siempre pagina (10 por defecto).
 
     **Actualizaciones.** Todo `PUT /recurso/{id}` acepta también `PATCH` con el mismo cuerpo
     (rutas `apiResource`); la validación sigue exigiendo todos los campos requeridos.
@@ -956,9 +956,10 @@ paths:
     get:
       tags: [Skus]
       summary: Listar SKUs
+      description: Siempre paginado; sin `limit` se usan páginas de 10 registros.
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, default: 10 }, description: Tamaño de página }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 }, description: Página a obtener }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
         - { name: product_name, in: query, schema: { type: string }, description: Filtro parcial por nombre de producto }
         - { name: client, in: query, schema: { type: string }, description: Filtro parcial por nombre de cliente }
@@ -968,15 +969,10 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - allOf:
-                      - $ref: '#/components/schemas/Envelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
-                  - allOf:
-                      - $ref: '#/components/schemas/PaginatedEnvelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedEnvelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
     post:
@@ -997,6 +993,9 @@ paths:
     post:
       tags: [Skus]
       summary: Carga masiva de SKUs (Excel)
+      description: |
+        Columnas: `codigo`, `nombre_producto` y `cliente` (obligatorias), `presentacion` y
+        `cajas_por_pallet` (opcionales). `cliente` se busca por nombre, sin distinguir mayúsculas.
       requestBody: { $ref: '#/components/requestBodies/UploadFile' }
       responses:
         '200': { $ref: '#/components/responses/UploadResult' }
