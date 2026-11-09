@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('weekly_plan_task_employees', function (Blueprint $table) {
             $table->id();
             $table->foreignId('weekly_plan_task_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('weekly_plan_employee_id')->constrained();
-            $table->foreignId('position_id')->constrained();
-            $table->foreignId('replaced_weekly_plan_employee_id')->nullable()->constrained('weekly_plan_employees');
+            $table->string('code');
+            $table->string('name');
+            $table->string('position');
             $table->softDeletes();
             $table->timestamps();
 

@@ -15,13 +15,10 @@ class WeeklyPlanEmployeeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->employee->name,
-            'code' => $this->employee->code,
-            'position' => $this->position->code,
-            'biometric_position' => $this->employee->position,
-            'position_id' => $this->position_id,
-            'employee_id' => $this->employee_id,
+            'id' => $this['id'],
+            'name' => $this['name'],
+            'code' => $this['pin'],
+            'position' => $this['last_name'],
         ];
     }
 }
