@@ -4,34 +4,42 @@ namespace App\Services\WeeklyPlanTaskEmployees;
 
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
+use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\WeeklyPlanEmployee;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskEmployee;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Override;
 
 class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceInterface
 {
-    public function __construct(private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService) {}
+    public function __construct(
+        private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService,
+        private BiometricQueriesServiceInterface $biometricQueriesService,
+    ) {}
 
     #[Override]
     public function getAvailableEmployees(string $taskId)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
-        return $this->getCandidates($task);
+        $lineCode = $task->performance?->line?->code;
+
+        if (! $lineCode) {
+            return [];
+        }
+
+        return $this->biometricQueriesService->getEmployeesByLineCode($lineCode);
     }
 
     #[Override]
     public function getTaskEmployees(string $taskId)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
+        $employees = $task->employees;
 
-        return $task->employees()
-            ->with(['weeklyPlanEmployee.employee', 'position', 'replacedWeeklyPlanEmployee.employee'])
-            ->get();
+        return $employees;
     }
 
     #[Override]
@@ -45,12 +53,15 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
                 'weekly_plan_task_id' => $task->id,
                 'code' => $employee['code'],
                 'name' => $employee['name'],
-                'position' => $employee['position']
+                'position' => $employee['position'],
             ];
 
         }
 
         DB::table('weekly_plan_task_employees')->insert($bulkData);
+        $task->status = 3;
+        $task->save();
+
         return null;
     }
 
@@ -163,18 +174,6 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
 
         if ($task->employees()->exists()) {
             throw new BadRequestError('La tarea ya tiene personal asignado');
-        }
-    }
-
-    private function getCandidates(WeeklyPlanTask $task): array
-    {
-        try {
-            $lineCode = $task->performance->line->code;
-            $baseUrl = env('NEW_BIOMETRICO_URL');
-            $response = Http::get("$baseUrl/employees/getEmployeesByLineCode/$lineCode");
-            return $response->json();
-        } catch (\Throwable $th) {
-            return [];
         }
     }
 }

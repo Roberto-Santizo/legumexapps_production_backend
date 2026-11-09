@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Observers\WeeklyPlanTaskObserver;
+// use App\Observers\WeeklyPlanTaskObserver;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+// use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
 // #[ObservedBy(WeeklyPlanTaskObserver::class)]

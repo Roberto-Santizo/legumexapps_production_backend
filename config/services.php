@@ -28,6 +28,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'biometric' => [
+        'url' => env('BIOMETRICO_URL'),
+        'key' => env('BIOMETRICO_APP_KEY'),
+        'new_url' => env('NEW_BIOMETRICO_URL'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

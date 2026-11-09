@@ -2,6 +2,7 @@
 
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
+use App\Providers\BiometricQueries\BiometricQueriesProvider;
 use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
@@ -34,6 +35,7 @@ use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 return [
     AppServiceProvider::class,
     AuthProvider::class,
+    BiometricQueriesProvider::class,
     CaptureFieldsProvider::class,
     ClientsProvider::class,
     DraftWeeklyPlanTasksProvider::class,

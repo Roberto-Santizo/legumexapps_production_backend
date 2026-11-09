@@ -76,6 +76,9 @@ tags:
       registro son los que la línea tiene configurados (`GET /lines/{code}/fields`).
   - name: WeeklyPlanTaskTimeouts
     description: Tiempos muertos (percances) registrados en vivo durante una tarea en progreso.
+  - name: BiometricQueries
+    description: |
+      Consultas de solo lectura al biométrico (API externa). Si el biométrico no responde, `data` es `[]`.
 
 paths:
   # ───────────────────────────── AUTH ─────────────────────────────
@@ -2489,11 +2492,62 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  # ───────────────────────────── BIOMETRIC QUERIES ─────────────────────────────
+  /biometric-queries/employees:
+    get:
+      tags: [BiometricQueries]
+      summary: Todos los empleados del biométrico
+      description: |
+        Lista completa de empleados del biométrico (misma fuente que sincroniza la tabla `employees`).
+        Sin paginación ni filtros. Devuelve `[]` si el biométrico no responde.
+      responses:
+        '200':
+          description: Empleados Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/BiometricEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /biometric-queries/employeesByLineCode/{lineCode}:
+    get:
+      tags: [BiometricQueries]
+      summary: Empleados del biométrico por código de línea
+      description: |
+        Empleados que el biométrico reporta para la línea indicada. Sin paginación. Devuelve `[]` si la
+        línea no tiene empleados, no existe en el biométrico o el biométrico no responde (no hay 404).
+      parameters:
+        - name: lineCode
+          in: path
+          required: true
+          schema: { type: string }
+          description: Código de la línea
+      responses:
+        '200':
+          description: Empleados Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/BiometricEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK EMPLOYEES ─────────────────────────────
   /weekly-plan-tasks/{id}/availableEmployees:
     get:
       tags: [WeeklyPlanTaskEmployees]
-      summary: Empleados del plan disponibles para la tarea
+      summary: Empleados disponibles para la tarea (biométrico)
+      description: |
+        Candidatos de la tarea: empleados que el biométrico reporta para la línea de la tarea
+        (misma consulta que `GET /biometric-queries/employeesByLineCode/{lineCode}`). Devuelve `[]` si la
+        tarea no tiene línea o el biométrico no responde.
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
@@ -2505,7 +2559,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Envelope'
                   - properties:
-                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
+                      data: { type: array, items: { $ref: '#/components/schemas/BiometricEmployee' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -2535,30 +2589,44 @@ paths:
       tags: [WeeklyPlanTaskEmployees]
       summary: Confirmar asignación de personal de la tarea
       description: |
-        Parte de los candidatos disponibles y aplica reemplazos, adiciones y remociones.
-        Requiere tarea lista para confirmación y sin personal asignado.
+        Registra en `weekly_plan_task_employees` una fila por cada empleado enviado
+        (`code`, `name`, `position`), tomados normalmente de `GET /weekly-plan-tasks/{id}/availableEmployees`.
+        Inserción masiva; no valida status de la tarea ni personal previamente asignado.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
-        required: false
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required: [employees]
               properties:
-                replacements:
-                  type: [array, 'null']
+                employees:
+                  type: array
+                  minItems: 1
+                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista.
                   items:
                     type: object
-                    required: [weekly_plan_employee_id, replacement_weekly_plan_employee_id]
+                    required: [code, name, position]
                     properties:
-                      weekly_plan_employee_id: { type: integer }
-                      replacement_weekly_plan_employee_id: { type: integer }
-                additions: { type: [array, 'null'], items: { type: integer }, description: IDs de weekly_plan_employees }
-                removals: { type: [array, 'null'], items: { type: integer }, description: IDs de weekly_plan_employees }
+                      code: { type: string, description: Código del empleado (biométrico) }
+                      name: { type: string, description: Nombre completo }
+                      position: { type: string, description: Puesto en la tarea }
+            example:
+              employees:
+                - { code: 'E0001', name: 'Juan Pérez', position: 'Operador 1' }
+                - { code: 'E0002', name: 'María López', position: 'Operador 2' }
       responses:
-        '201': { $ref: '#/components/responses/NullData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
+        '201':
+          description: Personal Asignado Correctamente (`data` = null)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: 'null' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -3680,6 +3748,14 @@ components:
         biometric_position: { type: [string, 'null'], description: Puesto según el biométrico }
         position_id: { type: integer }
         employee_id: { type: integer }
+    BiometricEmployee:
+      type: object
+      description: Empleado tal como lo reporta el biométrico (no es un registro local).
+      properties:
+        id: { type: [integer, string], description: Id del empleado en el biométrico }
+        name: { type: string }
+        code: { type: string, description: Código del empleado }
+        position: { type: [string, 'null'], description: Puesto según el biométrico }
     WeeklyPlanEmployeeInput:
       type: object
       required: [position_id, employee_id, weekly_plan_id]

@@ -34,7 +34,8 @@ Usar el skill `model-feature-scaffold` para generar una feature nueva.
 - Auth: JWT (`tymon/jwt-auth`, middleware `jwt.auth`); `admin` = `App\Http\Middleware\IsAdmin`.
 - Archivos: S3 (`Storage::disk('s3')`), URLs públicas expuestas desde Resources.
 - Correo: Resend vía `App\Helpers\MailHandler`; Mailables en `app/Mail/`.
-- Cola: `database`. Job `SyncBiometricEmployees` usa `App\Singletons\Biometric` (API externa).
+- Cola: `database`. Job `SyncBiometricEmployees` usa `BiometricQueriesServiceInterface`.
+- Biométrico (API externa): toda consulta HTTP va en la feature `BiometricQueries` (solo lectura; si falla devuelve `[]`); URLs/keys en `config('services.biometric')`.
 - Observers: `WeeklyPlanTaskObserver` (bitácora de cambios / notificaciones).
 
 ## Flujo spec-driven
