@@ -8,5 +8,55 @@
         "pm_transaction_id": 3,
         "created_at": "2026-11-10 16:11:57",
         "updated_at": "2026-11-10 16:11:57"
+    },
+    {
+        "id": 4,
+        "quantity": 249.99999999999997,
+        "lote": "L-2026-11",
+        "destination": "EMPAQUE JUGOS",
+        "packing_material_id": 1,
+        "pm_transaction_id": 4,
+        "created_at": "2026-11-10 18:08:26",
+        "updated_at": "2026-11-10 18:08:26"
+    },
+    {
+        "id": 5,
+        "quantity": 250.0,
+        "lote": "L-2026-11",
+        "destination": "PROCESO IQF1A",
+        "packing_material_id": 1,
+        "pm_transaction_id": 5,
+        "created_at": "2026-11-10 18:08:48",
+        "updated_at": "2026-11-10 18:08:48"
+    },
+    {
+        "id": 6,
+        "quantity": 250.0,
+        "lote": "L-2026-11",
+        "destination": "RECORTE FRESCO",
+        "packing_material_id": 1,
+        "pm_transaction_id": 6,
+        "created_at": "2026-11-10 18:09:02",
+        "updated_at": "2026-11-10 18:09:02"
+    },
+    {
+        "id": 7,
+        "quantity": 250.0,
+        "lote": "L-2026-11",
+        "destination": "EMPAQUE FRESCO",
+        "packing_material_id": 117,
+        "pm_transaction_id": 7,
+        "created_at": "2026-11-10 18:09:18",
+        "updated_at": "2026-11-10 18:09:18"
+    },
+    {
+        "id": 8,
+        "quantity": 250.0,
+        "lote": "L-2026-11",
+        "destination": "LINEA COMODINES FIJOS A",
+        "packing_material_id": 396,
+        "pm_transaction_id": 8,
+        "created_at": "2026-11-10 18:09:30",
+        "updated_at": "2026-11-10 18:09:30"
     }
 ]

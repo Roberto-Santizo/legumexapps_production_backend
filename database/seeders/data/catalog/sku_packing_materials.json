@@ -6,24 +6,6 @@
         "packing_material_id": 117
     },
     {
-        "id": 3,
-        "lbs_per_item": 2.0,
-        "sku_id": 91,
-        "packing_material_id": 362
-    },
-    {
-        "id": 4,
-        "lbs_per_item": 2.0,
-        "sku_id": 91,
-        "packing_material_id": 534
-    },
-    {
-        "id": 5,
-        "lbs_per_item": 24.0,
-        "sku_id": 91,
-        "packing_material_id": 525
-    },
-    {
         "id": 6,
         "lbs_per_item": 3.0,
         "sku_id": 28,
@@ -82,5 +64,23 @@
         "lbs_per_item": 25.0,
         "sku_id": 172,
         "packing_material_id": 396
+    },
+    {
+        "id": 16,
+        "lbs_per_item": 18.76,
+        "sku_id": 120,
+        "packing_material_id": 1
+    },
+    {
+        "id": 17,
+        "lbs_per_item": 25.0,
+        "sku_id": 181,
+        "packing_material_id": 1
+    },
+    {
+        "id": 18,
+        "lbs_per_item": 25.0,
+        "sku_id": 391,
+        "packing_material_id": 1
     }
 ]
