@@ -23,6 +23,7 @@ class CatalogSeeder extends Seeder
         'sku_packing_materials',
         'lines',
         'line_stock_keeping_units',
+        'positions',
     ];
 
     private const CHUNK_SIZE = 500;

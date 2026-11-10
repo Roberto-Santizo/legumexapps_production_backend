@@ -11,7 +11,7 @@
     },
     {
         "id": 4,
-        "quantity": 249.99999999999997,
+        "quantity": 250.0,
         "lote": "L-2026-11",
         "destination": "EMPAQUE JUGOS",
         "packing_material_id": 1,
