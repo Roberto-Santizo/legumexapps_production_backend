@@ -82,6 +82,12 @@ tags:
   - name: BiometricQueries
     description: |
       Consultas de solo lectura al biométrico (API externa). Si el biométrico no responde, `data` es `[]`.
+  - name: WeeklyPlanTaskAssistant
+    description: |
+      Asistente IA de solo lectura (Laravel AI SDK) que responde preguntas sobre las tareas del plan semanal
+      y sus tomas de rendimiento (`pallet`, `lot`, `product`). Las conversaciones son por usuario: cada
+      usuario solo ve, continúa y borra las suyas. Proveedor y modelo se configuran por `.env`
+      (`AI_ASSISTANT_PROVIDER`, `AI_ASSISTANT_MODEL`).
 
 paths:
   # ───────────────────────────── AUTH ─────────────────────────────
@@ -3190,6 +3196,155 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  /weekly-plan-task-assistant/ask:
+    post:
+      tags: [WeeklyPlanTaskAssistant]
+      summary: Preguntar al asistente (respuesta en streaming)
+      description: |
+        Responde en streaming con el **protocolo de datos de Vercel AI SDK** (UI message stream v1,
+        `text/event-stream`), compatible con `useChat` de `@ai-sdk/react`. No usa el envoltorio
+        `{ statusCode, message, data }`.
+
+        - Sin `conversation_id` se crea una conversación nueva; con `conversation_id` se continúa
+          (el agente recuerda los mensajes anteriores).
+        - El id de la conversación llega siempre en el header `X-Conversation-Id`; guárdalo para la
+          siguiente pregunta.
+        - Rate limit por usuario: `AI_ASSISTANT_RATE_LIMIT` preguntas por minuto (default 20).
+
+        Los errores **antes** de abrir el stream (`404`, `422`, `429`) usan `{ statusCode, message, data }`.
+        Un error del proveedor con el stream ya abierto (status `200` enviado) llega como una parte
+        `{"type":"error","errorText":"An error occurred."}` seguida de `data: [DONE]`.
+
+        Errores `404`:
+        - `La conversación no existe` (inexistente o de otro usuario; no se llama al proveedor)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, maxLength: 2000 }
+                conversation_id: { type: [string, 'null'], maxLength: 36, description: 'Id devuelto en `X-Conversation-Id`; `null` u omitido para iniciar una conversación' }
+            examples:
+              nueva:
+                value: { message: '¿Cuál fue el % de recuperación de Recorte LD en la semana 45 de 2026?', conversation_id: null }
+      responses:
+        '200':
+          description: Stream de la respuesta (protocolo de datos de Vercel)
+          headers:
+            X-Conversation-Id:
+              description: Id (UUID) de la conversación usada o creada.
+              schema: { type: string, examples: ['01a1c732-e9ad-724a-9ee9-a800f8d1c495'] }
+            x-vercel-ai-ui-message-stream:
+              description: Versión del protocolo de streaming.
+              schema: { type: string, const: v1 }
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: 'Eventos `data: {json}` separados por línea en blanco; termina con `data: [DONE]`.'
+              examples:
+                stream:
+                  value: |
+                    data: {"type":"start","messageId":"01a1c732-e9c8-721f-aeea-b1f66619de2c"}
+
+                    data: {"type":"start-step"}
+
+                    data: {"type":"text-start","id":"..."}
+
+                    data: {"type":"text-delta","id":"...","delta":"La recuperación fue de 46.77 %"}
+
+                    data: {"type":"text-end","id":"..."}
+
+                    data: {"type":"finish-step"}
+
+                    data: {"type":"finish"}
+
+                    data: [DONE]
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/AssistantValidationError' }
+        '429': { $ref: '#/components/responses/TooManyQuestions' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-assistant/conversations:
+    get:
+      tags: [WeeklyPlanTaskAssistant]
+      summary: Listar conversaciones del usuario autenticado
+      description: Solo las conversaciones propias, ordenadas por `updated_at` (más reciente primero).
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Conversaciones Obtenidas Correctamente (paginado si se envía `limit`)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/AssistantConversation' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/AssistantConversation' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-assistant/conversations/{id}/messages:
+    get:
+      tags: [WeeklyPlanTaskAssistant]
+      summary: Mensajes de una conversación propia
+      description: |
+        Mensajes de usuario y asistente en orden cronológico, para rehidratar el chat.
+
+        Errores `404`:
+        - `La conversación no existe` (inexistente o de otro usuario)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string }, description: Id (UUID) de la conversación }
+      responses:
+        '200':
+          description: Mensajes Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/AssistantConversationMessage' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-assistant/conversations/{id}:
+    delete:
+      tags: [WeeklyPlanTaskAssistant]
+      summary: Eliminar una conversación propia
+      description: |
+        Borra la conversación y todos sus mensajes.
+
+        Errores `404`:
+        - `La conversación no existe` (inexistente o de otro usuario; no se borra nada)
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string }, description: Id (UUID) de la conversación }
+      responses:
+        '200':
+          description: Conversación Eliminada Correctamente (`data` = null)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: 'null' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -3321,6 +3476,31 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ApiError' }
+    AssistantValidationError:
+      description: |
+        Error de validación del asistente, con el envoltorio `{ statusCode, message, data }`; `message` es el
+        primer error y `data` trae los errores por campo. Mensajes: `El mensaje es obligatorio`,
+        `El mensaje no puede superar 2000 caracteres`, `El id de la conversación no es válido`.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode: { type: integer, const: 422 }
+              message: { type: string, examples: ['El mensaje es obligatorio'] }
+              data:
+                type: object
+                additionalProperties: { type: array, items: { type: string } }
+    TooManyQuestions:
+      description: Se superó el rate limit del asistente (`AI_ASSISTANT_RATE_LIMIT` por minuto y usuario)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              statusCode: { type: integer, const: 429 }
+              message: { type: string, examples: ['Demasiadas preguntas, intenta de nuevo en un momento'] }
+              data: { type: 'null' }
 
   schemas:
     # ── Envolturas ──
@@ -3934,3 +4114,17 @@ components:
         duration_hours: { type: [number, 'null'], description: 'Horas entre `start_date` y `end_date` (2 decimales); `null` mientras está abierto' }
         observation: { type: [string, 'null'] }
         is_open: { type: boolean }
+    AssistantConversation:
+      type: object
+      properties:
+        id: { type: string, description: Id (UUID) de la conversación }
+        title: { type: string, description: Primeros caracteres de la primera pregunta }
+        created_at: { type: string, examples: ['10-11-2026 15:02'] }
+        updated_at: { type: string, examples: ['10-11-2026 15:10'] }
+    AssistantConversationMessage:
+      type: object
+      properties:
+        id: { type: string }
+        role: { type: string, enum: [user, assistant] }
+        content: { type: string, description: Texto del mensaje (markdown en las respuestas del asistente) }
+        created_at: { type: string, examples: ['10-11-2026 15:02'] }
