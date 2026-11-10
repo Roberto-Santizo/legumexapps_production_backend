@@ -1,6 +1,6 @@
 # SPEC 11 — Captura por producto (familia `product`)
 
-> **Estado:** Borrador
+> **Estado:** Aprobado
 > **Depende de:** SPEC 08, SPEC 09, SPEC 10
 > **Fecha:** 2026-11-10
 > **Objetivo:** Registrar, mientras la tarea está en progreso, una fila por variante de producto o materia prima en las líneas `product`, validada contra los `line_fields` de la línea y con `% recuperación` y `% rechazo` resueltos por `ProductCalculator`.

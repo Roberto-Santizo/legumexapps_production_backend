@@ -52,6 +52,11 @@ class WeeklyPlanTask extends Model
         return $this->hasMany(WeeklyPlanTaskLotRecord::class);
     }
 
+    public function productRecords()
+    {
+        return $this->hasMany(WeeklyPlanTaskProductRecord::class);
+    }
+
     public function timeouts()
     {
         return $this->hasMany(WeeklyPlanTaskTimeout::class);
