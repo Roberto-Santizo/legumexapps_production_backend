@@ -3,6 +3,7 @@
 namespace App\Interfaces\WeeklyPlanTaskAssistant;
 
 use App\Enums\CaptureType;
+use App\Models\AssistantAudioSummary;
 use App\Models\User;
 use App\Models\WeeklyPlanTask;
 use Illuminate\Support\Collection;
@@ -42,4 +43,6 @@ interface WeeklyPlanTaskAssistantServiceInterface
     public function getConversationMessages(User $user, string $conversationId);
 
     public function deleteConversation(User $user, string $conversationId): bool;
+
+    public function generateAudioSummary(User $user, string $conversationId, string $script): AssistantAudioSummary;
 }

@@ -8,6 +8,7 @@ use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlanTaskAssistant\WeeklyPlanTaskAssistantServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
+use App\Models\AssistantAudioSummary;
 use App\Models\LineField;
 use App\Models\User;
 use App\Models\WeeklyPlanTask;
@@ -18,11 +19,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Laravel\Ai\Audio;
 use Laravel\Ai\Contracts\ConversationStore;
 use Laravel\Ai\Contracts\VerifiesConversationOwnership;
 use Laravel\Ai\Models\Conversation;
 use Laravel\Ai\Models\ConversationMessage;
 use Override;
+use Throwable;
 
 class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceInterface
 {
@@ -201,6 +205,48 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
         });
 
         return true;
+    }
+
+    #[Override]
+    public function generateAudioSummary(User $user, string $conversationId, string $script): AssistantAudioSummary
+    {
+        $config = config('services.weekly_plan_task_assistant.audio');
+
+        set_time_limit($config['timeout'] + 60);
+
+        try {
+            $audio = Audio::of($script)
+                ->voice($config['voice'])
+                ->timeout($config['timeout'])
+                ->generate($config['provider'], $config['model'] ?: null);
+        } catch (Throwable $th) {
+            report($th);
+
+            throw new BadRequestError('No se pudo generar el audio, intenta de nuevo');
+        }
+
+        $path = $audio->storePublicly("weekly-plan-task-assistant/audios/{$conversationId}", 's3');
+
+        if ($path === false) {
+            throw new BadRequestError('No se pudo guardar el audio, intenta de nuevo');
+        }
+
+        try {
+            return AssistantAudioSummary::create([
+                'user_id' => $user->id,
+                'conversation_id' => $conversationId,
+                'path' => $path,
+                'mime_type' => $audio->mimeType() ?? 'audio/mpeg',
+                'characters' => mb_strlen($script),
+                'provider' => $config['provider'],
+                'model' => $config['model'] ?: null,
+                'voice' => $config['voice'],
+            ]);
+        } catch (Throwable $th) {
+            Storage::disk('s3')->delete($path);
+
+            throw $th;
+        }
     }
 
     /**
