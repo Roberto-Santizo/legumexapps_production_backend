@@ -28,7 +28,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
 
         $payload = [
             'boxes' => $data['boxes'],
-            'pallets' =>  $sku->boxes_per_pallet ? $data['boxes'] / $sku->boxes_per_pallet : 0,
+            'pallets' => $sku->boxes_per_pallet ? $data['boxes'] / $sku->boxes_per_pallet : 0,
             'hours' => $total_lbs / $performance->lbs_performance,
             'destination' => $data['destination'],
             'operation_date' => $data['operation_date'],
@@ -48,6 +48,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         $query->with(['performance', 'performance.sku', 'performance.line', 'openTimeout']);
         $query->withSum('performanceRecords', 'net_weight');
         $query->withSum('lotRecords', 'trimmed_lbs');
+        $query->withSum('productRecords', 'trimmed_lbs');
         $query->withSum('timeouts', 'duration_hours');
 
         if ($request->query('weeklyPlanId')) {
@@ -95,6 +96,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         $weeklyPlanTask = WeeklyPlanTask::with('openTimeout')
             ->withSum('performanceRecords', 'net_weight')
             ->withSum('lotRecords', 'trimmed_lbs')
+            ->withSum('productRecords', 'trimmed_lbs')
             ->withSum('timeouts', 'duration_hours')
             ->find($id);
         if (! $weeklyPlanTask) {
@@ -214,7 +216,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             return $newTaskIds;
         });
 
-        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'openTimeout'])->withSum('performanceRecords', 'net_weight')->withSum('lotRecords', 'trimmed_lbs')->withSum('timeouts', 'duration_hours')->get();
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'openTimeout'])->withSum('performanceRecords', 'net_weight')->withSum('lotRecords', 'trimmed_lbs')->withSum('productRecords', 'trimmed_lbs')->withSum('timeouts', 'duration_hours')->get();
     }
 
     /**
@@ -318,6 +320,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
         return $task->fresh(['performance.sku.client', 'performance.line', 'openTimeout'])
             ->loadSum('performanceRecords', 'net_weight')
             ->loadSum('lotRecords', 'trimmed_lbs')
+            ->loadSum('productRecords', 'trimmed_lbs')
             ->loadSum('timeouts', 'duration_hours');
     }
 }
