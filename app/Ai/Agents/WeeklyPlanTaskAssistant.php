@@ -2,6 +2,7 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Tools\GenerateAudioSummary;
 use App\Ai\Tools\GetWeeklyPlanTaskCaptureFields;
 use App\Ai\Tools\GetWeeklyPlanTaskDetail;
 use App\Ai\Tools\GetWeeklyPlanTaskEmployees;
@@ -28,7 +29,7 @@ class WeeklyPlanTaskAssistant implements Agent, Conversational, HasTools
     use Promptable, RemembersConversations;
 
     /**
-     * Read-only tools available to the agent.
+     * Read-only query tools available to the agent; GenerateAudioSummary is added in tools() with the conversation context.
      *
      * @var list<class-string<Tool>>
      */
@@ -56,6 +57,7 @@ class WeeklyPlanTaskAssistant implements Agent, Conversational, HasTools
         return view('ai.weekly-plan-task-assistant', [
             'today' => now()->toDateString(),
             'maxRangeDays' => (int) config('services.weekly_plan_task_assistant.max_range_days'),
+            'maxAudioChars' => (int) config('services.weekly_plan_task_assistant.audio.max_chars'),
         ])->render();
     }
 
@@ -66,6 +68,12 @@ class WeeklyPlanTaskAssistant implements Agent, Conversational, HasTools
      */
     public function tools(): iterable
     {
-        return array_map(fn (string $tool) => app($tool), self::TOOLS);
+        return [
+            ...array_map(fn (string $tool) => app($tool), self::TOOLS),
+            app(GenerateAudioSummary::class, [
+                'conversationId' => $this->currentConversation(),
+                'user' => $this->conversationParticipant(),
+            ]),
+        ];
     }
 }
