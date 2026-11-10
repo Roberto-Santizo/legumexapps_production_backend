@@ -44,7 +44,7 @@ use `->nullable()`.
 
 `php artisan make:factory {Model}Factory --no-interaction`. In `definition()`, set every required
 fillable field; for foreign keys use `{Related}::factory()` (see
-`database/factories/WeeklyPlanEmployeeFactory.php` for the pattern with three FKs).
+`database/factories/PositionFactory.php` for the pattern).
 
 ## Step 3 — Interface
 
@@ -74,8 +74,7 @@ interface {Plural}ServiceInterface
 
 Check the closest sibling interface for **argument order on the update method** — this codebase has
 both `updateXById(string $id, array $data)` (e.g. `PackingMaterialsServiceInterface`,
-`ClientsServiceInterface`) and `updateXById(array $data, string $id)` (e.g. `PositionsServiceInterface`,
-`WeeklyPlanEmployeesServiceInterface`). Pick whichever the nearest analogous feature uses, and keep the
+`ClientsServiceInterface`) and `updateXById(array $data, string $id)` (e.g. `PositionsServiceInterface`). Pick whichever the nearest analogous feature uses, and keep the
 Service and Controller calls consistent with the interface you write.
 
 ## Step 4 — Service

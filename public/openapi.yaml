@@ -10,7 +10,8 @@ info:
     `total`, `currentPage` y `lastPage` al nivel raíz, junto a `data`.
 
     **Listados.** Con `?limit=N` la respuesta es paginada (usar `?page=` para navegar);
-    sin `limit` se devuelve la colección completa.
+    sin `limit` se devuelve la colección completa. Excepción: `GET /skus` y `GET /packing-materials`
+    siempre paginan (10 por defecto).
 
     **Actualizaciones.** Todo `PUT /recurso/{id}` acepta también `PATCH` con el mismo cuerpo
     (rutas `apiResource`); la validación sigue exigiendo todos los campos requeridos.
@@ -61,7 +62,6 @@ tags:
   - name: DraftWeeklyPlans
   - name: DraftWeeklyPlanTasks
   - name: WeeklyPlans
-  - name: WeeklyPlanEmployees
   - name: WeeklyPlanTasks
   - name: WeeklyPlanTaskEmployees
   - name: WeeklyPlanTaskObservations
@@ -73,8 +73,15 @@ tags:
     description: |
       Captura por lote GRN de materia prima (familia `lot`) durante una tarea en progreso. Los campos de cada
       registro son los que la línea tiene configurados (`GET /lines/{code}/fields`).
+  - name: WeeklyPlanTaskProductRecords
+    description: |
+      Captura por variante de producto o materia prima (familia `product`) durante una tarea en progreso. Los
+      campos de cada registro son los que la línea tiene configurados (`GET /lines/{code}/fields`).
   - name: WeeklyPlanTaskTimeouts
     description: Tiempos muertos (percances) registrados en vivo durante una tarea en progreso.
+  - name: BiometricQueries
+    description: |
+      Consultas de solo lectura al biométrico (API externa). Si el biométrico no responde, `data` es `[]`.
 
 paths:
   # ───────────────────────────── AUTH ─────────────────────────────
@@ -709,6 +716,29 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [CaptureFields]
+      summary: Editar campo custom (equivalente a PATCH)
+      description: |
+        Todos los campos son opcionales. `label` y `options` se pueden editar siempre. Si el tipo
+        resultante deja de ser `select`, `options` pasa a `null`.
+
+        Errores `400`:
+        - `Los campos de sistema no se pueden modificar`
+        - `No se puede cambiar la clave o el tipo de un campo asignado a líneas`
+        - `Ya existe un campo con la clave {key}`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CaptureFieldUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
     patch:
       tags: [CaptureFields]
       summary: Editar campo custom
@@ -933,9 +963,10 @@ paths:
     get:
       tags: [Skus]
       summary: Listar SKUs
+      description: Siempre paginado; sin `limit` se usan páginas de 10 registros.
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, default: 10 }, description: Tamaño de página }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 }, description: Página a obtener }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
         - { name: product_name, in: query, schema: { type: string }, description: Filtro parcial por nombre de producto }
         - { name: client, in: query, schema: { type: string }, description: Filtro parcial por nombre de cliente }
@@ -945,15 +976,10 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - allOf:
-                      - $ref: '#/components/schemas/Envelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
-                  - allOf:
-                      - $ref: '#/components/schemas/PaginatedEnvelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedEnvelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Sku' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
     post:
@@ -974,6 +1000,9 @@ paths:
     post:
       tags: [Skus]
       summary: Carga masiva de SKUs (Excel)
+      description: |
+        Columnas: `codigo`, `nombre_producto` y `cliente` (obligatorias), `presentacion` y
+        `cajas_por_pallet` (opcionales). `cliente` se busca por nombre, sin distinguir mayúsculas.
       requestBody: { $ref: '#/components/requestBodies/UploadFile' }
       responses:
         '200': { $ref: '#/components/responses/UploadResult' }
@@ -1294,9 +1323,10 @@ paths:
     get:
       tags: [PackingMaterials]
       summary: Listar materiales de empaque
+      description: Siempre paginado; sin `limit` se usan páginas de 10 registros.
       parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, default: 10 }, description: Tamaño de página }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 }, description: Página a obtener }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
         - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
       responses:
@@ -1305,15 +1335,10 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - allOf:
-                      - $ref: '#/components/schemas/Envelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
-                  - allOf:
-                      - $ref: '#/components/schemas/PaginatedEnvelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedEnvelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/PackingMaterial' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/ServerError' }
     post:
@@ -1334,6 +1359,9 @@ paths:
     post:
       tags: [PackingMaterials]
       summary: Carga masiva de materiales de empaque (Excel)
+      description: |
+        Columnas obligatorias: `codigo`, `nombre` y `descripcion`. `codigo` no debe existir
+        ni repetirse en el archivo.
       requestBody: { $ref: '#/components/requestBodies/UploadFile' }
       responses:
         '200': { $ref: '#/components/responses/UploadResult' }
@@ -2112,101 +2140,6 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
-  # ───────────────────────────── WEEKLY PLAN EMPLOYEES ─────────────────────────────
-  /weekly-plan-employees:
-    get:
-      tags: [WeeklyPlanEmployees]
-      summary: Listar empleados de planes semanales
-      parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-      responses:
-        '200':
-          description: Empleados del Plan Semanal Obtenidos Correctamente
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - allOf:
-                      - $ref: '#/components/schemas/Envelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
-                  - allOf:
-                      - $ref: '#/components/schemas/PaginatedEnvelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '500': { $ref: '#/components/responses/ServerError' }
-    post:
-      tags: [WeeklyPlanEmployees]
-      summary: Agregar empleado a un plan semanal
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeInput' }
-      responses:
-        '201': { $ref: '#/components/responses/CreatedModel' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-employees/uploadFile:
-    post:
-      tags: [WeeklyPlanEmployees]
-      summary: Carga masiva de empleados del plan (Excel)
-      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
-      responses:
-        '200': { $ref: '#/components/responses/UploadResult' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-employees/{id}:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    get:
-      tags: [WeeklyPlanEmployees]
-      summary: Obtener empleado del plan
-      responses:
-        '200':
-          description: Empleado del Plan Semanal Obtenido Correctamente
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/Envelope'
-                  - properties:
-                      data: { $ref: '#/components/schemas/WeeklyPlanEmployee' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '500': { $ref: '#/components/responses/ServerError' }
-    put:
-      tags: [WeeklyPlanEmployees]
-      summary: Actualizar empleado del plan
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeInput' }
-      responses:
-        '200': { $ref: '#/components/responses/TrueData' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-    delete:
-      tags: [WeeklyPlanEmployees]
-      summary: Eliminar empleado del plan
-      description: Falla con `400` si el empleado tiene asignaciones en tareas.
-      responses:
-        '200': { $ref: '#/components/responses/TrueData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
   # ───────────────────────────── WEEKLY PLAN TASKS ─────────────────────────────
   /weekly-plan-tasks:
     get:
@@ -2462,11 +2395,62 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  # ───────────────────────────── BIOMETRIC QUERIES ─────────────────────────────
+  /biometric-queries/employees:
+    get:
+      tags: [BiometricQueries]
+      summary: Todos los empleados del biométrico
+      description: |
+        Lista completa de empleados del biométrico (misma fuente que sincroniza la tabla `employees`).
+        Sin paginación ni filtros. Devuelve `[]` si el biométrico no responde.
+      responses:
+        '200':
+          description: Empleados Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/BiometricEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /biometric-queries/employeesByLineCode/{lineCode}:
+    get:
+      tags: [BiometricQueries]
+      summary: Empleados del biométrico por código de línea
+      description: |
+        Empleados que el biométrico reporta para la línea indicada. Sin paginación. Devuelve `[]` si la
+        línea no tiene empleados, no existe en el biométrico o el biométrico no responde (no hay 404).
+      parameters:
+        - name: lineCode
+          in: path
+          required: true
+          schema: { type: string }
+          description: Código de la línea
+      responses:
+        '200':
+          description: Empleados Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/BiometricEmployee' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK EMPLOYEES ─────────────────────────────
   /weekly-plan-tasks/{id}/availableEmployees:
     get:
       tags: [WeeklyPlanTaskEmployees]
-      summary: Empleados del plan disponibles para la tarea
+      summary: Empleados disponibles para la tarea (biométrico)
+      description: |
+        Candidatos de la tarea: empleados que el biométrico reporta para la línea de la tarea
+        (misma consulta que `GET /biometric-queries/employeesByLineCode/{lineCode}`). Devuelve `[]` si la
+        tarea no tiene línea o el biométrico no responde.
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
@@ -2478,7 +2462,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Envelope'
                   - properties:
-                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
+                      data: { type: array, items: { $ref: '#/components/schemas/BiometricEmployee' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -2508,69 +2492,44 @@ paths:
       tags: [WeeklyPlanTaskEmployees]
       summary: Confirmar asignación de personal de la tarea
       description: |
-        Parte de los candidatos disponibles y aplica reemplazos, adiciones y remociones.
-        Requiere tarea lista para confirmación y sin personal asignado.
+        Registra en `weekly_plan_task_employees` una fila por cada empleado enviado
+        (`code`, `name`, `position`), tomados normalmente de `GET /weekly-plan-tasks/{id}/availableEmployees`.
+        Inserción masiva; no valida status de la tarea ni personal previamente asignado.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
-        required: false
+        required: true
         content:
           application/json:
             schema:
               type: object
+              required: [employees]
               properties:
-                replacements:
-                  type: [array, 'null']
+                employees:
+                  type: array
+                  minItems: 1
+                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista.
                   items:
                     type: object
-                    required: [weekly_plan_employee_id, replacement_weekly_plan_employee_id]
+                    required: [code, name, position]
                     properties:
-                      weekly_plan_employee_id: { type: integer }
-                      replacement_weekly_plan_employee_id: { type: integer }
-                additions: { type: [array, 'null'], items: { type: integer }, description: IDs de weekly_plan_employees }
-                removals: { type: [array, 'null'], items: { type: integer }, description: IDs de weekly_plan_employees }
+                      code: { type: string, description: Código del empleado (biométrico) }
+                      name: { type: string, description: Nombre completo }
+                      position: { type: string, description: Puesto en la tarea }
+            example:
+              employees:
+                - { code: 'E0001', name: 'Juan Pérez', position: 'Operador 1' }
+                - { code: 'E0002', name: 'María López', position: 'Operador 2' }
       responses:
-        '201': { $ref: '#/components/responses/NullData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-tasks/{id}/addEmployee:
-    post:
-      tags: [WeeklyPlanTaskEmployees]
-      summary: Agregar empleado a la tarea
-      description: Solo tareas listas para ejecución o en progreso; el empleado debe pertenecer al plan y no estar asignado.
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeIdInput' }
-      responses:
-        '201': { $ref: '#/components/responses/NullData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-task-employees/{id}/replace:
-    patch:
-      tags: [WeeklyPlanTaskEmployees]
-      summary: Reemplazar empleado de una asignación
-      parameters:
-        - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeIdInput' }
-      responses:
-        '200': { $ref: '#/components/responses/NullData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
+        '201':
+          description: Personal Asignado Correctamente (`data` = null)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: 'null' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -2953,6 +2912,148 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  # ───────────────────────────── WEEKLY PLAN TASK PRODUCT RECORDS ─────────────────────────────
+  /weekly-plan-task-product-records:
+    get:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Listar registros de producto de una tarea
+      description: |
+        Ordenados por fecha de registro (más antiguo primero). Sin paginación.
+
+        Error `400`: `El id de la tarea del plan semanal es obligatorio`.
+      parameters:
+        - { name: weeklyPlanTaskId, in: query, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Registros de Producto Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecord' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Registrar producto (registrador = usuario autenticado)
+      description: |
+        Solo tareas en status `4` (En Progreso) cuya línea es `capture_type = product` y tiene campos
+        configurados. `values` lleva un valor por key de los campos **de entrada** asignados a la línea;
+        las keys de sistema se guardan en su columna y las custom en `extra_values`.
+        `raw_material` es texto libre y puede repetirse en la misma tarea.
+
+        Validación de `values` (`422`):
+        - Cada campo según su `data_type`: `number` → numérico, `integer` → entero, `text` → máx. 500,
+          `date` → `Y-m-d`, `time` → `H:i`, `boolean`, `select` → una de sus `options`.
+        - Obligatorio si el campo está asignado con `is_required`; si no, acepta `null`.
+        - Campos de sistema numéricos `>= 0`; `raw_material` máx. 150.
+        - Los mensajes usan la etiqueta de la línea (ej. `El campo Libras materia prima debe ser un valor numérico.`),
+          en `errors["values.{key}"]`.
+        - En `errors.values`: `El campo {key} no está configurado para la línea` y
+          `El campo {label} es calculado y no se puede enviar`.
+
+        El servidor calcula solo los campos calculados asignados a la línea (porcentajes en escala 0–100):
+        - `recovery_pct` = `trimmed_lbs / raw_lbs × 100`
+        - `rejection_pct` = `rejected_lbs / raw_lbs × 100`
+
+        Un calculado queda en `null` si no está asignado o le falta alguna entrada
+        (`raw_lbs` vacía o `0` cuenta como faltante).
+
+        Errores `400`:
+        - `Solo se pueden registrar productos en una tarea en progreso`
+        - `La línea de la tarea no captura por producto`
+        - `La línea no tiene campos de captura configurados`
+        - `Las libras clasificadas no pueden superar las libras de materia prima`
+        - `Las libras recortadas y el rechazo no pueden superar las libras de materia prima` (un `null` cuenta como `0`)
+        - `Lo empacado no puede superar las libras recortadas`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecordInput' }
+      responses:
+        '201':
+          description: Registro de Producto Creado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecord' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-product-records/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Obtener registro de producto
+      description: 'Error `404`: `El registro de producto no existe`.'
+      responses:
+        '200':
+          description: Registro de Producto Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecord' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Actualizar producto
+      description: |
+        Mismas reglas que el `POST`, pero todas las keys de `values` son opcionales: las omitidas conservan
+        su valor y una key con `null` lo borra (en `extra_values` queda la key con `null`).
+        Las validaciones entre campos usan los valores finales (guardados + recibidos) y los calculados
+        se recalculan con la configuración **actual** de la línea.
+
+        Errores `400`: los mismos del `POST`. `404`: `El registro de producto no existe`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [values]
+              properties:
+                values:
+                  type: object
+                  description: '`{ key: valor }` de los campos de entrada asignados a la línea'
+                  additionalProperties: true
+                  examples: [{ trimmed_lbs: 850, observations: null }]
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Eliminar registro de producto
+      description: |
+        Borrado físico. Solo con la tarea en status `4`.
+
+        Errores: `400` `Solo se pueden registrar productos en una tarea en progreso`; `404` `El registro de producto no existe`.
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK TIMEOUTS ─────────────────────────────
   /weekly-plan-tasks/{id}/timeouts:
     get:
@@ -3236,7 +3337,7 @@ components:
         - type: object
           required: [total, currentPage, lastPage]
           properties:
-            data: { type: array }
+            data: { type: array, items: {} }
             total: { type: integer }
             currentPage: { type: integer }
             lastPage: { type: integer }
@@ -3643,28 +3744,14 @@ components:
         line_code: { type: string }
         line_name: { type: string }
         total_tasks: { type: integer }
-    WeeklyPlanEmployee:
+    BiometricEmployee:
       type: object
+      description: Empleado tal como lo reporta el biométrico (no es un registro local).
       properties:
-        id: { type: integer }
+        id: { type: [integer, string], description: Id del empleado en el biométrico }
         name: { type: string }
-        code: { type: string }
-        position: { type: string, description: Código del puesto }
-        biometric_position: { type: [string, 'null'], description: Puesto según el biométrico }
-        position_id: { type: integer }
-        employee_id: { type: integer }
-    WeeklyPlanEmployeeInput:
-      type: object
-      required: [position_id, employee_id, weekly_plan_id]
-      properties:
-        position_id: { type: integer }
-        employee_id: { type: integer }
-        weekly_plan_id: { type: integer }
-    WeeklyPlanEmployeeIdInput:
-      type: object
-      required: [weekly_plan_employee_id]
-      properties:
-        weekly_plan_employee_id: { type: integer }
+        code: { type: string, description: Código del empleado }
+        position: { type: [string, 'null'], description: Puesto según el biométrico }
     WeeklyPlanTask:
       type: object
       properties:
@@ -3675,7 +3762,7 @@ components:
         produced_pallets: { type: [number, 'null'] }
         hours: { type: number }
         weighed_pounds: { type: [number, 'null'] }
-        recorded_pounds: { type: number, description: 'Avance ("cuánto lleva"): suma de `net_weight` de las tarimas + suma de `trimmed_lbs` de los lotes registrados; los `null` cuentan como `0`' }
+        recorded_pounds: { type: number, description: 'Avance ("cuánto lleva"): suma de `net_weight` de las tarimas + suma de `trimmed_lbs` de los lotes + suma de `trimmed_lbs` de los productos registrados; los `null` cuentan como `0`' }
         planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
         timeout_hours: { type: number, description: 'Suma de `duration_hours` de los tiempos muertos cerrados (2 decimales)' }
         open_timeout_id: { type: [integer, 'null'], description: 'ID del tiempo muerto abierto; `null` si no hay ninguno' }
@@ -3715,14 +3802,9 @@ components:
       type: object
       properties:
         id: { type: integer }
-        weekly_plan_employee_id: { type: integer }
         name: { type: string }
         code: { type: string }
-        position_id: { type: integer }
-        position: { type: string, description: Código del puesto }
-        replaced_weekly_plan_employee_id: { type: [integer, 'null'] }
-        replaced_name: { type: [string, 'null'] }
-        replaced_code: { type: [string, 'null'] }
+        position: { type: string, description: Puesto en la tarea }
     WeeklyPlanTaskObservation:
       type: object
       properties:
@@ -3805,6 +3887,39 @@ components:
           additionalProperties: true
           examples:
             - { entry_date: '2026-10-06', lot: 'LX2 - 6791', recorded_at: '15:00', intake_lbs: 22803.5, applied_raw_lbs: 18064.5, trimmed_lbs: 8127, overripe_lbs: 47 }
+    WeeklyPlanTaskProductRecord:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_task_id: { type: integer }
+        raw_material: { type: [string, 'null'], description: Materia prima (texto libre), examples: ['Brócoli'] }
+        raw_lbs: { type: [number, 'null'], description: Libras materia prima }
+        classified_lbs: { type: [number, 'null'], description: Libras clasificadas }
+        trimmed_lbs: { type: [number, 'null'], description: Libras recortadas }
+        rejected_lbs: { type: [number, 'null'], description: Rechazo }
+        packed_lbs: { type: [number, 'null'], description: Empacado }
+        recovery_pct: { type: [number, 'null'], description: 'Calculado: `trimmed_lbs / raw_lbs × 100` (2 decimales)' }
+        rejection_pct: { type: [number, 'null'], description: 'Calculado: `rejected_lbs / raw_lbs × 100` (2 decimales)' }
+        observations: { type: [string, 'null'] }
+        extra_values:
+          type: object
+          description: 'Valores de los campos custom `{ key: valor }`; `{}` si no hay'
+          additionalProperties: true
+        user_id: { type: integer }
+        user_name: { type: string }
+        created_at: { type: string, examples: ['10-11-2026 15:02'] }
+        updated_at: { type: string, examples: ['10-11-2026 15:02'] }
+    WeeklyPlanTaskProductRecordInput:
+      type: object
+      required: [weekly_plan_task_id, values]
+      properties:
+        weekly_plan_task_id: { type: integer }
+        values:
+          type: object
+          description: '`{ key: valor }` de los campos de entrada asignados a la línea (sistema y custom); sin calculados'
+          additionalProperties: true
+          examples:
+            - { raw_material: 'Brócoli', raw_lbs: 1000, classified_lbs: 950, trimmed_lbs: 800, rejected_lbs: 120, packed_lbs: 780 }
     WeeklyPlanTaskTimeout:
       type: object
       properties:

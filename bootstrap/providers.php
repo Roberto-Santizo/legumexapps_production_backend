@@ -2,6 +2,7 @@
 
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
+use App\Providers\BiometricQueries\BiometricQueriesProvider;
 use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
@@ -22,18 +23,19 @@ use App\Providers\Skus\SkusProvider;
 use App\Providers\Timeouts\TimeoutsProvider;
 use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
-use App\Providers\WeeklyPlanEmployees\WeeklyPlanEmployeesProvider;
 use App\Providers\WeeklyPlans\WeeklyPlansProvider;
 use App\Providers\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesProvider;
 use App\Providers\WeeklyPlanTaskLotRecords\WeeklyPlanTaskLotRecordsProvider;
 use App\Providers\WeeklyPlanTaskObservations\WeeklyPlanTaskObservationsProvider;
 use App\Providers\WeeklyPlanTaskPerformanceRecords\WeeklyPlanTaskPerformanceRecordsProvider;
+use App\Providers\WeeklyPlanTaskProductRecords\WeeklyPlanTaskProductRecordsProvider;
 use App\Providers\WeeklyPlanTasks\WeeklyPlanTasksProvider;
 use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 
 return [
     AppServiceProvider::class,
     AuthProvider::class,
+    BiometricQueriesProvider::class,
     CaptureFieldsProvider::class,
     ClientsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
@@ -54,11 +56,11 @@ return [
     TimeoutsProvider::class,
     UserPermissionProvider::class,
     UserProvider::class,
-    WeeklyPlanEmployeesProvider::class,
     WeeklyPlanTaskEmployeesProvider::class,
     WeeklyPlanTaskObservationsProvider::class,
     WeeklyPlanTaskPerformanceRecordsProvider::class,
     WeeklyPlanTaskLotRecordsProvider::class,
+    WeeklyPlanTaskProductRecordsProvider::class,
     WeeklyPlanTasksProvider::class,
     WeeklyPlanTaskTimeoutsProvider::class,
     WeeklyPlansProvider::class,

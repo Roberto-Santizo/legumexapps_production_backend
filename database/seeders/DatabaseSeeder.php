@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CaptureFieldsSeeder::class,
             CatalogSeeder::class,
+            OperationSeeder::class,
         ]);
     }
 }

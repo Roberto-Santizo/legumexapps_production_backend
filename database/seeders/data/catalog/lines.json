@@ -172,7 +172,7 @@
         "name": "LINEA RECORTE DIRECTO AM",
         "code": "1LNDTA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "product"
     },
     {
         "id": 26,
@@ -193,21 +193,21 @@
         "name": "LINEA RECORTE DIRECTO 3 AM",
         "code": "2LNDTA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "product"
     },
     {
         "id": 29,
         "name": "LINEA COMODINES FIJOS A",
         "code": "LDCFA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "product"
     },
     {
         "id": 30,
         "name": "LINEA COMODINES TEMPORALES A",
         "code": "LDCTA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "product"
     },
     {
         "id": 31,
@@ -263,14 +263,14 @@
         "name": "EJOTERA 2 MAQUINA (OP4)",
         "code": "EJOTERA-2",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "lot"
     },
     {
         "id": 39,
         "name": "EJOTERA 2 MAQUINAS (OP8)",
         "code": "EJOTERA-2-(OP 8)",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "lot"
     },
     {
         "id": 40,
@@ -347,7 +347,7 @@
         "name": "RECORTE FRESCO",
         "code": "RFRESCO",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "product"
     },
     {
         "id": 51,
@@ -375,7 +375,7 @@
         "name": "EJOTERA-3",
         "code": "EJOTERA 3 MAQUINAS (OP10)",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "lot"
     },
     {
         "id": 55,

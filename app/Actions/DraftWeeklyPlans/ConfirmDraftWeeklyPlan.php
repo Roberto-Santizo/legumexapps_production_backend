@@ -17,8 +17,8 @@ class ConfirmDraftWeeklyPlan
         $tasks = $draftWeeklyPlan->tasks()->with('sku')->get();
         $plan = WeeklyPlan::where('week', '=', $draftWeeklyPlan->week)->where('year', '=', $draftWeeklyPlan->year)->first();
 
-        if($plan) throw new BadRequestError("Ya existe un plan confirmado con los datos S{$draftWeeklyPlan->week} - {$draftWeeklyPlan->year}");
-        if($tasks->count() === 0) throw new BadRequestError("El plan debe de tener al menos una tarea asignada");
+        if ($plan) throw new BadRequestError("Ya existe un plan confirmado con los datos S{$draftWeeklyPlan->week} - {$draftWeeklyPlan->year}");
+        if ($tasks->count() === 0) throw new BadRequestError("El plan debe de tener al menos una tarea asignada");
 
         $tasksWithoutLine = $tasks->whereNull('line_id');
         if ($tasksWithoutLine->isNotEmpty()) {
@@ -26,10 +26,10 @@ class ConfirmDraftWeeklyPlan
         }
 
         $performances = LineSku::query()->whereIn('line_id', $tasks->pluck('line_id')->unique())->whereIn('sku_id', $tasks->pluck('sku_id')->unique())->get()
-            ->keyBy(fn (LineSku $performance) => "{$performance->line_id}-{$performance->sku_id}");
+            ->keyBy(fn(LineSku $performance) => "{$performance->line_id}-{$performance->sku_id}");
 
         $tasksWithoutPerformance = $tasks->reject(
-            fn (DraftWeeklyPlanTask $task) => $performances->has("{$task->line_id}-{$task->sku_id}")
+            fn(DraftWeeklyPlanTask $task) => $performances->has("{$task->line_id}-{$task->sku_id}")
         );
 
         if ($tasksWithoutPerformance->isNotEmpty()) {
@@ -43,10 +43,11 @@ class ConfirmDraftWeeklyPlan
             foreach ($tasks as $task) {
                 $performance = $performances->get("{$task->line_id}-{$task->sku_id}");
                 $totalPounds = $task->boxes * $task->sku->presentation;
+                $hasBoxesPerPallet = $task->sku->boxes_per_pallet ? true : false;
 
                 WeeklyPlanTask::create([
                     'boxes' => $task->boxes,
-                    'pallets' => $task->boxes / $task->sku->boxes_per_pallet,
+                    'pallets' => $hasBoxesPerPallet ? $task->boxes / $task->sku->boxes_per_pallet : 0,
                     'hours' => $totalPounds / $performance->lbs_performance,
                     'destination' => $task->destination,
                     'operation_date' => $task->operation_date,

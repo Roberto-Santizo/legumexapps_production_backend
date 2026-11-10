@@ -1,0 +1,32 @@
+[
+    {
+        "id": 107,
+        "weekly_plan_task_id": 3,
+        "code": "LEG00268",
+        "name": "ALBA VICTORIA OLLEJ TOMAS",
+        "position": "1LDCFA001",
+        "deleted_at": null,
+        "created_at": null,
+        "updated_at": null
+    },
+    {
+        "id": 108,
+        "weekly_plan_task_id": 3,
+        "code": "LEG14285",
+        "name": "MIRIA CHAVEZ CHAVEZ 1LDCTA049",
+        "position": "1LDCFA002",
+        "deleted_at": null,
+        "created_at": null,
+        "updated_at": null
+    },
+    {
+        "id": 109,
+        "weekly_plan_task_id": 3,
+        "code": "LEG14169",
+        "name": "WENDY DAMARIS YUMAN ORTIZ",
+        "position": "1LDCFA003",
+        "deleted_at": null,
+        "created_at": null,
+        "updated_at": null
+    }
+]

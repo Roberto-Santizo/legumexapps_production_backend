@@ -4,6 +4,7 @@ use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
 use App\Http\Controllers\WeeklyPlanTaskLotRecordsController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
 use App\Http\Controllers\WeeklyPlanTaskPerformanceRecordsController;
+use App\Http\Controllers\WeeklyPlanTaskProductRecordsController;
 use App\Http\Controllers\WeeklyPlanTasksController;
 use App\Http\Controllers\WeeklyPlanTaskTimeoutsController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,8 @@ Route::middleware('jwt.auth')->group(function () {
         ->parameters(['weekly-plan-task-performance-records' => 'id']);
     Route::apiResource('/weekly-plan-task-lot-records', WeeklyPlanTaskLotRecordsController::class)
         ->parameters(['weekly-plan-task-lot-records' => 'id']);
+    Route::apiResource('/weekly-plan-task-product-records', WeeklyPlanTaskProductRecordsController::class)
+        ->parameters(['weekly-plan-task-product-records' => 'id']);
 });
 
 // FUNCTIONALITYS
@@ -27,8 +30,6 @@ Route::middleware('jwt.auth')->group(function () {
     Route::get('/weekly-plan-tasks/{id}/availableEmployees', [WeeklyPlanTaskEmployeesController::class, 'availableEmployees']);
     Route::get('/weekly-plan-tasks/{id}/employees', [WeeklyPlanTaskEmployeesController::class, 'employees']);
     Route::post('/weekly-plan-tasks/{id}/confirmEmployees', [WeeklyPlanTaskEmployeesController::class, 'confirmEmployees']);
-    Route::post('/weekly-plan-tasks/{id}/addEmployee', [WeeklyPlanTaskEmployeesController::class, 'addEmployee']);
-    Route::patch('/weekly-plan-task-employees/{id}/replace', [WeeklyPlanTaskEmployeesController::class, 'replaceEmployee']);
     Route::delete('/weekly-plan-task-employees/{id}', [WeeklyPlanTaskEmployeesController::class, 'removeEmployee']);
     Route::get('/weekly-plan-tasks/{id}/timeouts', [WeeklyPlanTaskTimeoutsController::class, 'timeouts']);
     Route::post('/weekly-plan-tasks/{id}/startTimeout', [WeeklyPlanTaskTimeoutsController::class, 'startTimeout']);

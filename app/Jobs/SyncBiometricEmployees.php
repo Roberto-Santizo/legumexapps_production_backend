@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
 use App\Models\Employee;
-use App\Singletons\Biometric;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -22,9 +22,9 @@ class SyncBiometricEmployees implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(BiometricQueriesServiceInterface $biometricQueriesService): void
     {
-        $employees = Biometric::getEmployees();
+        $employees = $biometricQueriesService->getAllEmployees();
 
         $now = now();
 
@@ -38,7 +38,5 @@ class SyncBiometricEmployees implements ShouldQueue
         ])->all();
 
         Employee::upsert($employees, uniqueBy: ['uuid'], update: ['code', 'name', 'updated_at']);
-
-        exit;
     }
 }

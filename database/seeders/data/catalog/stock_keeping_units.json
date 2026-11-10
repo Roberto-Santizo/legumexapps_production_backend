@@ -1347,8 +1347,8 @@
         "id": 172,
         "code": "PCS1020102",
         "product_name": "PIÑA MD2 CONGELADA CHUNKS 25X35 MM LBS",
-        "presentation": null,
-        "boxes_per_pallet": null,
+        "presentation": 25.0,
+        "boxes_per_pallet": 0,
         "client_id": 30
     },
     {
@@ -1419,8 +1419,8 @@
         "id": 181,
         "code": "PCS2100102",
         "product_name": "OKRA CONGELADA CUT 1/2\" LBS",
-        "presentation": null,
-        "boxes_per_pallet": null,
+        "presentation": 25.0,
+        "boxes_per_pallet": 0,
         "client_id": 30
     },
     {
@@ -3099,8 +3099,8 @@
         "id": 391,
         "code": "SEF20303",
         "product_name": "BROCOLI FLORET 30-60 MM",
-        "presentation": null,
-        "boxes_per_pallet": null,
+        "presentation": 25.0,
+        "boxes_per_pallet": 0,
         "client_id": 35
     },
     {

@@ -1,0 +1,80 @@
+[
+    {
+        "id": 3,
+        "reference": "REF-003",
+        "responsable": "RESPONSABLE",
+        "observations": "OBS",
+        "responsable_signature": "packing-material-transactions/signatures/2d903191-2d86-4002-b5b4-dfffeb4e7302.png",
+        "user_signature": "packing-material-transactions/signatures/47d0d4c5-85de-4bbd-bcae-f08a407081d1.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 3,
+        "created_at": "2026-11-10 16:11:57",
+        "updated_at": "2026-11-10 16:11:57"
+    },
+    {
+        "id": 4,
+        "reference": "REF-002",
+        "responsable": "RESPONSABLE",
+        "observations": "MATERIAL RECICLADO",
+        "responsable_signature": "packing-material-transactions/signatures/4db8e27c-5f4c-4223-ac97-61c23e34dc14.png",
+        "user_signature": "packing-material-transactions/signatures/5c9ed14b-cb92-4d81-bddf-5d507bfe2f9a.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 4,
+        "created_at": "2026-11-10 18:08:26",
+        "updated_at": "2026-11-10 18:08:26"
+    },
+    {
+        "id": 5,
+        "reference": "REF-003",
+        "responsable": "HECTOR LOPEZ",
+        "observations": null,
+        "responsable_signature": "packing-material-transactions/signatures/a5055fee-55d0-42cc-acfd-5e093499027e.png",
+        "user_signature": "packing-material-transactions/signatures/ea7c9f70-b3d9-4f74-8eec-8148ecf9ca77.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 5,
+        "created_at": "2026-11-10 18:08:48",
+        "updated_at": "2026-11-10 18:08:48"
+    },
+    {
+        "id": 6,
+        "reference": "REF-004",
+        "responsable": "RESPONSABLE",
+        "observations": null,
+        "responsable_signature": "packing-material-transactions/signatures/bda745a2-2360-4fe2-8395-94d3c95cc4ad.png",
+        "user_signature": "packing-material-transactions/signatures/d5158c92-5c97-49a8-a18d-c9210fc0fa96.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 6,
+        "created_at": "2026-11-10 18:09:02",
+        "updated_at": "2026-11-10 18:09:02"
+    },
+    {
+        "id": 7,
+        "reference": "REF-005",
+        "responsable": "RESPONSABLE",
+        "observations": null,
+        "responsable_signature": "packing-material-transactions/signatures/4c12598c-43d9-4290-b807-df5f7da0e7a2.png",
+        "user_signature": "packing-material-transactions/signatures/4888755a-42e3-48b2-9222-f4dcbb52f63c.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 7,
+        "created_at": "2026-11-10 18:09:18",
+        "updated_at": "2026-11-10 18:09:18"
+    },
+    {
+        "id": 8,
+        "reference": "REF-006",
+        "responsable": "RESPONSABLE",
+        "observations": null,
+        "responsable_signature": "packing-material-transactions/signatures/228acaa1-31a4-4788-b827-8f5757b54b21.png",
+        "user_signature": "packing-material-transactions/signatures/0f1dc215-3e23-43a4-832e-03966a6f974d.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 8,
+        "created_at": "2026-11-10 18:09:30",
+        "updated_at": "2026-11-10 18:09:30"
+    }
+]

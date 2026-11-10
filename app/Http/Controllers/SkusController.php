@@ -19,7 +19,7 @@ class SkusController extends Controller
     public function index(Request $request, SkusServiceInterface $service)
     {
         try {
-            $limit = $request->query('limit');
+            $limit = $request->query('limit') ?? 10;
             $response = $service->getSkus($limit, $request);
 
             $data = $limit ? new PaginatedSkusResource($response) : SkuResource::collection($response);
