@@ -199,10 +199,24 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     {
         $this->assertConversationBelongsTo($user, $conversationId);
 
+        $audioPaths = AssistantAudioSummary::query()
+            ->where('conversation_id', $conversationId)
+            ->pluck('path')
+            ->all();
+
         DB::transaction(function () use ($conversationId) {
+            AssistantAudioSummary::query()->where('conversation_id', $conversationId)->delete();
             ConversationMessage::query()->where('conversation_id', $conversationId)->delete();
             Conversation::query()->whereKey($conversationId)->delete();
         });
+
+        if ($audioPaths !== []) {
+            try {
+                Storage::disk('s3')->delete($audioPaths);
+            } catch (Throwable $th) {
+                report($th);
+            }
+        }
 
         return true;
     }
