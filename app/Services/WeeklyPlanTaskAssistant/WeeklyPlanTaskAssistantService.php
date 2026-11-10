@@ -10,6 +10,9 @@ use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\LineField;
 use App\Models\User;
 use App\Models\WeeklyPlanTask;
+use App\Models\WeeklyPlanTaskLotRecord;
+use App\Models\WeeklyPlanTaskPerformanceRecord;
+use App\Models\WeeklyPlanTaskProductRecord;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -22,6 +25,11 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
      * Relations needed to resolve WeeklyPlanTaskAssistantTaskResource without N+1.
      */
     private const TASK_RELATIONS = ['performance.sku.client', 'performance.line.positions', 'openTimeout', 'weeklyPlan'];
+
+    /**
+     * Keys accepted as task filters by the search and the filtered summaries.
+     */
+    private const TASK_FILTER_KEYS = ['weekly_plan_id', 'week', 'year', 'operation_date_from', 'operation_date_to', 'line_code', 'sku_code'];
 
     public function __construct(
         private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService,
@@ -97,13 +105,49 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     #[Override]
     public function getCaptureRecords(string $taskId, CaptureType $captureType): Collection
     {
-        return collect();
+        $task = $this->getTask($taskId);
+        $this->ensureTaskCapturesBy($task, $captureType);
+
+        return $this->captureRecordsQuery($captureType, [$task->id])->get();
     }
 
     #[Override]
     public function summarizeCaptureRecords(CaptureType $captureType, array $scope): array
     {
-        return [];
+        $hasTask = filled($scope['task_id'] ?? null);
+        $hasFilters = collect(self::TASK_FILTER_KEYS)->contains(fn (string $key) => filled($scope[$key] ?? null));
+
+        if ($hasTask === $hasFilters) {
+            throw new BadRequestError('Indica una tarea o filtros, no ambos');
+        }
+
+        if ($hasTask) {
+            $task = $this->getTask((string) $scope['task_id']);
+            $this->ensureTaskCapturesBy($task, $captureType);
+            $tasks = collect([$task]);
+        } else {
+            $tasks = $this->filteredTasksQuery($scope)
+                ->whereHas('performance.line', function (Builder $line) use ($captureType) {
+                    $line->where('capture_type', $captureType->value);
+                })
+                ->get();
+        }
+
+        $records = $tasks->isEmpty()
+            ? collect()
+            : $this->captureRecordsQuery($captureType, $tasks->pluck('id')->all())->get();
+
+        $summary = match ($captureType) {
+            CaptureType::Pallet => $this->captureSummaryCalculator->pallet($records, $tasks),
+            CaptureType::Lot => $this->captureSummaryCalculator->lot($records, $tasks),
+            CaptureType::Product => $this->captureSummaryCalculator->product($records, $tasks),
+        };
+
+        if ($hasTask) {
+            unset($summary['by_task']);
+        }
+
+        return $summary;
     }
 
     #[Override]
@@ -128,6 +172,41 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     public function deleteConversation(User $user, string $conversationId): bool
     {
         return false;
+    }
+
+    /**
+     * Read-only query of the capture records of the given family for the given tasks, oldest first.
+     *
+     * @param  array<int, int>  $taskIds
+     * @return Builder<WeeklyPlanTaskPerformanceRecord|WeeklyPlanTaskLotRecord|WeeklyPlanTaskProductRecord>
+     */
+    private function captureRecordsQuery(CaptureType $captureType, array $taskIds): Builder
+    {
+        $model = match ($captureType) {
+            CaptureType::Pallet => WeeklyPlanTaskPerformanceRecord::class,
+            CaptureType::Lot => WeeklyPlanTaskLotRecord::class,
+            CaptureType::Product => WeeklyPlanTaskProductRecord::class,
+        };
+
+        return $model::query()
+            ->with('user')
+            ->whereIn('weekly_plan_task_id', $taskIds)
+            ->orderBy('created_at')
+            ->orderBy('id');
+    }
+
+    /**
+     * The line of the task must capture by the given family.
+     */
+    private function ensureTaskCapturesBy(WeeklyPlanTask $task, CaptureType $captureType): void
+    {
+        $taskCaptureType = $task->performance?->line?->capture_type;
+
+        if ($taskCaptureType !== $captureType) {
+            $taskUnitLabel = $taskCaptureType?->unitLabel() ?? 'ninguna familia';
+
+            throw new BadRequestError("La tarea {$task->id} captura por {$taskUnitLabel}, no por {$captureType->unitLabel()}");
+        }
     }
 
     /**
