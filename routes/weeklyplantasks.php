@@ -4,6 +4,7 @@ use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
 use App\Http\Controllers\WeeklyPlanTaskLotRecordsController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
 use App\Http\Controllers\WeeklyPlanTaskPerformanceRecordsController;
+use App\Http\Controllers\WeeklyPlanTaskProductRecordsController;
 use App\Http\Controllers\WeeklyPlanTasksController;
 use App\Http\Controllers\WeeklyPlanTaskTimeoutsController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,8 @@ Route::middleware('jwt.auth')->group(function () {
         ->parameters(['weekly-plan-task-performance-records' => 'id']);
     Route::apiResource('/weekly-plan-task-lot-records', WeeklyPlanTaskLotRecordsController::class)
         ->parameters(['weekly-plan-task-lot-records' => 'id']);
+    Route::apiResource('/weekly-plan-task-product-records', WeeklyPlanTaskProductRecordsController::class)
+        ->parameters(['weekly-plan-task-product-records' => 'id']);
 });
 
 // FUNCTIONALITYS
