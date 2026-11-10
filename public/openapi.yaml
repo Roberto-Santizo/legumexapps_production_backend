@@ -73,6 +73,10 @@ tags:
     description: |
       Captura por lote GRN de materia prima (familia `lot`) durante una tarea en progreso. Los campos de cada
       registro son los que la línea tiene configurados (`GET /lines/{code}/fields`).
+  - name: WeeklyPlanTaskProductRecords
+    description: |
+      Captura por variante de producto o materia prima (familia `product`) durante una tarea en progreso. Los
+      campos de cada registro son los que la línea tiene configurados (`GET /lines/{code}/fields`).
   - name: WeeklyPlanTaskTimeouts
     description: Tiempos muertos (percances) registrados en vivo durante una tarea en progreso.
   - name: BiometricQueries
@@ -2908,6 +2912,148 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  # ───────────────────────────── WEEKLY PLAN TASK PRODUCT RECORDS ─────────────────────────────
+  /weekly-plan-task-product-records:
+    get:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Listar registros de producto de una tarea
+      description: |
+        Ordenados por fecha de registro (más antiguo primero). Sin paginación.
+
+        Error `400`: `El id de la tarea del plan semanal es obligatorio`.
+      parameters:
+        - { name: weeklyPlanTaskId, in: query, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Registros de Producto Obtenidos Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecord' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Registrar producto (registrador = usuario autenticado)
+      description: |
+        Solo tareas en status `4` (En Progreso) cuya línea es `capture_type = product` y tiene campos
+        configurados. `values` lleva un valor por key de los campos **de entrada** asignados a la línea;
+        las keys de sistema se guardan en su columna y las custom en `extra_values`.
+        `raw_material` es texto libre y puede repetirse en la misma tarea.
+
+        Validación de `values` (`422`):
+        - Cada campo según su `data_type`: `number` → numérico, `integer` → entero, `text` → máx. 500,
+          `date` → `Y-m-d`, `time` → `H:i`, `boolean`, `select` → una de sus `options`.
+        - Obligatorio si el campo está asignado con `is_required`; si no, acepta `null`.
+        - Campos de sistema numéricos `>= 0`; `raw_material` máx. 150.
+        - Los mensajes usan la etiqueta de la línea (ej. `El campo Libras materia prima debe ser un valor numérico.`),
+          en `errors["values.{key}"]`.
+        - En `errors.values`: `El campo {key} no está configurado para la línea` y
+          `El campo {label} es calculado y no se puede enviar`.
+
+        El servidor calcula solo los campos calculados asignados a la línea (porcentajes en escala 0–100):
+        - `recovery_pct` = `trimmed_lbs / raw_lbs × 100`
+        - `rejection_pct` = `rejected_lbs / raw_lbs × 100`
+
+        Un calculado queda en `null` si no está asignado o le falta alguna entrada
+        (`raw_lbs` vacía o `0` cuenta como faltante).
+
+        Errores `400`:
+        - `Solo se pueden registrar productos en una tarea en progreso`
+        - `La línea de la tarea no captura por producto`
+        - `La línea no tiene campos de captura configurados`
+        - `Las libras clasificadas no pueden superar las libras de materia prima`
+        - `Las libras recortadas y el rechazo no pueden superar las libras de materia prima` (un `null` cuenta como `0`)
+        - `Lo empacado no puede superar las libras recortadas`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecordInput' }
+      responses:
+        '201':
+          description: Registro de Producto Creado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecord' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /weekly-plan-task-product-records/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Obtener registro de producto
+      description: 'Error `404`: `El registro de producto no existe`.'
+      responses:
+        '200':
+          description: Registro de Producto Obtenido Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/WeeklyPlanTaskProductRecord' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Actualizar producto
+      description: |
+        Mismas reglas que el `POST`, pero todas las keys de `values` son opcionales: las omitidas conservan
+        su valor y una key con `null` lo borra (en `extra_values` queda la key con `null`).
+        Las validaciones entre campos usan los valores finales (guardados + recibidos) y los calculados
+        se recalculan con la configuración **actual** de la línea.
+
+        Errores `400`: los mismos del `POST`. `404`: `El registro de producto no existe`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [values]
+              properties:
+                values:
+                  type: object
+                  description: '`{ key: valor }` de los campos de entrada asignados a la línea'
+                  additionalProperties: true
+                  examples: [{ trimmed_lbs: 850, observations: null }]
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [WeeklyPlanTaskProductRecords]
+      summary: Eliminar registro de producto
+      description: |
+        Borrado físico. Solo con la tarea en status `4`.
+
+        Errores: `400` `Solo se pueden registrar productos en una tarea en progreso`; `404` `El registro de producto no existe`.
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   # ───────────────────────────── WEEKLY PLAN TASK TIMEOUTS ─────────────────────────────
   /weekly-plan-tasks/{id}/timeouts:
     get:
@@ -3616,7 +3762,7 @@ components:
         produced_pallets: { type: [number, 'null'] }
         hours: { type: number }
         weighed_pounds: { type: [number, 'null'] }
-        recorded_pounds: { type: number, description: 'Avance ("cuánto lleva"): suma de `net_weight` de las tarimas + suma de `trimmed_lbs` de los lotes registrados; los `null` cuentan como `0`' }
+        recorded_pounds: { type: number, description: 'Avance ("cuánto lleva"): suma de `net_weight` de las tarimas + suma de `trimmed_lbs` de los lotes + suma de `trimmed_lbs` de los productos registrados; los `null` cuentan como `0`' }
         planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
         timeout_hours: { type: number, description: 'Suma de `duration_hours` de los tiempos muertos cerrados (2 decimales)' }
         open_timeout_id: { type: [integer, 'null'], description: 'ID del tiempo muerto abierto; `null` si no hay ninguno' }
@@ -3741,6 +3887,39 @@ components:
           additionalProperties: true
           examples:
             - { entry_date: '2026-10-06', lot: 'LX2 - 6791', recorded_at: '15:00', intake_lbs: 22803.5, applied_raw_lbs: 18064.5, trimmed_lbs: 8127, overripe_lbs: 47 }
+    WeeklyPlanTaskProductRecord:
+      type: object
+      properties:
+        id: { type: integer }
+        weekly_plan_task_id: { type: integer }
+        raw_material: { type: [string, 'null'], description: Materia prima (texto libre), examples: ['Brócoli'] }
+        raw_lbs: { type: [number, 'null'], description: Libras materia prima }
+        classified_lbs: { type: [number, 'null'], description: Libras clasificadas }
+        trimmed_lbs: { type: [number, 'null'], description: Libras recortadas }
+        rejected_lbs: { type: [number, 'null'], description: Rechazo }
+        packed_lbs: { type: [number, 'null'], description: Empacado }
+        recovery_pct: { type: [number, 'null'], description: 'Calculado: `trimmed_lbs / raw_lbs × 100` (2 decimales)' }
+        rejection_pct: { type: [number, 'null'], description: 'Calculado: `rejected_lbs / raw_lbs × 100` (2 decimales)' }
+        observations: { type: [string, 'null'] }
+        extra_values:
+          type: object
+          description: 'Valores de los campos custom `{ key: valor }`; `{}` si no hay'
+          additionalProperties: true
+        user_id: { type: integer }
+        user_name: { type: string }
+        created_at: { type: string, examples: ['10-11-2026 15:02'] }
+        updated_at: { type: string, examples: ['10-11-2026 15:02'] }
+    WeeklyPlanTaskProductRecordInput:
+      type: object
+      required: [weekly_plan_task_id, values]
+      properties:
+        weekly_plan_task_id: { type: integer }
+        values:
+          type: object
+          description: '`{ key: valor }` de los campos de entrada asignados a la línea (sistema y custom); sin calculados'
+          additionalProperties: true
+          examples:
+            - { raw_material: 'Brócoli', raw_lbs: 1000, classified_lbs: 950, trimmed_lbs: 800, rejected_lbs: 120, packed_lbs: 780 }
     WeeklyPlanTaskTimeout:
       type: object
       properties:

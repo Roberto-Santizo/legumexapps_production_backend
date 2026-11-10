@@ -172,6 +172,8 @@ values.{key}         dinámico (CaptureValueRules::forTask, CaptureType::Product
 
 El Update resuelve la tarea desde el registro (`route('id')`). Los mensajes de `weekly_plan_task_id` y `values` son los mismos que en los registros de lote, más `CaptureValueRules::messages()`.
 
+`CaptureValueRules::typeRules` limita la key de sistema `raw_material` a `string|max:150`, igual que `lot` a 50, para que coincida con la columna.
+
 ### Reglas de negocio — `WeeklyPlanTaskProductRecordsService`
 
 Depende de `WeeklyPlanTasksServiceInterface` (`getWeeklyPlanTaskById`, `getCaptureLineFields`) y de `ProductCalculator`.
@@ -279,6 +281,8 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 - **Sí:** `raw_material` como texto libre. Respeta el campo de sistema `text` de la SPEC 08 y el formulario dinámico, igual que el GRN en `lot`.
 - **No:** FK a `raw_materials`. Cambia el `data_type` del campo y obliga a un select con búsqueda; va en otra spec si hace falta.
 - **Sí:** `raw_material` repetible en la tarea. Una misma materia prima puede llegar en varias tandas o variantes.
+- **Sí:** `raw_material` máx. 150 en la validación. El campo `text` acepta 500 y la columna es de 150; sin el límite un texto largo daría 500 en vez de 422. Decidido durante la implementación.
+- **No:** ampliar la columna a 500. Un nombre de materia prima no necesita tanto.
 - **No:** índice único `(weekly_plan_task_id, raw_material)`. Con texto libre daría falsos distintos por mayúsculas o espacios.
 - **Sí:** clasificadas ≤ materia prima. No se puede clasificar más de lo que entró.
 - **Sí:** recortadas + rechazo ≤ materia prima. Evita más de 100% entre recuperación y rechazo.

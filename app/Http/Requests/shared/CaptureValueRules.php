@@ -108,6 +108,7 @@ class CaptureValueRules
         return match (true) {
             $captureField->key === 'pallet_number' => [...$rules, 'min:1'],
             $captureField->key === 'lot' => ['string', 'max:50'],
+            $captureField->key === 'raw_material' => ['string', 'max:150'],
             in_array($captureField->data_type, [CaptureFieldDataType::Number, CaptureFieldDataType::Integer], true) => [...$rules, 'min:0'],
             default => $rules,
         };
