@@ -1,5 +1,101 @@
 [
     {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "status",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "liters",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 10,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 11,
+        "label": null
+    },
+    {
+        "line_id": 1,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": false,
+        "order": 12,
+        "label": null
+    },
+    {
         "line_id": 2,
         "capture_type": "pallet",
         "key": "pallet_number",
@@ -432,6 +528,278 @@
         "label": null
     },
     {
+        "line_id": 25,
+        "capture_type": "product",
+        "key": "raw_material",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 25,
+        "capture_type": "product",
+        "key": "raw_lbs",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 25,
+        "capture_type": "product",
+        "key": "classified_lbs",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 25,
+        "capture_type": "product",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 25,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 25,
+        "capture_type": "product",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 27,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": false,
+        "order": 10,
+        "label": null
+    },
+    {
+        "line_id": 28,
+        "capture_type": "product",
+        "key": "raw_material",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 28,
+        "capture_type": "product",
+        "key": "raw_lbs",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 28,
+        "capture_type": "product",
+        "key": "classified_lbs",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 28,
+        "capture_type": "product",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 28,
+        "capture_type": "product",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 28,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 29,
+        "capture_type": "product",
+        "key": "raw_material",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 29,
+        "capture_type": "product",
+        "key": "raw_lbs",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 29,
+        "capture_type": "product",
+        "key": "classified_lbs",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 29,
+        "capture_type": "product",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 29,
+        "capture_type": "product",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 29,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 30,
+        "capture_type": "product",
+        "key": "raw_material",
+        "is_required": false,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 30,
+        "capture_type": "product",
+        "key": "raw_lbs",
+        "is_required": false,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 30,
+        "capture_type": "product",
+        "key": "classified_lbs",
+        "is_required": false,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 30,
+        "capture_type": "product",
+        "key": "trimmed_lbs",
+        "is_required": false,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 30,
+        "capture_type": "product",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 30,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": false,
+        "order": 6,
+        "label": null
+    },
+    {
         "line_id": 33,
         "capture_type": "pallet",
         "key": "pallet_number",
@@ -499,6 +867,334 @@
         "line_id": 33,
         "capture_type": "pallet",
         "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "entry_date",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "intake_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "applied_raw_lbs",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "overripe_lbs",
+        "is_required": true,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "overripe_pct",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": "lot",
+        "key": "grn_balance",
+        "is_required": false,
+        "order": 10,
+        "label": null
+    },
+    {
+        "line_id": 37,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": false,
+        "order": 11,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "entry_date",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "intake_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "applied_raw_lbs",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "overripe_lbs",
+        "is_required": true,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "overripe_pct",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": "lot",
+        "key": "grn_balance",
+        "is_required": false,
+        "order": 10,
+        "label": null
+    },
+    {
+        "line_id": 38,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": true,
+        "order": 11,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "entry_date",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "intake_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "applied_raw_lbs",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "overripe_lbs",
+        "is_required": true,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "overripe_pct",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": "lot",
+        "key": "grn_balance",
+        "is_required": false,
+        "order": 10,
+        "label": null
+    },
+    {
+        "line_id": 39,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": true,
+        "order": 11,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "raw_material",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "raw_lbs",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "rejected_lbs",
+        "is_required": false,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "packed_lbs",
+        "is_required": false,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": "product",
+        "key": "rejection_pct",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 50,
+        "capture_type": null,
+        "key": "observations",
         "is_required": false,
         "order": 9,
         "label": null
@@ -573,6 +1269,174 @@
         "key": "difference",
         "is_required": false,
         "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "entry_date",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "intake_lbs",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "applied_raw_lbs",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "trimmed_lbs",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "overripe_lbs",
+        "is_required": true,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "recovery_pct",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "overripe_pct",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": "lot",
+        "key": "grn_balance",
+        "is_required": false,
+        "order": 10,
+        "label": null
+    },
+    {
+        "line_id": 54,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": true,
+        "order": 11,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 55,
+        "capture_type": null,
+        "key": "observations",
+        "is_required": false,
+        "order": 10,
         "label": null
     }
 ]

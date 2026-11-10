@@ -1347,8 +1347,8 @@
         "id": 172,
         "code": "PCS1020102",
         "product_name": "PIÑA MD2 CONGELADA CHUNKS 25X35 MM LBS",
-        "presentation": null,
-        "boxes_per_pallet": null,
+        "presentation": 25.0,
+        "boxes_per_pallet": 0,
         "client_id": 30
     },
     {

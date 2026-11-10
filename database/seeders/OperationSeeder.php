@@ -19,6 +19,7 @@ class OperationSeeder extends Seeder
         'weekly_plan_task_employees',
         'weekly_plan_task_performance_records',
         'weekly_plan_task_lot_records',
+        'weekly_plan_task_product_records',
         'weekly_plan_task_logs',
         'weekly_plan_task_observations',
         'weekly_plan_task_timeouts',

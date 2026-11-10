@@ -76,5 +76,11 @@
         "lbs_per_item": 18.0,
         "sku_id": 144,
         "packing_material_id": 1
+    },
+    {
+        "id": 15,
+        "lbs_per_item": 25.0,
+        "sku_id": 172,
+        "packing_material_id": 396
     }
 ]

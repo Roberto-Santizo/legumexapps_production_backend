@@ -1,25 +1,5 @@
 [
     {
-        "id": 1,
-        "quantity": 36.0,
-        "lote": "L-2026-11",
-        "destination": "REEMPAQUE 3",
-        "packing_material_id": 1,
-        "pm_transaction_id": 1,
-        "created_at": "2026-11-09 20:22:09",
-        "updated_at": "2026-11-09 20:22:09"
-    },
-    {
-        "id": 2,
-        "quantity": 8.75,
-        "lote": "L-2026-12",
-        "destination": "REEMPAQUE 2",
-        "packing_material_id": 18,
-        "pm_transaction_id": 2,
-        "created_at": "2026-11-10 15:38:50",
-        "updated_at": "2026-11-10 15:38:50"
-    },
-    {
         "id": 3,
         "quantity": 5200.0,
         "lote": "L-2026-11",
