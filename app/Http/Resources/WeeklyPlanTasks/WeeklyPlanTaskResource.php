@@ -48,6 +48,7 @@ class WeeklyPlanTaskResource extends JsonResource
             'line_code' => $this->performance->line->code,
             'status_message' => $this->statusMessages[$this->status],
             'status' => $this->status,
+            'positions' => $this->performance->line->positions->count()
         ];
     }
 }
