@@ -38,6 +38,7 @@ class CatalogSeeder extends Seeder
             }
 
             $this->seedCaptureFields();
+            $this->seedLineFields();
         });
     }
 
@@ -79,6 +80,37 @@ class CatalogSeeder extends Seeder
                 $field
             );
         }
+    }
+
+    /**
+     * Line fields reference their capture field by capture type and key, since capture field ids are not stable.
+     */
+    private function seedLineFields(): void
+    {
+        $captureFieldIds = CaptureField::query()
+            ->get(['id', 'capture_type', 'key'])
+            ->mapWithKeys(fn (CaptureField $field): array => [$this->captureFieldKey($field->capture_type?->value, $field->key) => $field->id]);
+
+        $now = now();
+
+        $rows = array_map(fn (array $field): array => [
+            'line_id' => $field['line_id'],
+            'capture_field_id' => $captureFieldIds[$this->captureFieldKey($field['capture_type'], $field['key'])],
+            'is_required' => $field['is_required'],
+            'order' => $field['order'],
+            'label' => $field['label'],
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $this->rows('line_fields'));
+
+        foreach (array_chunk($rows, self::CHUNK_SIZE) as $chunk) {
+            DB::table('line_fields')->upsert($chunk, ['line_id', 'capture_field_id'], ['is_required', 'order', 'label', 'updated_at']);
+        }
+    }
+
+    private function captureFieldKey(?string $captureType, string $key): string
+    {
+        return ($captureType ?? '*').'|'.$key;
     }
 
     /**

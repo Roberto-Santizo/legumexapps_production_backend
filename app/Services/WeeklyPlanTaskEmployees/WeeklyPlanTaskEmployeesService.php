@@ -7,7 +7,6 @@ use App\Errors\NotFoundError;
 use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
-use App\Models\WeeklyPlanEmployee;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskEmployee;
 use Illuminate\Support\Facades\DB;
@@ -66,49 +65,6 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     }
 
     #[Override]
-    public function addEmployee(string $taskId, int $weeklyPlanEmployeeId)
-    {
-        $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
-        $this->ensureTaskAcceptsEmployeeChanges($task);
-
-        $weeklyPlanEmployee = WeeklyPlanEmployee::with('employee')->find($weeklyPlanEmployeeId);
-        $this->ensureEmployeeCanJoinTask($task, $weeklyPlanEmployee);
-
-        WeeklyPlanTaskEmployee::create([
-            'weekly_plan_task_id' => $task->id,
-            'weekly_plan_employee_id' => $weeklyPlanEmployee->id,
-            'position_id' => $weeklyPlanEmployee->position_id,
-            'replaced_weekly_plan_employee_id' => null,
-        ]);
-
-        return null;
-    }
-
-    #[Override]
-    public function replaceEmployee(string $assignmentId, int $weeklyPlanEmployeeId)
-    {
-        $assignment = $this->getAssignmentById($assignmentId);
-        $task = $assignment->task;
-        $this->ensureTaskAcceptsEmployeeChanges($task);
-
-        $weeklyPlanEmployee = WeeklyPlanEmployee::with('employee')->find($weeklyPlanEmployeeId);
-        $this->ensureEmployeeCanJoinTask($task, $weeklyPlanEmployee);
-
-        DB::transaction(function () use ($assignment, $weeklyPlanEmployee) {
-            $assignment->delete();
-
-            WeeklyPlanTaskEmployee::create([
-                'weekly_plan_task_id' => $assignment->weekly_plan_task_id,
-                'weekly_plan_employee_id' => $weeklyPlanEmployee->id,
-                'position_id' => $assignment->position_id,
-                'replaced_weekly_plan_employee_id' => $assignment->weekly_plan_employee_id,
-            ]);
-        });
-
-        return null;
-    }
-
-    #[Override]
     public function removeEmployee(string $assignmentId)
     {
         $assignment = $this->getAssignmentById($assignmentId);
@@ -144,22 +100,6 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     {
         if (! in_array($task->status, [3, 4])) {
             throw new BadRequestError('Solo se puede modificar el personal de una tarea lista para ejecución o en progreso');
-        }
-    }
-
-    /**
-     * The incoming employee must belong to the task's weekly plan and not be actively assigned to it.
-     */
-    private function ensureEmployeeCanJoinTask(WeeklyPlanTask $task, WeeklyPlanEmployee $weeklyPlanEmployee): void
-    {
-        $code = $weeklyPlanEmployee->employee->code;
-
-        if ($weeklyPlanEmployee->weekly_plan_id != $task->weekly_plan_id) {
-            throw new BadRequestError("El empleado '{$code}' no pertenece al plan semanal de la tarea");
-        }
-
-        if ($task->employees()->where('weekly_plan_employee_id', $weeklyPlanEmployee->id)->exists()) {
-            throw new BadRequestError("El empleado '{$code}' ya está asignado a la tarea");
         }
     }
 

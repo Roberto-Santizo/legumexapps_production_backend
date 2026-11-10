@@ -23,7 +23,6 @@ use App\Providers\Skus\SkusProvider;
 use App\Providers\Timeouts\TimeoutsProvider;
 use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
-use App\Providers\WeeklyPlanEmployees\WeeklyPlanEmployeesProvider;
 use App\Providers\WeeklyPlans\WeeklyPlansProvider;
 use App\Providers\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesProvider;
 use App\Providers\WeeklyPlanTaskLotRecords\WeeklyPlanTaskLotRecordsProvider;
@@ -56,7 +55,6 @@ return [
     TimeoutsProvider::class,
     UserPermissionProvider::class,
     UserProvider::class,
-    WeeklyPlanEmployeesProvider::class,
     WeeklyPlanTaskEmployeesProvider::class,
     WeeklyPlanTaskObservationsProvider::class,
     WeeklyPlanTaskPerformanceRecordsProvider::class,

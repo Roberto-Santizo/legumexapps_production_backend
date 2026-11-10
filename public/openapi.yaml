@@ -62,7 +62,6 @@ tags:
   - name: DraftWeeklyPlans
   - name: DraftWeeklyPlanTasks
   - name: WeeklyPlans
-  - name: WeeklyPlanEmployees
   - name: WeeklyPlanTasks
   - name: WeeklyPlanTaskEmployees
   - name: WeeklyPlanTaskObservations
@@ -2137,106 +2136,6 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
-  # ───────────────────────────── WEEKLY PLAN EMPLOYEES ─────────────────────────────
-  /weekly-plan-employees:
-    get:
-      tags: [WeeklyPlanEmployees]
-      summary: Listar empleados de planes semanales
-      parameters:
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Page'
-        - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre del empleado }
-        - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código del empleado }
-        - { name: position, in: query, schema: { type: string }, description: Filtro parcial por código de la posición }
-        - { name: week, in: query, schema: { type: integer }, description: Semana del plan }
-        - { name: year, in: query, schema: { type: integer }, description: Año del plan }
-      responses:
-        '200':
-          description: Empleados del Plan Semanal Obtenidos Correctamente
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - allOf:
-                      - $ref: '#/components/schemas/Envelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
-                  - allOf:
-                      - $ref: '#/components/schemas/PaginatedEnvelope'
-                      - properties:
-                          data: { type: array, items: { $ref: '#/components/schemas/WeeklyPlanEmployee' } }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '500': { $ref: '#/components/responses/ServerError' }
-    post:
-      tags: [WeeklyPlanEmployees]
-      summary: Agregar empleado a un plan semanal
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeInput' }
-      responses:
-        '201': { $ref: '#/components/responses/CreatedModel' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-employees/uploadFile:
-    post:
-      tags: [WeeklyPlanEmployees]
-      summary: Carga masiva de empleados del plan (Excel)
-      requestBody: { $ref: '#/components/requestBodies/UploadFile' }
-      responses:
-        '200': { $ref: '#/components/responses/UploadResult' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-employees/{id}:
-    parameters:
-      - $ref: '#/components/parameters/Id'
-    get:
-      tags: [WeeklyPlanEmployees]
-      summary: Obtener empleado del plan
-      responses:
-        '200':
-          description: Empleado del Plan Semanal Obtenido Correctamente
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/Envelope'
-                  - properties:
-                      data: { $ref: '#/components/schemas/WeeklyPlanEmployee' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '500': { $ref: '#/components/responses/ServerError' }
-    put:
-      tags: [WeeklyPlanEmployees]
-      summary: Actualizar empleado del plan
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeInput' }
-      responses:
-        '200': { $ref: '#/components/responses/TrueData' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-    delete:
-      tags: [WeeklyPlanEmployees]
-      summary: Eliminar empleado del plan
-      description: Falla con `400` si el empleado tiene asignaciones en tareas.
-      responses:
-        '200': { $ref: '#/components/responses/TrueData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
   # ───────────────────────────── WEEKLY PLAN TASKS ─────────────────────────────
   /weekly-plan-tasks:
     get:
@@ -2627,45 +2526,6 @@ paths:
                   - $ref: '#/components/schemas/Envelope'
                   - properties:
                       data: { type: 'null' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-tasks/{id}/addEmployee:
-    post:
-      tags: [WeeklyPlanTaskEmployees]
-      summary: Agregar empleado a la tarea
-      description: Solo tareas listas para ejecución o en progreso; el empleado debe pertenecer al plan y no estar asignado.
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeIdInput' }
-      responses:
-        '201': { $ref: '#/components/responses/NullData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationError' }
-        '500': { $ref: '#/components/responses/ServerError' }
-
-  /weekly-plan-task-employees/{id}/replace:
-    patch:
-      tags: [WeeklyPlanTaskEmployees]
-      summary: Reemplazar empleado de una asignación
-      parameters:
-        - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/WeeklyPlanEmployeeIdInput' }
-      responses:
-        '200': { $ref: '#/components/responses/NullData' }
-        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -3738,16 +3598,6 @@ components:
         line_code: { type: string }
         line_name: { type: string }
         total_tasks: { type: integer }
-    WeeklyPlanEmployee:
-      type: object
-      properties:
-        id: { type: integer }
-        name: { type: string }
-        code: { type: string }
-        position: { type: string, description: Código del puesto }
-        biometric_position: { type: [string, 'null'], description: Puesto según el biométrico }
-        position_id: { type: integer }
-        employee_id: { type: integer }
     BiometricEmployee:
       type: object
       description: Empleado tal como lo reporta el biométrico (no es un registro local).
@@ -3756,18 +3606,6 @@ components:
         name: { type: string }
         code: { type: string, description: Código del empleado }
         position: { type: [string, 'null'], description: Puesto según el biométrico }
-    WeeklyPlanEmployeeInput:
-      type: object
-      required: [position_id, employee_id, weekly_plan_id]
-      properties:
-        position_id: { type: integer }
-        employee_id: { type: integer }
-        weekly_plan_id: { type: integer }
-    WeeklyPlanEmployeeIdInput:
-      type: object
-      required: [weekly_plan_employee_id]
-      properties:
-        weekly_plan_employee_id: { type: integer }
     WeeklyPlanTask:
       type: object
       properties:
@@ -3818,14 +3656,9 @@ components:
       type: object
       properties:
         id: { type: integer }
-        weekly_plan_employee_id: { type: integer }
         name: { type: string }
         code: { type: string }
-        position_id: { type: integer }
-        position: { type: string, description: Código del puesto }
-        replaced_weekly_plan_employee_id: { type: [integer, 'null'] }
-        replaced_name: { type: [string, 'null'] }
-        replaced_code: { type: [string, 'null'] }
+        position: { type: string, description: Puesto en la tarea }
     WeeklyPlanTaskObservation:
       type: object
       properties:

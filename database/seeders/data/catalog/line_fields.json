@@ -1,0 +1,578 @@
+[
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 2,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 5,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 6,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 8,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 9,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 11,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 33,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "pallet_number",
+        "is_required": true,
+        "order": 1,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "lot",
+        "is_required": true,
+        "order": 2,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "recorded_at",
+        "is_required": true,
+        "order": 3,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "boxes",
+        "is_required": true,
+        "order": 4,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "scale_weight",
+        "is_required": true,
+        "order": 5,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "tare",
+        "is_required": true,
+        "order": 6,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "ticket_weight",
+        "is_required": false,
+        "order": 7,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "net_weight",
+        "is_required": false,
+        "order": 8,
+        "label": null
+    },
+    {
+        "line_id": 53,
+        "capture_type": "pallet",
+        "key": "difference",
+        "is_required": false,
+        "order": 9,
+        "label": null
+    }
+]
