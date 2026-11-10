@@ -5,6 +5,7 @@ namespace App\Services\WeeklyPlanTaskAssistant;
 use App\Calculators\CaptureSummaryCalculator;
 use App\Enums\CaptureType;
 use App\Errors\BadRequestError;
+use App\Errors\NotFoundError;
 use App\Interfaces\WeeklyPlanTaskAssistant\WeeklyPlanTaskAssistantServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\LineField;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Laravel\Ai\Contracts\ConversationStore;
+use Laravel\Ai\Contracts\VerifiesConversationOwnership;
 use Override;
 
 class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceInterface
@@ -153,7 +155,12 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     #[Override]
     public function assertConversationBelongsTo(User $user, string $conversationId): void
     {
-        //
+        $belongsToUser = $this->conversationStore instanceof VerifiesConversationOwnership
+            && $this->conversationStore->conversationBelongsTo($conversationId, $user->getMorphClass(), $user->id);
+
+        if (! $belongsToUser) {
+            throw new NotFoundError('La conversación no existe');
+        }
     }
 
     #[Override]

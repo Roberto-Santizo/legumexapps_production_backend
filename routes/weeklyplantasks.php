@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WeeklyPlanTaskAssistantController;
 use App\Http\Controllers\WeeklyPlanTaskEmployeesController;
 use App\Http\Controllers\WeeklyPlanTaskLotRecordsController;
 use App\Http\Controllers\WeeklyPlanTaskObservationsController;
@@ -36,4 +37,6 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/weekly-plan-task-timeouts/{id}/end', [WeeklyPlanTaskTimeoutsController::class, 'endTimeout']);
     Route::patch('/weekly-plan-task-timeouts/{id}', [WeeklyPlanTaskTimeoutsController::class, 'updateTimeout']);
     Route::delete('/weekly-plan-task-timeouts/{id}', [WeeklyPlanTaskTimeoutsController::class, 'deleteTimeout']);
+    Route::post('/weekly-plan-task-assistant/ask', [WeeklyPlanTaskAssistantController::class, 'ask'])
+        ->middleware('throttle:weekly-plan-task-assistant');
 });
