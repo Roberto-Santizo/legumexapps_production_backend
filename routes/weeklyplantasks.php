@@ -39,4 +39,7 @@ Route::middleware('jwt.auth')->group(function () {
     Route::delete('/weekly-plan-task-timeouts/{id}', [WeeklyPlanTaskTimeoutsController::class, 'deleteTimeout']);
     Route::post('/weekly-plan-task-assistant/ask', [WeeklyPlanTaskAssistantController::class, 'ask'])
         ->middleware('throttle:weekly-plan-task-assistant');
+    Route::get('/weekly-plan-task-assistant/conversations', [WeeklyPlanTaskAssistantController::class, 'conversations']);
+    Route::get('/weekly-plan-task-assistant/conversations/{id}/messages', [WeeklyPlanTaskAssistantController::class, 'messages']);
+    Route::delete('/weekly-plan-task-assistant/conversations/{id}', [WeeklyPlanTaskAssistantController::class, 'deleteConversation']);
 });

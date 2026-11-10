@@ -17,8 +17,11 @@ use App\Models\WeeklyPlanTaskProductRecord;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Contracts\ConversationStore;
 use Laravel\Ai\Contracts\VerifiesConversationOwnership;
+use Laravel\Ai\Models\Conversation;
+use Laravel\Ai\Models\ConversationMessage;
 use Override;
 
 class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceInterface
@@ -166,19 +169,38 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     #[Override]
     public function getConversations(User $user, ?string $limit)
     {
-        return collect();
+        $query = $user->conversations()->orderByDesc('updated_at');
+
+        if ($limit) {
+            return $query->paginate($limit);
+        }
+
+        return $query->get();
     }
 
     #[Override]
     public function getConversationMessages(User $user, string $conversationId)
     {
-        return collect();
+        $this->assertConversationBelongsTo($user, $conversationId);
+
+        return ConversationMessage::query()
+            ->where('conversation_id', $conversationId)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get();
     }
 
     #[Override]
     public function deleteConversation(User $user, string $conversationId): bool
     {
-        return false;
+        $this->assertConversationBelongsTo($user, $conversationId);
+
+        DB::transaction(function () use ($conversationId) {
+            ConversationMessage::query()->where('conversation_id', $conversationId)->delete();
+            Conversation::query()->whereKey($conversationId)->delete();
+        });
+
+        return true;
     }
 
     /**
