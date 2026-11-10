@@ -34,6 +34,13 @@ return [
         'new_url' => env('NEW_BIOMETRICO_URL'),
     ],
 
+    'weekly_plan_task_assistant' => [
+        'provider' => env('AI_ASSISTANT_PROVIDER', 'anthropic'),
+        'model' => env('AI_ASSISTANT_MODEL'),
+        'rate_limit' => (int) env('AI_ASSISTANT_RATE_LIMIT', 20),
+        'max_range_days' => (int) env('AI_ASSISTANT_MAX_RANGE_DAYS', 31),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
