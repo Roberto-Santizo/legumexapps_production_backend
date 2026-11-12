@@ -39,6 +39,13 @@ return [
         'model' => env('AI_ASSISTANT_MODEL'),
         'rate_limit' => (int) env('AI_ASSISTANT_RATE_LIMIT', 20),
         'max_range_days' => (int) env('AI_ASSISTANT_MAX_RANGE_DAYS', 31),
+        'audio' => [
+            'provider' => env('AI_ASSISTANT_AUDIO_PROVIDER', 'gemini'),
+            'model' => env('AI_ASSISTANT_AUDIO_MODEL'),
+            'voice' => env('AI_ASSISTANT_AUDIO_VOICE', 'Kore'),
+            'timeout' => (int) env('AI_ASSISTANT_AUDIO_TIMEOUT', 120),
+            'max_chars' => (int) env('AI_ASSISTANT_AUDIO_MAX_CHARS', 4000),
+        ],
     ],
 
     'slack' => [
