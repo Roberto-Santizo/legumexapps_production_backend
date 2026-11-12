@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LineActivitiesController;
 use App\Http\Controllers\LineDependenciesController;
 use App\Http\Controllers\LineFieldsController;
 use App\Http\Controllers\LinesController;
@@ -21,4 +22,9 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/lines/{code}/fields', [LineFieldsController::class, 'assignField']);
     Route::patch('/line-fields/{id}', [LineFieldsController::class, 'updateField']);
     Route::delete('/line-fields/{id}', [LineFieldsController::class, 'removeField']);
+
+    Route::get('/lines/{code}/activities', [LineActivitiesController::class, 'activities']);
+    Route::post('/lines/{code}/activities', [LineActivitiesController::class, 'assignActivity']);
+    Route::patch('/line-activities/{id}', [LineActivitiesController::class, 'updateActivity']);
+    Route::delete('/line-activities/{id}', [LineActivitiesController::class, 'removeActivity']);
 });

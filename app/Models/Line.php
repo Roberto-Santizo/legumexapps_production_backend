@@ -32,4 +32,9 @@ class Line extends Model
     {
         return $this->hasMany(LineField::class);
     }
+
+    public function lineActivities()
+    {
+        return $this->hasMany(LineActivity::class);
+    }
 }

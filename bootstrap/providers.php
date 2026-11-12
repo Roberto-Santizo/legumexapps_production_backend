@@ -1,5 +1,6 @@
 <?php
 
+use App\Providers\Activities\ActivitiesProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
 use App\Providers\BiometricQueries\BiometricQueriesProvider;
@@ -7,6 +8,7 @@ use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
+use App\Providers\LineActivities\LineActivitiesProvider;
 use App\Providers\LineDependencies\LineDependenciesProvider;
 use App\Providers\LineFields\LineFieldsProvider;
 use App\Providers\Lines\LinesProvider;
@@ -34,6 +36,7 @@ use App\Providers\WeeklyPlanTasks\WeeklyPlanTasksProvider;
 use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 
 return [
+    ActivitiesProvider::class,
     AppServiceProvider::class,
     AuthProvider::class,
     BiometricQueriesProvider::class,
@@ -41,6 +44,7 @@ return [
     ClientsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
+    LineActivitiesProvider::class,
     LineDependenciesProvider::class,
     LineFieldsProvider::class,
     LineSkusProvider::class,

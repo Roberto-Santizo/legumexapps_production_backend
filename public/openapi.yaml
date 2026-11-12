@@ -45,6 +45,10 @@ tags:
     description: Catálogo de campos de captura de producción (sistema y custom).
   - name: LineFields
     description: Campos de captura configurados por línea (formulario de captura).
+  - name: Activities
+    description: Catálogo global de actividades (recortador, canastero, sellador…) con su unidad de medida.
+  - name: LineActivities
+    description: Cupos de personal por actividad configurados por línea (dotación de la línea).
   - name: Clients
   - name: Skus
   - name: Performances
@@ -866,6 +870,211 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/NullData' }
         '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── ACTIVITIES ─────────────────────────────
+  /activities:
+    get:
+      tags: [Activities]
+      summary: Listar catálogo de actividades
+      description: Ordenadas por `name`.
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - { name: name, in: query, schema: { type: string }, description: 'Filtro parcial por nombre, insensible a mayúsculas' }
+      responses:
+        '200':
+          description: Actividades Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - allOf:
+                      - $ref: '#/components/schemas/Envelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Activity' } }
+                  - allOf:
+                      - $ref: '#/components/schemas/PaginatedEnvelope'
+                      - properties:
+                          data: { type: array, items: { $ref: '#/components/schemas/Activity' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [Activities]
+      summary: Crear actividad
+      description: |
+        `name` se guarda con `trim` y en mayúsculas (`"  recortador "` → `RECORTADOR`) y es único.
+        `unit` se guarda con `trim`, sin cambiar mayúsculas (`" lbs/h "` → `lbs/h`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActivityInput' }
+      responses:
+        '201':
+          description: Actividad Creada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Activity' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /activities/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Activities]
+      summary: Obtener actividad
+      description: 'Errores `404`: `La actividad no existe`.'
+      responses:
+        '200':
+          description: Actividad Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Activity' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    put:
+      tags: [Activities]
+      summary: Editar actividad (equivalente a PATCH)
+      description: |
+        Se puede mandar solo `name`, solo `unit` o ambos. Misma normalización que al crear.
+        Mandar el mismo nombre que ya tiene no falla por `unique`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActivityUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    patch:
+      tags: [Activities]
+      summary: Editar actividad
+      description: |
+        Se puede mandar solo `name`, solo `unit` o ambos. Misma normalización que al crear.
+        Mandar el mismo nombre que ya tiene no falla por `unique`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActivityUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [Activities]
+      summary: Eliminar actividad
+      description: |
+        Errores `400`:
+        - `No se puede eliminar una actividad asignada a líneas`
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  # ───────────────────────────── LINE ACTIVITIES ─────────────────────────────
+  /lines/{code}/activities:
+    parameters:
+      - $ref: '#/components/parameters/Code'
+    get:
+      tags: [LineActivities]
+      summary: Cupos de personal por actividad de una línea
+      description: Ordenados por nombre de actividad. Sin paginación.
+      responses:
+        '200':
+          description: Actividades de la Línea Obtenidas Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/LineActivity' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    post:
+      tags: [LineActivities]
+      summary: Asignar una actividad del catálogo a la línea con su cantidad
+      description: |
+        Errores `400`:
+        - `La actividad ya está asignada a la línea`
+
+        Errores `404`:
+        - `La línea no existe`
+        - `La actividad no existe`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineActivityInput' }
+      responses:
+        '201':
+          description: Actividad Asignada Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/LineActivity' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
+  /line-activities/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer }, description: ID del cupo (line_activities) }
+    patch:
+      tags: [LineActivities]
+      summary: Editar la cantidad de un cupo de la línea
+      description: |
+        Solo cambia `quantity`. Para cambiar de actividad se quita y se asigna otra.
+
+        Errores `404`: `La actividad de la línea no existe`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LineActivityUpdateInput' }
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+    delete:
+      tags: [LineActivities]
+      summary: Quitar una actividad de la línea
+      description: |
+        La actividad sigue en el catálogo.
+
+        Errores `404`: `La actividad de la línea no existe`.
+      responses:
+        '200': { $ref: '#/components/responses/NullData' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -3715,6 +3924,43 @@ components:
         is_required: { type: boolean }
         order: { type: integer, minimum: 0 }
         label: { type: [string, 'null'], maxLength: 100, description: '`null` vuelve a la etiqueta del catálogo' }
+    Activity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, description: 'En mayúsculas, único (`RECORTADOR`)' }
+        unit: { type: string, description: 'Unidad de medida del rendimiento (`lbs/h`, `canastas/h`)' }
+    ActivityInput:
+      type: object
+      required: [name, unit]
+      properties:
+        name: { type: string, maxLength: 100, description: 'Se guarda con `trim` y en mayúsculas' }
+        unit: { type: string, maxLength: 50, description: 'Se guarda con `trim`' }
+    ActivityUpdateInput:
+      type: object
+      properties:
+        name: { type: string, maxLength: 100, description: 'Se guarda con `trim` y en mayúsculas' }
+        unit: { type: string, maxLength: 50, description: 'Se guarda con `trim`' }
+    LineActivity:
+      type: object
+      properties:
+        id: { type: integer }
+        line_id: { type: integer }
+        activity_id: { type: integer }
+        activity: { type: string, description: Nombre de la actividad }
+        unit: { type: string, description: Unidad de medida de la actividad }
+        quantity: { type: integer, description: Cuántas personas de esa actividad necesita la línea }
+    LineActivityInput:
+      type: object
+      required: [activity_id, quantity]
+      properties:
+        activity_id: { type: integer }
+        quantity: { type: integer, minimum: 1 }
+    LineActivityUpdateInput:
+      type: object
+      required: [quantity]
+      properties:
+        quantity: { type: integer, minimum: 1 }
     Client:
       type: object
       properties:
