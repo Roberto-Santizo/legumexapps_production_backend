@@ -8,6 +8,7 @@ use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
+use App\Providers\LineActivities\LineActivitiesProvider;
 use App\Providers\LineDependencies\LineDependenciesProvider;
 use App\Providers\LineFields\LineFieldsProvider;
 use App\Providers\Lines\LinesProvider;
@@ -43,6 +44,7 @@ return [
     ClientsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
+    LineActivitiesProvider::class,
     LineDependenciesProvider::class,
     LineFieldsProvider::class,
     LineSkusProvider::class,
