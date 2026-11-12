@@ -1,5 +1,6 @@
 <?php
 
+use App\Providers\Activities\ActivitiesProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\Auth\AuthProvider;
 use App\Providers\BiometricQueries\BiometricQueriesProvider;
@@ -34,6 +35,7 @@ use App\Providers\WeeklyPlanTasks\WeeklyPlanTasksProvider;
 use App\Providers\WeeklyPlanTaskTimeouts\WeeklyPlanTaskTimeoutsProvider;
 
 return [
+    ActivitiesProvider::class,
     AppServiceProvider::class,
     AuthProvider::class,
     BiometricQueriesProvider::class,
