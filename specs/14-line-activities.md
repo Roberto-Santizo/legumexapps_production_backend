@@ -1,6 +1,6 @@
 # SPEC 14 — Actividades y cupos de personal por línea
 
-> **Estado:** Aprobado
+> **Estado:** Impletado
 > **Depende de:** —
 > **Fecha:** 2026-11-12
 > **Objetivo:** Registrar, con un catálogo global de actividades (`activities`) y una asignación por línea con cantidad (`line_activities`), cuántas personas de cada actividad (recortadores, canasteros, selladores…) necesita cada `Line`.
@@ -233,31 +233,31 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `php artisan migrate` crea `activities` con `name` único, `unit` no nullable y `line_activities` con FKs a `lines` (cascade) y `activities` (sin cascade) y el índice único `(line_id, activity_id)`.
-- [ ] `php artisan route:list` muestra las 5 rutas de `/activities` y las 4 de cupos bajo `jwt.auth`.
-- [ ] `POST /activities` con `name: "  recortador "` y `unit: " lbs/h "` responde 201 y guarda `RECORTADOR` con `unit` = `lbs/h`.
-- [ ] `POST /activities` sin `unit` responde 422 `La unidad de medida es obligatoria.`.
-- [ ] `PATCH /activities/{id}` con solo `unit: "canastas/h"` cambia la unidad y deja el nombre igual.
-- [ ] `POST /activities` con `name: "Recortador"` cuando ya existe `RECORTADOR` responde 422 con mensaje en español.
-- [ ] `PUT /activities/{id}` con el mismo nombre que ya tiene no falla por `unique`.
-- [ ] `GET /activities` sin `limit` devuelve una colección ordenada por `name`; con `?limit=5` devuelve `data`, `total`, `currentPage`, `lastPage`.
-- [ ] `GET /activities?name=rec` devuelve `RECORTADOR`.
-- [ ] `GET /activities/{id}` inexistente → 404 `La actividad no existe`.
-- [ ] `DELETE /activities/{id}` de una actividad sin cupos → 200 y la fila desaparece.
-- [ ] `DELETE /activities/{id}` de una actividad asignada a una línea → 400 `No se puede eliminar una actividad asignada a líneas` y la fila sigue en BD.
-- [ ] `POST /lines/{code}/activities` con `activity_id` válido y `quantity: 10` → 201 con `activity: "RECORTADOR"`, `unit: "lbs/h"` y `quantity: 10`.
-- [ ] `POST /lines/{code}/activities` con `quantity: 0` → 422.
-- [ ] `POST /lines/{code}/activities` con una actividad ya asignada a esa línea → 400 `La actividad ya está asignada a la línea`.
-- [ ] La misma actividad se puede asignar a dos líneas distintas.
-- [ ] `POST /lines/{code}/activities` con línea inexistente → 404.
-- [ ] `GET /lines/{code}/activities` devuelve solo los cupos de esa línea, ordenados por nombre de actividad, sin consultas N+1.
-- [ ] `PATCH /line-activities/{id}` con `quantity: 12` actualiza solo la cantidad.
-- [ ] `PATCH` o `DELETE /line-activities/{id}` inexistente → 404 `La actividad de la línea no existe`.
-- [ ] `DELETE /line-activities/{id}` borra el cupo y la actividad sigue en el catálogo.
-- [ ] Borrar una línea borra sus filas de `line_activities`.
-- [ ] La tabla `positions` y sus endpoints no cambian.
-- [ ] `public/openapi.yaml`, `references/list-filters.md` y `references/line-activities.md` documentan los endpoints nuevos.
-- [ ] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
+- [X] `php artisan migrate` crea `activities` con `name` único, `unit` no nullable y `line_activities` con FKs a `lines` (cascade) y `activities` (sin cascade) y el índice único `(line_id, activity_id)`.
+- [X] `php artisan route:list` muestra las 5 rutas de `/activities` y las 4 de cupos bajo `jwt.auth`.
+- [X] `POST /activities` con `name: "  recortador "` y `unit: " lbs/h "` responde 201 y guarda `RECORTADOR` con `unit` = `lbs/h`.
+- [X] `POST /activities` sin `unit` responde 422 `La unidad de medida es obligatoria.`.
+- [X] `PATCH /activities/{id}` con solo `unit: "canastas/h"` cambia la unidad y deja el nombre igual.
+- [X] `POST /activities` con `name: "Recortador"` cuando ya existe `RECORTADOR` responde 422 con mensaje en español.
+- [X] `PUT /activities/{id}` con el mismo nombre que ya tiene no falla por `unique`.
+- [X] `GET /activities` sin `limit` devuelve una colección ordenada por `name`; con `?limit=5` devuelve `data`, `total`, `currentPage`, `lastPage`.
+- [X] `GET /activities?name=rec` devuelve `RECORTADOR`.
+- [X] `GET /activities/{id}` inexistente → 404 `La actividad no existe`.
+- [X] `DELETE /activities/{id}` de una actividad sin cupos → 200 y la fila desaparece.
+- [X] `DELETE /activities/{id}` de una actividad asignada a una línea → 400 `No se puede eliminar una actividad asignada a líneas` y la fila sigue en BD.
+- [X] `POST /lines/{code}/activities` con `activity_id` válido y `quantity: 10` → 201 con `activity: "RECORTADOR"`, `unit: "lbs/h"` y `quantity: 10`.
+- [X] `POST /lines/{code}/activities` con `quantity: 0` → 422.
+- [X] `POST /lines/{code}/activities` con una actividad ya asignada a esa línea → 400 `La actividad ya está asignada a la línea`.
+- [X] La misma actividad se puede asignar a dos líneas distintas.
+- [X] `POST /lines/{code}/activities` con línea inexistente → 404.
+- [X] `GET /lines/{code}/activities` devuelve solo los cupos de esa línea, ordenados por nombre de actividad, sin consultas N+1.
+- [X] `PATCH /line-activities/{id}` con `quantity: 12` actualiza solo la cantidad.
+- [X] `PATCH` o `DELETE /line-activities/{id}` inexistente → 404 `La actividad de la línea no existe`.
+- [X] `DELETE /line-activities/{id}` borra el cupo y la actividad sigue en el catálogo.
+- [X] Borrar una línea borra sus filas de `line_activities`.
+- [X] La tabla `positions` y sus endpoints no cambian.
+- [X] `public/openapi.yaml`, `references/list-filters.md` y `references/line-activities.md` documentan los endpoints nuevos.
+- [X] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
 
 ---
 
