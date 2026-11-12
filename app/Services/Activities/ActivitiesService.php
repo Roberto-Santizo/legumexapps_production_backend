@@ -2,6 +2,7 @@
 
 namespace App\Services\Activities;
 
+use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\Activities\ActivitiesServiceInterface;
 use App\Models\Activity;
@@ -64,6 +65,10 @@ class ActivitiesService implements ActivitiesServiceInterface
     public function deleteActivityById(string $id)
     {
         $activity = $this->getActivityById($id);
+
+        if ($activity->lineActivities()->exists()) {
+            throw new BadRequestError('No se puede eliminar una actividad asignada a líneas');
+        }
 
         $activity->delete();
 
