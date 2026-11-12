@@ -8,5 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'unit'])]
 class Activity extends Model
 {
-    //
+    public function lineActivities()
+    {
+        return $this->hasMany(LineActivity::class);
+    }
 }
