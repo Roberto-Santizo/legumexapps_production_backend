@@ -7,6 +7,7 @@ use App\Errors\NotFoundError;
 use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
+use App\Models\Position;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskEmployee;
 use Illuminate\Support\Facades\DB;
@@ -45,21 +46,41 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     public function confirmEmployees(string $taskId, array $data)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
+        $codes = array_column($data['employees'], 'position');
+        $positions = Position::whereIn('code', $codes)->get()->keyBy('code');
+
+        $errors = [];
         $bulkData = [];
+        $now = now();
 
         foreach ($data['employees'] as $employee) {
+            $position = $positions->get($employee['position']);
+
+            if (! $position) {
+                $errors[] = "La posición '{$employee['position']}' no existe";
+
+                continue;
+            }
+
             $bulkData[] = [
                 'weekly_plan_task_id' => $task->id,
                 'code' => $employee['code'],
                 'name' => $employee['name'],
-                'position' => $employee['position'],
+                'position_id' => $position->id,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
-
         }
 
-        DB::table('weekly_plan_task_employees')->insert($bulkData);
-        $task->status = 3;
-        $task->save();
+        if (! empty($errors)) {
+            throw new BadRequestError(implode(PHP_EOL, $errors));
+        }
+
+        DB::transaction(function () use ($task, $bulkData) {
+            WeeklyPlanTaskEmployee::insert($bulkData);
+            $task->status = 3;
+            $task->save();
+        });
 
         return null;
     }
