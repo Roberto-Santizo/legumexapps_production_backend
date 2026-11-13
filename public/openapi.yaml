@@ -2709,7 +2709,14 @@ paths:
       description: |
         Registra en `weekly_plan_task_employees` una fila por cada empleado enviado
         (`code`, `name`, `position`), tomados normalmente de `GET /weekly-plan-tasks/{id}/availableEmployees`.
-        Inserción masiva; no valida status de la tarea ni personal previamente asignado.
+
+        `position` es el **código** de una posición (`positions.code`). El backend resuelve todos los
+        códigos en una sola consulta y guarda la FK `position_id`. Si algún código no existe responde
+        `400` con un mensaje por código (`La posición 'X' no existe`, separados por salto de línea) y
+        no inserta nada ni cambia el status.
+
+        Si todos existen, inserta las filas y pasa la tarea a status `3` en una transacción.
+        No valida status de la tarea, personal previamente asignado ni que la posición pertenezca a la línea de la tarea.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -2730,11 +2737,11 @@ paths:
                     properties:
                       code: { type: string, description: Código del empleado (biométrico) }
                       name: { type: string, description: Nombre completo }
-                      position: { type: string, description: Puesto en la tarea }
+                      position: { type: string, description: Código de la posición (`positions.code`); debe existir }
             example:
               employees:
-                - { code: 'E0001', name: 'Juan Pérez', position: 'Operador 1' }
-                - { code: 'E0002', name: 'María López', position: 'Operador 2' }
+                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001' }
+                - { code: 'E0002', name: 'María López', position: '1PIQ1A002' }
       responses:
         '201':
           description: Personal Asignado Correctamente (`data` = null)
@@ -2745,6 +2752,14 @@ paths:
                   - $ref: '#/components/schemas/Envelope'
                   - properties:
                       data: { type: 'null' }
+        '400':
+          description: Uno o más códigos de posición no existen (mensajes acumulados, uno por línea)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+              example:
+                statusCode: 400
+                message: "La posición 'X1' no existe\nLa posición 'X2' no existe"
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -4230,7 +4245,9 @@ components:
         id: { type: integer }
         name: { type: string }
         code: { type: string }
-        position: { type: string, description: Puesto en la tarea }
+        position_id: { type: [integer, 'null'], description: FK a `positions`; null solo en filas históricas sin posición coincidente }
+        position: { type: [string, 'null'], description: Código de la posición (`positions.code`) }
+        activity: { type: [string, 'null'], description: Actividad de la posición (`positions.activity`) }
     WeeklyPlanTaskObservation:
       type: object
       properties:
