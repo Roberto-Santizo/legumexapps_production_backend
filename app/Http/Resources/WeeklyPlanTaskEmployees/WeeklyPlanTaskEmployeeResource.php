@@ -18,7 +18,9 @@ class WeeklyPlanTaskEmployeeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
+            'position_id' => $this->position_id,
             'position' => $this->position?->code,
+            'activity' => $this->position?->activity,
         ];
     }
 }
