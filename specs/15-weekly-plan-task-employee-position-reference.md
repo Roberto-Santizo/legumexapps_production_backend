@@ -1,6 +1,6 @@
 # SPEC 15 — Referencia a `positions` en el personal asignado a una tarea
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 06
 > **Fecha:** 2026-11-13
 > **Objetivo:** Al confirmar empleados en `POST /weekly-plan-tasks/{id}/confirmEmployees`, resolver cada código de `position` contra la tabla `positions` y guardar en `weekly_plan_task_employees` la FK `position_id` en lugar del texto.
@@ -156,19 +156,19 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `php artisan migrate` agrega `weekly_plan_task_employees.position_id` (FK nullable a `positions`) y elimina la columna `position`.
-- [ ] Tras migrar, una fila previa con `position = '1REM1001'` tiene `position_id` = id de la posición `1REM1001`; una fila con código inexistente queda con `position_id = null`.
-- [ ] `php artisan migrate:rollback` restaura la columna `position` con el código y elimina `position_id`.
-- [ ] `POST /weekly-plan-tasks/{id}/confirmEmployees` con todos los códigos existentes → 201, filas con `position_id` correcto y la tarea en status `3`.
-- [ ] `POST …/confirmEmployees` con dos códigos inexistentes `X1` y `X2` → 400 con `La posición 'X1' no existe` y `La posición 'X2' no existe` en un solo mensaje; no se inserta ninguna fila y el status no cambia.
-- [ ] `POST …/confirmEmployees` con una posición de otra línea se acepta (no se valida línea).
-- [ ] La resolución de códigos usa una sola consulta a `positions`, sin importar cuántos empleados lleguen.
-- [ ] El body de `confirmEmployees` y `ConfirmWeeklyPlanTaskEmployeesRequest` no cambian.
-- [ ] `GET /weekly-plan-tasks/{id}/employees` devuelve por empleado `id`, `name`, `code`, `position_id`, `position` (código) y `activity`.
-- [ ] El listado carga las posiciones con eager loading (sin N+1).
-- [ ] La tool de IA `GetWeeklyPlanTaskEmployees` devuelve los mismos campos sin error.
-- [ ] `public/openapi.yaml` y `references/weekly-plan-task-employees.md` reflejan el cambio.
-- [ ] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
+- [X] `php artisan migrate` agrega `weekly_plan_task_employees.position_id` (FK nullable a `positions`) y elimina la columna `position`.
+- [X] Tras migrar, una fila previa con `position = '1REM1001'` tiene `position_id` = id de la posición `1REM1001`; una fila con código inexistente queda con `position_id = null`.
+- [X] `php artisan migrate:rollback` restaura la columna `position` con el código y elimina `position_id`.
+- [X] `POST /weekly-plan-tasks/{id}/confirmEmployees` con todos los códigos existentes → 201, filas con `position_id` correcto y la tarea en status `3`.
+- [X] `POST …/confirmEmployees` con dos códigos inexistentes `X1` y `X2` → 400 con `La posición 'X1' no existe` y `La posición 'X2' no existe` en un solo mensaje; no se inserta ninguna fila y el status no cambia.
+- [X] `POST …/confirmEmployees` con una posición de otra línea se acepta (no se valida línea).
+- [X] La resolución de códigos usa una sola consulta a `positions`, sin importar cuántos empleados lleguen.
+- [X] El body de `confirmEmployees` y `ConfirmWeeklyPlanTaskEmployeesRequest` no cambian.
+- [X] `GET /weekly-plan-tasks/{id}/employees` devuelve por empleado `id`, `name`, `code`, `position_id`, `position` (código) y `activity`.
+- [X] El listado carga las posiciones con eager loading (sin N+1).
+- [X] La tool de IA `GetWeeklyPlanTaskEmployees` devuelve los mismos campos sin error.
+- [X] `public/openapi.yaml` y `references/weekly-plan-task-employees.md` reflejan el cambio.
+- [X] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
 
 ---
 
