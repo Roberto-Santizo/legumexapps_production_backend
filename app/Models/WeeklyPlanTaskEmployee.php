@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['weekly_plan_task_id', 'code', 'name', 'position_id'])]
+#[Fillable(['weekly_plan_task_id', 'code', 'name', 'position_id', 'line_activity_id'])]
 class WeeklyPlanTaskEmployee extends Model
 {
     use SoftDeletes;
@@ -19,5 +19,10 @@ class WeeklyPlanTaskEmployee extends Model
     public function position()
     {
         return $this->belongsTo(Position::class);
+    }
+
+    public function lineActivity()
+    {
+        return $this->belongsTo(LineActivity::class);
     }
 }
