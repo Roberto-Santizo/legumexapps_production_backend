@@ -41,7 +41,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     public function getTaskEmployees(string $taskId)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
-        $employees = $task->employees()->with('position')->get();
+        $employees = $task->employees()->with(['position', 'lineActivity.activity'])->get();
 
         return $employees;
     }
