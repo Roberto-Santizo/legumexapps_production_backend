@@ -4,7 +4,7 @@
         "weekly_plan_task_id": 3,
         "code": "LEG00268",
         "name": "ALBA VICTORIA OLLEJ TOMAS",
-        "position": "1LDCFA001",
+        "position_id": 1,
         "deleted_at": null,
         "created_at": null,
         "updated_at": null
@@ -14,7 +14,7 @@
         "weekly_plan_task_id": 3,
         "code": "LEG14285",
         "name": "MIRIA CHAVEZ CHAVEZ 1LDCTA049",
-        "position": "1LDCFA002",
+        "position_id": 1,
         "deleted_at": null,
         "created_at": null,
         "updated_at": null
@@ -24,7 +24,7 @@
         "weekly_plan_task_id": 3,
         "code": "LEG14169",
         "name": "WENDY DAMARIS YUMAN ORTIZ",
-        "position": "1LDCFA003",
+        "position_id": 1,
         "deleted_at": null,
         "created_at": null,
         "updated_at": null
