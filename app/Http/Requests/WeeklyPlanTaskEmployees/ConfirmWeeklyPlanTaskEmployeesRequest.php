@@ -27,6 +27,7 @@ class ConfirmWeeklyPlanTaskEmployeesRequest extends FormRequest
             'employees.*.code' => ['required', 'distinct'],
             'employees.*.name' => ['required', 'distinct'],
             'employees.*.position' => ['required', 'distinct'],
+            'employees.*.line_activity_id' => ['required', 'integer'],
         ];
     }
 
@@ -37,6 +38,8 @@ class ConfirmWeeklyPlanTaskEmployeesRequest extends FormRequest
             'employees.*.code' => 'El código del empleado es requerido',
             'employees.*.name' => 'El nombre del empleado es requerido',
             'employees.*.position' => 'La posición es requerida',
+            'employees.*.line_activity_id.required' => 'La actividad del empleado es requerida',
+            'employees.*.line_activity_id.integer' => 'La actividad del empleado debe ser un número entero',
         ];
     }
 }

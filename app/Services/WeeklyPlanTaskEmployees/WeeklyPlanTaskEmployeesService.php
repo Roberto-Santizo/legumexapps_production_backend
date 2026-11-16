@@ -7,6 +7,8 @@ use App\Errors\NotFoundError;
 use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
+use App\Models\Line;
+use App\Models\LineActivity;
 use App\Models\Position;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskEmployee;
@@ -46,8 +48,18 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     public function confirmEmployees(string $taskId, array $data)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
+        $line = $this->getTaskLine($task);
+
         $codes = array_column($data['employees'], 'position');
         $positions = Position::whereIn('code', $codes)->get()->keyBy('code');
+
+        $lineActivityIds = array_map('intval', array_column($data['employees'], 'line_activity_id'));
+        $lineActivities = LineActivity::with('activity')->whereIn('id', array_unique($lineActivityIds))->get()->keyBy('id');
+        $assignedCounts = $task->employees()
+            ->whereIn('line_activity_id', $lineActivities->keys())
+            ->selectRaw('line_activity_id, count(*) as total')
+            ->groupBy('line_activity_id')
+            ->pluck('total', 'line_activity_id');
 
         $errors = [];
         $bulkData = [];
@@ -55,10 +67,24 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
 
         foreach ($data['employees'] as $employee) {
             $position = $positions->get($employee['position']);
+            $lineActivityId = (int) $employee['line_activity_id'];
+            $lineActivity = $lineActivities->get($lineActivityId);
+            $hasErrors = false;
 
             if (! $position) {
                 $errors[] = "La posición '{$employee['position']}' no existe";
+                $hasErrors = true;
+            }
 
+            if (! $lineActivity) {
+                $errors[] = "La actividad de la línea '{$lineActivityId}' no existe";
+                $hasErrors = true;
+            } elseif ($lineActivity->line_id !== $line->id) {
+                $errors[] = "La actividad '{$lineActivity->activity->name}' no pertenece a la línea de la tarea";
+                $hasErrors = true;
+            }
+
+            if ($hasErrors) {
                 continue;
             }
 
@@ -67,9 +93,24 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
                 'code' => $employee['code'],
                 'name' => $employee['name'],
                 'position_id' => $position->id,
+                'line_activity_id' => $lineActivity->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
+        }
+
+        foreach (array_count_values($lineActivityIds) as $lineActivityId => $sentCount) {
+            $lineActivity = $lineActivities->get($lineActivityId);
+
+            if (! $lineActivity || $lineActivity->line_id !== $line->id) {
+                continue;
+            }
+
+            $assignedCount = (int) $assignedCounts->get($lineActivityId, 0);
+
+            if ($assignedCount + $sentCount > $lineActivity->quantity) {
+                $errors[] = "La actividad '{$lineActivity->activity->name}' admite {$lineActivity->quantity} personas; ya hay {$assignedCount} asignadas y se enviaron {$sentCount}";
+            }
         }
 
         if (! empty($errors)) {
@@ -112,6 +153,20 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         }
 
         return $assignment;
+    }
+
+    /**
+     * Line whose activity quotas apply to the task's employees.
+     */
+    private function getTaskLine(WeeklyPlanTask $task): Line
+    {
+        $line = $task->performance?->line;
+
+        if (! $line) {
+            throw new BadRequestError('La tarea no tiene una línea asignada');
+        }
+
+        return $line;
     }
 
     /**
