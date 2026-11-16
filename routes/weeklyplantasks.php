@@ -31,6 +31,7 @@ Route::middleware('jwt.auth')->group(function () {
     Route::get('/weekly-plan-tasks/{id}/availableEmployees', [WeeklyPlanTaskEmployeesController::class, 'availableEmployees']);
     Route::get('/weekly-plan-tasks/{id}/employees', [WeeklyPlanTaskEmployeesController::class, 'employees']);
     Route::post('/weekly-plan-tasks/{id}/confirmEmployees', [WeeklyPlanTaskEmployeesController::class, 'confirmEmployees']);
+    Route::patch('/weekly-plan-task-employees/{id}', [WeeklyPlanTaskEmployeesController::class, 'updateEmployeeActivity']);
     Route::delete('/weekly-plan-task-employees/{id}', [WeeklyPlanTaskEmployeesController::class, 'removeEmployee']);
     Route::get('/weekly-plan-tasks/{id}/timeouts', [WeeklyPlanTaskTimeoutsController::class, 'timeouts']);
     Route::post('/weekly-plan-tasks/{id}/startTimeout', [WeeklyPlanTaskTimeoutsController::class, 'startTimeout']);

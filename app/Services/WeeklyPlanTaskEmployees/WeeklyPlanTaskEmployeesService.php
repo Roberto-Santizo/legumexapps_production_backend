@@ -5,6 +5,7 @@ namespace App\Services\WeeklyPlanTaskEmployees;
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
+use App\Interfaces\LineActivities\LineActivitiesServiceInterface;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\Line;
@@ -20,6 +21,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     public function __construct(
         private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService,
         private BiometricQueriesServiceInterface $biometricQueriesService,
+        private LineActivitiesServiceInterface $lineActivitiesService,
     ) {}
 
     #[Override]
@@ -138,6 +140,38 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         }
 
         $assignment->delete();
+
+        return null;
+    }
+
+    /**
+     * @param  array{line_activity_id: int}  $data
+     */
+    #[Override]
+    public function updateEmployeeActivity(string $assignmentId, array $data)
+    {
+        $assignment = $this->getAssignmentById($assignmentId);
+        $task = $assignment->task;
+        $this->ensureTaskAcceptsEmployeeChanges($task);
+        $line = $this->getTaskLine($task);
+
+        $lineActivity = $this->lineActivitiesService->getLineActivityById((string) $data['line_activity_id']);
+        $activityName = $lineActivity->activity->name;
+
+        if ($lineActivity->line_id !== $line->id) {
+            throw new BadRequestError("La actividad '{$activityName}' no pertenece a la línea de la tarea");
+        }
+
+        $assignedCount = $task->employees()
+            ->where('line_activity_id', $lineActivity->id)
+            ->whereKeyNot($assignment->id)
+            ->count();
+
+        if ($assignedCount + 1 > $lineActivity->quantity) {
+            throw new BadRequestError("La actividad '{$activityName}' admite {$lineActivity->quantity} personas y ya tiene {$assignedCount} asignadas");
+        }
+
+        $assignment->update(['line_activity_id' => $lineActivity->id]);
 
         return null;
     }

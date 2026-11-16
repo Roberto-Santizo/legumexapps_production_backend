@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
 use App\Http\Requests\WeeklyPlanTaskEmployees\ConfirmWeeklyPlanTaskEmployeesRequest;
+use App\Http\Requests\WeeklyPlanTaskEmployees\UpdateWeeklyPlanTaskEmployeeActivityRequest;
 use App\Http\Resources\BiometricQueries\BiometricLineEmployeeResource;
 use App\Http\Resources\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeeResource;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
@@ -50,6 +51,18 @@ class WeeklyPlanTaskEmployeesController extends Controller
             $result = $service->removeEmployee($id);
 
             return ResponseHandler::success($result, 'Empleado Retirado Correctamente', 200);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function updateEmployeeActivity(UpdateWeeklyPlanTaskEmployeeActivityRequest $request, string $id, WeeklyPlanTaskEmployeesServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $result = $service->updateEmployeeActivity($id, $data);
+
+            return ResponseHandler::success($result, 'Actividad del Empleado Actualizada Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
