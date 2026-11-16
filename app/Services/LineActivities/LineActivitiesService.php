@@ -80,6 +80,10 @@ class LineActivitiesService implements LineActivitiesServiceInterface
     {
         $lineActivity = $this->getLineActivityById($id);
 
+        if ($lineActivity->taskEmployees()->withTrashed()->exists()) {
+            throw new BadRequestError('No se puede quitar una actividad con personal asignado');
+        }
+
         $lineActivity->delete();
 
         return true;
