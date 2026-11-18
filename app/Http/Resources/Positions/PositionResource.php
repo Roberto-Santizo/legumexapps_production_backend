@@ -17,7 +17,9 @@ class PositionResource extends JsonResource
         return [
             'id' =>         $this->id,
             'code' =>       $this->code,
-            'activity' =>   $this->activity,
+            'activity_id' => $this->activity_id,
+            'activity' =>   $this->activity?->name,
+            'unit' =>       $this->activity?->unit,
             'line_id' =>    $this->line_id,
             'line'=>        $this->line->name,
             'status' =>     $this->status,
