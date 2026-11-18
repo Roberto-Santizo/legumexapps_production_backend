@@ -121,6 +121,9 @@ class PositionsService implements PositionsServiceInterface
 
         $existingCodes = Position::pluck('code')->flip();
         $lineIdsByCode = Line::pluck('id', 'code');
+        $activityIdsByName = Activity::pluck('id', 'name');
+        $assignedLineActivities = LineActivity::get(['line_id', 'activity_id'])
+            ->mapWithKeys(fn (LineActivity $lineActivity): array => ["{$lineActivity->line_id}|{$lineActivity->activity_id}" => true]);
 
         $now = now();
         $errors = [];
@@ -132,7 +135,7 @@ class PositionsService implements PositionsServiceInterface
             $rowErrors = [];
 
             $code = trim((string) ($row['codigo'] ?? ''));
-            $activity = trim((string) ($row['actividad'] ?? ''));
+            $activity = mb_strtoupper(trim((string) ($row['actividad'] ?? '')));
             $lineCode = trim((string) ($row['linea'] ?? ''));
 
             if ($code === '') {
@@ -147,8 +150,12 @@ class PositionsService implements PositionsServiceInterface
                 $codesInFile[$code] = true;
             }
 
+            $activityId = $activityIdsByName->get($activity);
+
             if ($activity === '') {
                 $rowErrors[] = "Línea {$lineNumber}: el campo 'actividad' es obligatorio";
+            } elseif (! $activityId) {
+                $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no existe";
             }
 
             $lineId = $lineIdsByCode->get($lineCode);
@@ -159,6 +166,10 @@ class PositionsService implements PositionsServiceInterface
                 $rowErrors[] = "Línea {$lineNumber}: la línea con código '{$lineCode}' no existe";
             }
 
+            if ($lineId && $activityId && ! $assignedLineActivities->has("{$lineId}|{$activityId}")) {
+                $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no está asignada a la línea '{$lineCode}'";
+            }
+
             if (! empty($rowErrors)) {
                 array_push($errors, ...$rowErrors);
 
@@ -167,7 +178,7 @@ class PositionsService implements PositionsServiceInterface
 
             $positionsToCreate[] = [
                 'code' => $code,
-                'activity' => $activity,
+                'activity_id' => $activityId,
                 'line_id' => $lineId,
                 'created_at' => $now,
                 'updated_at' => $now,
