@@ -37,9 +37,9 @@ class PositionsController extends Controller
     {
         try {
             $data = $request->validated();
-            $result = $service->createPosition($data);
+            $position = $service->createPosition($data);
 
-            return ResponseHandler::success($result, 'Puesto Creado Correctamente', 201);
+            return ResponseHandler::success(new PositionResource($position->load(['line', 'activity'])), 'Puesto Creado Correctamente', 201);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
