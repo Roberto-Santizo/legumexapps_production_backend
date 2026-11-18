@@ -8,6 +8,7 @@ use App\Interfaces\Activities\ActivitiesServiceInterface;
 use App\Interfaces\LineActivities\LineActivitiesServiceInterface;
 use App\Interfaces\Lines\LinesServiceInterface;
 use App\Models\LineActivity;
+use App\Models\Position;
 use Override;
 
 class LineActivitiesService implements LineActivitiesServiceInterface
@@ -82,6 +83,14 @@ class LineActivitiesService implements LineActivitiesServiceInterface
 
         if ($lineActivity->taskEmployees()->withTrashed()->exists()) {
             throw new BadRequestError('No se puede quitar una actividad con personal asignado');
+        }
+
+        $hasPositions = Position::where('line_id', $lineActivity->line_id)
+            ->where('activity_id', $lineActivity->activity_id)
+            ->exists();
+
+        if ($hasPositions) {
+            throw new BadRequestError('No se puede quitar una actividad con posiciones asignadas');
         }
 
         $lineActivity->delete();

@@ -70,6 +70,10 @@ class ActivitiesService implements ActivitiesServiceInterface
             throw new BadRequestError('No se puede eliminar una actividad asignada a líneas');
         }
 
+        if ($activity->positions()->exists()) {
+            throw new BadRequestError('No se puede eliminar una actividad asignada a posiciones');
+        }
+
         $activity->delete();
 
         return true;
