@@ -1,6 +1,6 @@
 # SPEC 16 — Actividad de la línea para el personal asignado a una tarea
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 14, SPEC 15
 > **Fecha:** 2026-11-16
 > **Objetivo:** Al confirmar empleados en una `WeeklyPlanTask`, el usuario elige para cada uno la `LineActivity` de la línea de la tarea que va a cubrir; el backend la guarda en `weekly_plan_task_employees.line_activity_id` respetando el cupo máximo (`quantity`).
@@ -208,31 +208,31 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `php artisan migrate` agrega `weekly_plan_task_employees.line_activity_id` (FK nullable a `line_activities`, sin cascade); las filas existentes quedan en `null`.
-- [ ] `php artisan migrate:rollback` elimina la columna y su FK.
-- [ ] `POST …/confirmEmployees` sin `line_activity_id` en algún empleado → 422 `La actividad del empleado es requerida`.
-- [ ] `POST …/confirmEmployees` en una tarea sin línea → 400 `La tarea no tiene una línea asignada`.
-- [ ] `POST …/confirmEmployees` con posiciones y actividades válidas de la línea y dentro del cupo → 201, filas con `line_activity_id` correcto y la tarea en status `3`.
-- [ ] `POST …/confirmEmployees` con un `line_activity_id` inexistente → 400 `La actividad de la línea 'N' no existe`; no inserta nada.
-- [ ] `POST …/confirmEmployees` con una `LineActivity` de otra línea → 400 `La actividad 'X' no pertenece a la línea de la tarea`; no inserta nada.
-- [ ] Con `RECORTADOR` `quantity: 2` y sin asignados, enviar 3 empleados a esa actividad → 400 con un solo mensaje para `RECORTADOR`; enviar 2 → 201.
-- [ ] Con `RECORTADOR` `quantity: 2` y 1 asignación activa en la tarea, enviar 2 más → 400; si esa asignación fue retirada (soft delete), enviar 2 → 201.
-- [ ] Un body con posición inexistente, actividad de otra línea y cupo excedido devuelve un único 400 con los tres mensajes.
-- [ ] `confirmEmployees` resuelve posiciones, actividades y conteo de asignados con un número fijo de consultas, sin importar cuántos empleados lleguen.
-- [ ] `PATCH /weekly-plan-task-employees/{id}` con status `3` o `4` y una actividad de la línea con cupo → 200 `Actividad del Empleado Actualizada Correctamente` y la fila cambia.
-- [ ] `PATCH` con la tarea en status distinto de `3` o `4` → 400.
-- [ ] `PATCH` con asignación inexistente o retirada → 404 `La asignación no existe`.
-- [ ] `PATCH` con `line_activity_id` inexistente → 404 `La actividad de la línea no existe`.
-- [ ] `PATCH` con actividad de otra línea → 400.
-- [ ] `PATCH` a una actividad que ya tiene `quantity` asignaciones activas → 400 `La actividad 'X' admite N personas y ya tiene N asignadas`.
-- [ ] `PATCH` con el mismo `line_activity_id` que ya tiene, en una actividad llena, → 200.
-- [ ] `PATCH` sobre una asignación histórica con `line_activity_id = null` le asigna la actividad.
-- [ ] `DELETE /line-activities/{id}` referenciada por una asignación (activa o retirada) → 400 `No se puede quitar una actividad con personal asignado`; sin referencias → 200.
-- [ ] `PATCH /line-activities/{id}` puede bajar `quantity` por debajo de las asignaciones existentes sin error.
-- [ ] `GET /weekly-plan-tasks/{id}/employees` devuelve `id`, `name`, `code`, `position_id`, `position`, `position_activity`, `line_activity_id`, `activity` (nombre del catálogo) y `unit`, sin N+1.
-- [ ] La tool de IA `GetWeeklyPlanTaskEmployees` devuelve los mismos campos sin error.
-- [ ] `public/openapi.yaml`, `references/weekly-plan-task-employees.md` y `references/line-activities.md` reflejan el cambio.
-- [ ] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
+- [X] `php artisan migrate` agrega `weekly_plan_task_employees.line_activity_id` (FK nullable a `line_activities`, sin cascade); las filas existentes quedan en `null`.
+- [X] `php artisan migrate:rollback` elimina la columna y su FK.
+- [X] `POST …/confirmEmployees` sin `line_activity_id` en algún empleado → 422 `La actividad del empleado es requerida`.
+- [X] `POST …/confirmEmployees` en una tarea sin línea → 400 `La tarea no tiene una línea asignada`.
+- [X] `POST …/confirmEmployees` con posiciones y actividades válidas de la línea y dentro del cupo → 201, filas con `line_activity_id` correcto y la tarea en status `3`.
+- [X] `POST …/confirmEmployees` con un `line_activity_id` inexistente → 400 `La actividad de la línea 'N' no existe`; no inserta nada.
+- [X] `POST …/confirmEmployees` con una `LineActivity` de otra línea → 400 `La actividad 'X' no pertenece a la línea de la tarea`; no inserta nada.
+- [X] Con `RECORTADOR` `quantity: 2` y sin asignados, enviar 3 empleados a esa actividad → 400 con un solo mensaje para `RECORTADOR`; enviar 2 → 201.
+- [X] Con `RECORTADOR` `quantity: 2` y 1 asignación activa en la tarea, enviar 2 más → 400; si esa asignación fue retirada (soft delete), enviar 2 → 201.
+- [X] Un body con posición inexistente, actividad de otra línea y cupo excedido devuelve un único 400 con los tres mensajes.
+- [X] `confirmEmployees` resuelve posiciones, actividades y conteo de asignados con un número fijo de consultas, sin importar cuántos empleados lleguen.
+- [X] `PATCH /weekly-plan-task-employees/{id}` con status `3` o `4` y una actividad de la línea con cupo → 200 `Actividad del Empleado Actualizada Correctamente` y la fila cambia.
+- [X] `PATCH` con la tarea en status distinto de `3` o `4` → 400.
+- [X] `PATCH` con asignación inexistente o retirada → 404 `La asignación no existe`.
+- [X] `PATCH` con `line_activity_id` inexistente → 404 `La actividad de la línea no existe`.
+- [X] `PATCH` con actividad de otra línea → 400.
+- [X] `PATCH` a una actividad que ya tiene `quantity` asignaciones activas → 400 `La actividad 'X' admite N personas y ya tiene N asignadas`.
+- [X] `PATCH` con el mismo `line_activity_id` que ya tiene, en una actividad llena, → 200.
+- [X] `PATCH` sobre una asignación histórica con `line_activity_id = null` le asigna la actividad.
+- [X] `DELETE /line-activities/{id}` referenciada por una asignación (activa o retirada) → 400 `No se puede quitar una actividad con personal asignado`; sin referencias → 200.
+- [X] `PATCH /line-activities/{id}` puede bajar `quantity` por debajo de las asignaciones existentes sin error.
+- [X] `GET /weekly-plan-tasks/{id}/employees` devuelve `id`, `name`, `code`, `position_id`, `position`, `position_activity`, `line_activity_id`, `activity` (nombre del catálogo) y `unit`, sin N+1.
+- [X] La tool de IA `GetWeeklyPlanTaskEmployees` devuelve los mismos campos sin error.
+- [X] `public/openapi.yaml`, `references/weekly-plan-task-employees.md` y `references/line-activities.md` reflejan el cambio.
+- [X] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
 
 ---
 
