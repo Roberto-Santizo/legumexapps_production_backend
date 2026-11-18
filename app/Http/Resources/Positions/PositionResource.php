@@ -15,14 +15,14 @@ class PositionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' =>         $this->id,
-            'code' =>       $this->code,
+            'id' => $this->id,
+            'code' => $this->code,
             'activity_id' => $this->activity_id,
-            'activity' =>   $this->activity?->name,
-            'unit' =>       $this->activity?->unit,
-            'line_id' =>    $this->line_id,
-            'line'=>        $this->line->name,
-            'status' =>     $this->status,
+            'activity' => $this->activity?->name,
+            'unit' => $this->activity?->unit,
+            'line_id' => $this->line_id,
+            'line' => $this->line->name,
+            'status' => $this->status,
         ];
     }
 }
