@@ -21,4 +21,9 @@ class LineActivity extends Model
     {
         return $this->belongsTo(Activity::class);
     }
+
+    public function taskEmployees()
+    {
+        return $this->hasMany(WeeklyPlanTaskEmployee::class);
+    }
 }

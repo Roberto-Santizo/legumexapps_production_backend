@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Enums\CaptureType;
 use App\Models\Line;
+use App\Models\LineActivity;
 use App\Models\LineSku;
+use App\Models\Position;
 use App\Models\RawMaterial;
 use App\Models\Sku;
 use App\Models\WeeklyPlan;
@@ -17,12 +19,12 @@ use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 /**
- * Demo data to exercise the WeeklyPlanTaskAssistant. Takes the lines of the weekly plan tasks already loaded
- * and creates 3–4 tasks per line per week, from two weeks ago up to the current week, with SKUs different from
- * the original ones and varied measures and performances per capture family:
+ * Demo data to exercise the WeeklyPlanTaskAssistant. Takes the lines of the weekly plan tasks already loaded plus
+ * every lot and product line, and creates 3–4 tasks per line per week, from four weeks ago up to the current week
+ * (past days finished), with SKUs different from the original ones and low performances per capture family:
  *  - pallet: weight differentials, mostly negative.
- *  - product: recovery percentages, several below 40%.
- *  - lot: recovery and overripe percentages.
+ *  - product: recovery percentages at or below 50%.
+ *  - lot: recovery percentages at or below 50% with high overripe percentages.
  *
  * Run: php artisan db:seed --class=WeeklyPlanTaskAssistantDemoSeeder
  */
@@ -32,7 +34,13 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
 
     private const RANDOM_SEED = 46;
 
-    private const WEEKS_BACK = 2;
+    private const WEEKS_BACK = 4;
+
+    /**
+     * Upper bound of the recovery percentage of product and lot records, a little under 50% so rounding the pounds
+     * never pushes a record above it.
+     */
+    private const MAX_RECOVERY_PCT = 49.9;
 
     private const USER_ID = 1;
 
@@ -75,16 +83,12 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
             ['label' => 'faltante_critico', 'severity' => 'critical', 'range' => [-4.50, -2.50], 'weight' => 18],
         ],
         'product' => [
-            ['label' => 'recuperacion_critica', 'severity' => 'critical', 'range' => [22.0, 39.5], 'weight' => 30],
-            ['label' => 'recuperacion_baja', 'severity' => 'moderate', 'range' => [40.0, 55.0], 'weight' => 25],
-            ['label' => 'recuperacion_normal', 'severity' => 'ok', 'range' => [55.0, 72.0], 'weight' => 30],
-            ['label' => 'recuperacion_alta', 'severity' => 'ok', 'range' => [72.0, 88.0], 'weight' => 15],
+            ['label' => 'recuperacion_critica', 'severity' => 'critical', 'range' => [20.0, 35.0], 'weight' => 45],
+            ['label' => 'recuperacion_baja', 'severity' => 'moderate', 'range' => [35.0, 47.0], 'weight' => 55],
         ],
         'lot' => [
-            ['label' => 'lote_critico', 'severity' => 'critical', 'range' => [28.0, 45.0], 'secondary' => [12.0, 22.0], 'weight' => 25],
-            ['label' => 'lote_bajo', 'severity' => 'moderate', 'range' => [45.0, 60.0], 'secondary' => [7.0, 12.0], 'weight' => 25],
-            ['label' => 'lote_normal', 'severity' => 'ok', 'range' => [60.0, 75.0], 'secondary' => [3.0, 7.0], 'weight' => 35],
-            ['label' => 'lote_excelente', 'severity' => 'ok', 'range' => [75.0, 88.0], 'secondary' => [0.5, 3.0], 'weight' => 15],
+            ['label' => 'lote_critico', 'severity' => 'critical', 'range' => [24.0, 36.0], 'secondary' => [14.0, 24.0], 'weight' => 45],
+            ['label' => 'lote_bajo', 'severity' => 'moderate', 'range' => [36.0, 47.0], 'secondary' => [8.0, 14.0], 'weight' => 55],
         ],
     ];
 
@@ -129,7 +133,7 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
     private int $employeeSequence = 30000;
 
     /**
-     * @var array<int, list<array{code: string, name: string, position: string}>>
+     * @var array<int, list<array{code: string, name: string, position_id: ?int, line_activity_id: ?int}>>
      */
     private array $crews = [];
 
@@ -155,9 +159,14 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
         mt_srand(self::RANDOM_SEED);
         $this->now = CarbonImmutable::now();
 
-        $baseTasks = WeeklyPlanTask::with('performance.line.lineFields.captureField')->get();
-        $lines = $baseTasks->map(fn (WeeklyPlanTask $task) => $task->performance?->line)->filter()->unique('id')->sortBy('name')->values();
+        $baseTasks = WeeklyPlanTask::with('performance')->get();
+        $baseLineIds = $baseTasks->map(fn (WeeklyPlanTask $task) => $task->performance?->line_id)->filter()->unique()->all();
         $baseLineSkuIds = $baseTasks->pluck('line_sku_id')->unique()->all();
+
+        $lines = Line::with('lineFields.captureField')
+            ->where(fn ($query) => $query->whereIn('id', $baseLineIds)->orWhereIn('capture_type', [CaptureType::Lot, CaptureType::Product]))
+            ->orderBy('name')
+            ->get();
 
         $currentMonday = $this->now->startOfWeek();
         $mondays = collect(range(self::WEEKS_BACK, 0))->map(fn (int $weeksBack) => $currentMonday->subWeeks($weeksBack));
@@ -484,7 +493,7 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
 
         foreach ($shares as $index => $share) {
             $rawLbs = round($rawTotal * $share, 2);
-            $recoveryPct = $this->clamp($profile['value'] + $this->gaussian() * 3, 5, 97);
+            $recoveryPct = $this->clamp($profile['value'] + $this->gaussian() * 2, 5, self::MAX_RECOVERY_PCT);
             $trimmedLbs = round($rawLbs * $recoveryPct / 100, 2);
             $rejectedLbs = round(($rawLbs - $trimmedLbs) * $this->randomFloat(0.35, 0.85), 2);
             $classifiedLbs = round($trimmedLbs + ($rawLbs - $trimmedLbs - $rejectedLbs) * $this->randomFloat(0.3, 0.9), 2);
@@ -529,7 +538,7 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
         foreach ($shares as $index => $share) {
             $appliedRawLbs = round($appliedTotal * $share, 2);
             $intakeLbs = round($appliedRawLbs / (mt_rand(1, 100) <= 40 ? 1 : $this->randomFloat(0.65, 0.98)), 2);
-            $recoveryPct = $this->clamp($profile['value'] + $this->gaussian() * 3, 5, 95);
+            $recoveryPct = $this->clamp($profile['value'] + $this->gaussian() * 2, 5, self::MAX_RECOVERY_PCT);
             $overripePct = $this->clamp($profile['secondary'] + $this->gaussian() * 1.5, 0, 100 - $recoveryPct);
             $trimmedLbs = round($appliedRawLbs * $recoveryPct / 100, 2);
             $overripeLbs = round($appliedRawLbs * $overripePct / 100, 2);
@@ -698,12 +707,16 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
     }
 
     /**
-     * A stable crew of 4–7 employees per line, positions following the line code (e.g. 2REM5A001).
+     * A stable crew of 4–7 employees per line, each one in a distinct active position of the line (null when the line
+     * has none) and, when the line has activities, in one of them.
      *
-     * @return list<array{code: string, name: string, position: string}>
+     * @return list<array{code: string, name: string, position_id: ?int, line_activity_id: ?int}>
      */
     private function buildCrew(Line $line): array
     {
+        $positionIds = Position::where('line_id', $line->id)->where('status', true)->orderBy('id')->pluck('id')->all();
+        $lineActivityIds = LineActivity::where('line_id', $line->id)->orderBy('id')->pluck('id')->all();
+
         return array_map(fn (int $seat) => [
             'code' => 'LEG'.str_pad((string) $this->employeeSequence++, 5, '0', STR_PAD_LEFT),
             'name' => implode(' ', [
@@ -711,8 +724,9 @@ class WeeklyPlanTaskAssistantDemoSeeder extends Seeder
                 self::LAST_NAMES[mt_rand(0, count(self::LAST_NAMES) - 1)],
                 self::LAST_NAMES[mt_rand(0, count(self::LAST_NAMES) - 1)],
             ]),
-            'position' => $line->code.str_pad((string) $seat, 3, '0', STR_PAD_LEFT),
-        ], range(1, mt_rand(4, 7)));
+            'position_id' => $positionIds[$seat] ?? null,
+            'line_activity_id' => $lineActivityIds === [] ? null : $lineActivityIds[mt_rand(0, count($lineActivityIds) - 1)],
+        ], range(0, mt_rand(4, 7) - 1));
     }
 
     /**

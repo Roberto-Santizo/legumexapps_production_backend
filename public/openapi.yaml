@@ -1053,6 +1053,8 @@ paths:
       summary: Editar la cantidad de un cupo de la línea
       description: |
         Solo cambia `quantity`. Para cambiar de actividad se quita y se asigna otra.
+        Se permite bajar `quantity` por debajo de las personas ya asignadas en tareas; el cupo se valida
+        al confirmar o editar personal, no retroactivamente.
 
         Errores `404`: `La actividad de la línea no existe`.
       requestBody:
@@ -1072,9 +1074,13 @@ paths:
       description: |
         La actividad sigue en el catálogo.
 
+        Errores `400`: `No se puede quitar una actividad con personal asignado` (alguna asignación de
+        `weekly_plan_task_employees`, activa o retirada, apunta al cupo).
+
         Errores `404`: `La actividad de la línea no existe`.
       responses:
         '200': { $ref: '#/components/responses/NullData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -2708,14 +2714,25 @@ paths:
       summary: Confirmar asignación de personal de la tarea
       description: |
         Registra en `weekly_plan_task_employees` una fila por cada empleado enviado
-        (`code`, `name`, `position`), tomados normalmente de `GET /weekly-plan-tasks/{id}/availableEmployees`.
+        (`code`, `name`, `position`, `line_activity_id`), tomados normalmente de
+        `GET /weekly-plan-tasks/{id}/availableEmployees` y `GET /lines/{code}/activities`.
 
-        `position` es el **código** de una posición (`positions.code`). El backend resuelve todos los
-        códigos en una sola consulta y guarda la FK `position_id`. Si algún código no existe responde
-        `400` con un mensaje por código (`La posición 'X' no existe`, separados por salto de línea) y
-        no inserta nada ni cambia el status.
+        `position` es el **código** de una posición (`positions.code`); el backend guarda la FK `position_id`.
+        `line_activity_id` es el id del cupo de la **línea de la tarea** (`line_activities`) que cubre el empleado.
 
-        Si todos existen, inserta las filas y pasa la tarea a status `3` en una transacción.
+        Validaciones (posiciones, actividades y conteo de asignados se resuelven con un número fijo de consultas):
+
+        - Tarea sin línea → `400` `La tarea no tiene una línea asignada`.
+        - Por empleado: `La posición 'X' no existe`, `La actividad de la línea 'N' no existe`,
+          `La actividad 'X' no pertenece a la línea de la tarea`.
+        - Por actividad: asignaciones activas de la tarea + enviadas no pueden superar `quantity` →
+          `La actividad 'X' admite N personas; ya hay A asignadas y se enviaron S`. Las asignaciones
+          retiradas no cuentan.
+
+        Todos los errores se acumulan en un único `400` (separados por salto de línea) y no se inserta
+        nada ni cambia el status.
+
+        Si todo es válido, inserta las filas y pasa la tarea a status `3` en una transacción.
         No valida status de la tarea, personal previamente asignado ni que la posición pertenezca a la línea de la tarea.
       parameters:
         - $ref: '#/components/parameters/Id'
@@ -2730,18 +2747,20 @@ paths:
                 employees:
                   type: array
                   minItems: 1
-                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista.
+                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista; `line_activity_id` sí.
                   items:
                     type: object
-                    required: [code, name, position]
+                    required: [code, name, position, line_activity_id]
                     properties:
                       code: { type: string, description: Código del empleado (biométrico) }
                       name: { type: string, description: Nombre completo }
                       position: { type: string, description: Código de la posición (`positions.code`); debe existir }
+                      line_activity_id: { type: integer, description: ID del cupo (`line_activities`) de la línea de la tarea que cubre el empleado }
             example:
               employees:
-                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001' }
-                - { code: 'E0002', name: 'María López', position: '1PIQ1A002' }
+                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001', line_activity_id: 4 }
+                - { code: 'E0002', name: 'María López', position: '1PIQ1A002', line_activity_id: 4 }
+                - { code: 'E0003', name: 'Pedro Gómez', position: '1PIQ1A011', line_activity_id: 5 }
       responses:
         '201':
           description: Personal Asignado Correctamente (`data` = null)
@@ -2753,25 +2772,65 @@ paths:
                   - properties:
                       data: { type: 'null' }
         '400':
-          description: Uno o más códigos de posición no existen (mensajes acumulados, uno por línea)
+          description: |
+            Tarea sin línea, o errores de posición, actividad o cupo (mensajes acumulados, uno por línea)
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ApiError' }
               example:
                 statusCode: 400
-                message: "La posición 'X1' no existe\nLa posición 'X2' no existe"
+                message: "La posición 'X1' no existe\nLa actividad 'EMPACADOR' no pertenece a la línea de la tarea\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
   /weekly-plan-task-employees/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
+    patch:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Cambiar la actividad de una asignación
+      description: |
+        Cambia `line_activity_id` de la asignación. Solo con la tarea en status `3` o `4`.
+        Sirve también para asignar actividad a asignaciones históricas con `line_activity_id = null`.
+
+        - `404` `La asignación no existe` (inexistente o retirada).
+        - `400` `Solo se puede modificar el personal de una tarea lista para ejecución o en progreso`.
+        - `400` `La tarea no tiene una línea asignada`.
+        - `404` `La actividad de la línea no existe`.
+        - `400` `La actividad 'X' no pertenece a la línea de la tarea`.
+        - `400` `La actividad 'X' admite N personas y ya tiene N asignadas` (cuenta asignaciones activas
+          de la tarea con esa actividad, sin contar esta; enviar la misma actividad que ya tiene es válido).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [line_activity_id]
+              properties:
+                line_activity_id: { type: integer, description: ID del cupo (`line_activities`) de la línea de la tarea }
+            example: { line_activity_id: 5 }
+      responses:
+        '200':
+          description: Actividad del Empleado Actualizada Correctamente (`data` = null)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: 'null' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
     delete:
       tags: [WeeklyPlanTaskEmployees]
       summary: Retirar empleado de la tarea
       description: La tarea debe conservar al menos un empleado.
-      parameters:
-        - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
       responses:
         '200': { $ref: '#/components/responses/NullData' }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -4247,7 +4306,10 @@ components:
         code: { type: string }
         position_id: { type: [integer, 'null'], description: FK a `positions`; null solo en filas históricas sin posición coincidente }
         position: { type: [string, 'null'], description: Código de la posición (`positions.code`) }
-        activity: { type: [string, 'null'], description: Actividad de la posición (`positions.activity`) }
+        position_activity: { type: [string, 'null'], description: 'Actividad de la posición (`positions.activity`), texto libre del biométrico' }
+        line_activity_id: { type: [integer, 'null'], description: 'FK a `line_activities` (cupo de la línea que cubre el empleado); null en asignaciones anteriores a SPEC 16' }
+        activity: { type: [string, 'null'], description: 'Nombre de la actividad del catálogo (`activities.name`). Antes de SPEC 16 era `positions.activity`, hoy en `position_activity`' }
+        unit: { type: [string, 'null'], description: Unidad de la actividad (`activities.unit`) }
     WeeklyPlanTaskObservation:
       type: object
       properties:

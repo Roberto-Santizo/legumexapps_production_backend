@@ -50,3 +50,7 @@ Borra todas las tablas, migra y ejecuta los seeders:
 ```bash
 php artisan migrate:fresh --seed
 ```
+
+```bash
+php artisan db:seed --class=WeeklyPlanTaskAssistantDemoSeeder
+```
