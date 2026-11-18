@@ -6,7 +6,9 @@ use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Imports\PositionsImport;
 use App\Interfaces\Positions\PositionsServiceInterface;
+use App\Models\Activity;
 use App\Models\Line;
+use App\Models\LineActivity;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,8 @@ class PositionsService implements PositionsServiceInterface
     #[Override]
     public function createPosition(array $data)
     {
+        $this->ensureActivityAssignedToLine($data['line_id'], $data['activity_id']);
+
         $position = Position::create($data);
 
         return $position;
@@ -70,9 +74,31 @@ class PositionsService implements PositionsServiceInterface
     public function updatePositionById(array $data, string $id)
     {
         $position = $this->getPositionById($id);
+        $this->ensureActivityAssignedToLine($data['line_id'], $data['activity_id']);
         $position->update($data);
 
         return true;
+    }
+
+    /**
+     * A position's activity must be assigned to its line in line_activities.
+     *
+     * @throws BadRequestError
+     */
+    private function ensureActivityAssignedToLine(int $lineId, int $activityId): void
+    {
+        $isAssigned = LineActivity::where('line_id', $lineId)
+            ->where('activity_id', $activityId)
+            ->exists();
+
+        if ($isAssigned) {
+            return;
+        }
+
+        $activityName = Activity::whereKey($activityId)->value('name');
+        $lineCode = Line::whereKey($lineId)->value('code');
+
+        throw new BadRequestError("La actividad '{$activityName}' no está asignada a la línea '{$lineCode}'");
     }
 
     #[Override]
