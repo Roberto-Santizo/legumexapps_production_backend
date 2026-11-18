@@ -31,6 +31,10 @@ class ActivitiesService implements ActivitiesServiceInterface
             $query->where('name', 'LIKE', '%'.mb_strtoupper($request->query('name')).'%');
         }
 
+        if ($request->filled('line_id')) {
+            $query->whereHas('lineActivities', fn ($q) => $q->where('line_id', $request->query('line_id')));
+        }
+
         $query->orderBy('name');
 
         if ($limit) {
