@@ -30,7 +30,7 @@ class PositionsService implements PositionsServiceInterface
     #[Override]
     public function getPositions(?string $limit, Request $request)
     {
-        $query = Position::query();
+        $query = Position::query()->with(['line', 'activity']);
 
         if ($request->query('lineCode')) {
             $query->whereHas('line', function ($p0) use ($request) {
@@ -49,7 +49,7 @@ class PositionsService implements PositionsServiceInterface
         }
 
         if ($request->query('activity')) {
-            $query->where('activity', 'LIKE', '%'.$request->query('activity').'%');
+            $query->whereHas('activity', fn ($q) => $q->where('name', 'LIKE', '%'.mb_strtoupper($request->query('activity')).'%'));
         }
 
         if ($limit) {
