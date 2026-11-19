@@ -59,6 +59,12 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         $lineActivityIds = array_map('intval', array_column($data['employees'], 'line_activity_id'));
         $lineActivities = LineActivity::with('activity')->whereIn('id', array_unique($lineActivityIds))->get()->keyBy('id');
         $assignedCounts = $this->getAssignedCounts($task, $lineActivities->keys());
+        $firtPosition = $line->positions()->first();
+
+
+        if ($line->is_wildcard && !$firtPosition) {
+            throw new BadRequestError("La línea debería de tener por lo menos una posición");
+        }
 
         $errors = [];
         $bulkData = [];
@@ -70,16 +76,13 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
             $lineActivity = $lineActivities->get($lineActivityId);
             $hasErrors = false;
 
-            if (! $position) {
+            if (!$line->is_wildcard && ! $position) {
                 $errors[] = "La posición '{$employee['position']}' no existe";
                 $hasErrors = true;
             }
 
             if (! $lineActivity) {
                 $errors[] = "La actividad de la línea '{$lineActivityId}' no existe";
-                $hasErrors = true;
-            } elseif ($lineActivity->line_id !== $line->id) {
-                $errors[] = "La actividad '{$lineActivity->activity->name}' no pertenece a la línea de la tarea";
                 $hasErrors = true;
             }
 
@@ -91,14 +94,14 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
                 'weekly_plan_task_id' => $task->id,
                 'code' => $employee['code'],
                 'name' => $employee['name'],
-                'position_id' => $position->id,
+                'position_id' => $line->is_wildcard ? $firtPosition->id : $position->id,
                 'line_activity_id' => $lineActivity->id,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
         }
 
-        $lineActivitiesOfTaskLine = $lineActivities->filter(fn (LineActivity $lineActivity) => $lineActivity->line_id === $line->id);
+        $lineActivitiesOfTaskLine = $lineActivities->filter(fn(LineActivity $lineActivity) => $lineActivity->line_id === $line->id);
         array_push($errors, ...$this->collectQuotaErrors($lineActivitiesOfTaskLine, array_count_values($lineActivityIds), $assignedCounts));
 
         if (! empty($errors)) {
@@ -121,6 +124,10 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
         $line = $this->getTaskLine($task);
+
+         if ($line->is_wildcard) {
+            throw new BadRequestError("La línea es de comodines, no se puede confirmar por posición");
+        }
 
         $codes = array_column($data['employees'], 'position');
         $positions = Position::with('activity')->whereIn('code', $codes)->get()->keyBy('code');
