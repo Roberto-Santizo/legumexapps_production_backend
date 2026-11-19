@@ -6,7 +6,7 @@ use App\Enums\CaptureType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['name', 'code', 'shift', 'capture_type', 'is_wildcard'])]
+#[Fillable(['name', 'code', 'shift', 'capture_type', 'is_wildcard', 'supervisor_code'])]
 class Line extends Model
 {
     protected $casts = [

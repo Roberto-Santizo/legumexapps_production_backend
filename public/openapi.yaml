@@ -3995,6 +3995,7 @@ components:
         shift: { type: integer }
         capture_type: { $ref: '#/components/schemas/CaptureType' }
         is_wildcard: { type: boolean, description: 'Línea de comodines' }
+        supervisor_code: { type: string, nullable: true, description: 'Código del supervisor (puede repetirse entre líneas)' }
         activities: { type: integer, description: 'Suma de `quantity` de las actividades asignadas a la línea (`line_activities`)' }
         positions: { type: integer, description: 'Cantidad de posiciones de la línea' }
     LineInput:
@@ -4009,6 +4010,7 @@ components:
             - $ref: '#/components/schemas/CaptureType'
           description: 'Opcional. Al crear, si no se envía queda `pallet`. No se puede cambiar si la línea tiene campos configurados.'
         is_wildcard: { type: boolean, description: 'Opcional. Marca la línea como línea de comodines. Default `false`.' }
+        supervisor_code: { type: string, nullable: true, description: 'Opcional. Código del supervisor (no único).' }
     Position:
       type: object
       properties:
