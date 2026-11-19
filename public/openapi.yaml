@@ -2819,6 +2819,79 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  /weekly-plan-tasks/{id}/confirmEmployeesByPosition:
+    post:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Confirmar asignación de personal resolviendo la actividad desde la posición
+      description: |
+        Igual que `POST /weekly-plan-tasks/{id}/confirmEmployees`, pero **sin** `line_activity_id` en el body.
+        El backend busca cada `position` por `positions.code`, toma su `activity_id` y resuelve el cupo
+        (`line_activities`) con `line_id` = **línea de la tarea** y `activity_id` = actividad de la posición.
+
+        Validaciones (posiciones, cupos y conteo de asignados se resuelven con un número fijo de consultas):
+
+        - Tarea sin línea → `400` `La tarea no tiene una línea asignada`.
+        - Por empleado: `La posición 'X' no existe`, `La posición 'X' no tiene una actividad asignada`,
+          `La actividad 'Y' de la posición 'X' no está asignada a la línea de la tarea`.
+        - Por actividad: asignaciones activas de la tarea + enviadas no pueden superar `quantity` →
+          `La actividad 'X' admite N personas; ya hay A asignadas y se enviaron S`.
+
+        Todos los errores se acumulan en un único `400` (separados por salto de línea) y no se inserta
+        nada ni cambia el status.
+
+        Todo o nada: si todo es válido, inserta todas las filas y pasa la tarea a status `3` en una única
+        transacción; cualquier fallo revierte todo.
+        No valida status de la tarea, personal previamente asignado ni que `positions.line_id` sea la línea de la tarea.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [employees]
+              properties:
+                employees:
+                  type: array
+                  minItems: 1
+                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista.
+                  items:
+                    type: object
+                    required: [code, name, position]
+                    properties:
+                      code: { type: string, description: Código del empleado (biométrico) }
+                      name: { type: string, description: Nombre completo }
+                      position: { type: string, description: Código de la posición (`positions.code`); debe existir y tener actividad asignada a la línea de la tarea }
+            example:
+              employees:
+                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001' }
+                - { code: 'E0002', name: 'María López', position: '1PIQ1A002' }
+                - { code: 'E0003', name: 'Pedro Gómez', position: '1PIQ1A011' }
+      responses:
+        '201':
+          description: Personal Asignado Correctamente (`data` = null)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: 'null' }
+        '400':
+          description: |
+            Tarea sin línea, o errores de posición, actividad o cupo (mensajes acumulados, uno por línea)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+              example:
+                statusCode: 400
+                message: "La posición 'X1' no existe\nLa posición '1PIQ1A009' no tiene una actividad asignada\nLa actividad 'EMPACADOR' de la posición '1PIQ1A005' no está asignada a la línea de la tarea\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   /weekly-plan-task-employees/{id}:
     parameters:
       - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
@@ -3920,6 +3993,8 @@ components:
         code: { type: string }
         shift: { type: integer }
         capture_type: { $ref: '#/components/schemas/CaptureType' }
+        activities: { type: integer, description: 'Suma de `quantity` de las actividades asignadas a la línea (`line_activities`)' }
+        positions: { type: integer, description: 'Cantidad de posiciones de la línea' }
     LineInput:
       type: object
       required: [name, code, shift]

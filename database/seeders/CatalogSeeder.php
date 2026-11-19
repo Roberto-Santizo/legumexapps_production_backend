@@ -22,7 +22,10 @@ class CatalogSeeder extends Seeder
         'sku_raw_materials',
         'sku_packing_materials',
         'lines',
+        'line_dependencies',
         'line_stock_keeping_units',
+        'activities',
+        'line_activities',
         'positions',
     ];
 
@@ -51,7 +54,7 @@ class CatalogSeeder extends Seeder
         $now = now();
 
         $rows = array_map(
-            fn (array $row): array => [...$this->withoutDroppedColumns($table, $row), 'created_at' => $now, 'updated_at' => $now],
+            fn (array $row): array => [...$row, 'created_at' => $now, 'updated_at' => $now],
             $this->rows($table)
         );
 
@@ -68,21 +71,6 @@ class CatalogSeeder extends Seeder
         if (DB::getDriverName() === 'pgsql') {
             DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), (SELECT MAX(id) FROM {$table}))");
         }
-    }
-
-    /**
-     * Drop JSON keys whose columns no longer exist (positions.activity was replaced by activity_id).
-     *
-     * @param  array<string, mixed>  $row
-     * @return array<string, mixed>
-     */
-    private function withoutDroppedColumns(string $table, array $row): array
-    {
-        if ($table === 'positions') {
-            unset($row['activity']);
-        }
-
-        return $row;
     }
 
     /**

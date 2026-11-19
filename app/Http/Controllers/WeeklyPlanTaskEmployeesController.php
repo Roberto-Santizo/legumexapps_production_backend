@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHandler;
+use App\Http\Requests\WeeklyPlanTaskEmployees\ConfirmWeeklyPlanTaskEmployeesByPositionRequest;
 use App\Http\Requests\WeeklyPlanTaskEmployees\ConfirmWeeklyPlanTaskEmployeesRequest;
 use App\Http\Requests\WeeklyPlanTaskEmployees\UpdateWeeklyPlanTaskEmployeeActivityRequest;
 use App\Http\Resources\BiometricQueries\BiometricLineEmployeeResource;
@@ -38,6 +39,18 @@ class WeeklyPlanTaskEmployeesController extends Controller
         try {
             $data = $request->validated();
             $result = $service->confirmEmployees($id, $data);
+
+            return ResponseHandler::success($result, 'Personal Asignado Correctamente', 201);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function confirmEmployeesByPosition(ConfirmWeeklyPlanTaskEmployeesByPositionRequest $request, string $id, WeeklyPlanTaskEmployeesServiceInterface $service)
+    {
+        try {
+            $data = $request->validated();
+            $result = $service->confirmEmployeesByPosition($id, $data);
 
             return ResponseHandler::success($result, 'Personal Asignado Correctamente', 201);
         } catch (\Throwable $th) {

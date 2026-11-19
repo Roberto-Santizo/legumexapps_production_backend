@@ -1,0 +1,74 @@
+[
+    {
+        "id": 2,
+        "line_id": 11,
+        "activity_id": 1,
+        "quantity": 2
+    },
+    {
+        "id": 3,
+        "line_id": 11,
+        "activity_id": 3,
+        "quantity": 8
+    },
+    {
+        "id": 4,
+        "line_id": 11,
+        "activity_id": 4,
+        "quantity": 8
+    },
+    {
+        "id": 5,
+        "line_id": 11,
+        "activity_id": 5,
+        "quantity": 4
+    },
+    {
+        "id": 6,
+        "line_id": 11,
+        "activity_id": 6,
+        "quantity": 1
+    },
+    {
+        "id": 7,
+        "line_id": 11,
+        "activity_id": 8,
+        "quantity": 5
+    },
+    {
+        "id": 9,
+        "line_id": 11,
+        "activity_id": 9,
+        "quantity": 2
+    },
+    {
+        "id": 10,
+        "line_id": 11,
+        "activity_id": 10,
+        "quantity": 1
+    },
+    {
+        "id": 11,
+        "line_id": 11,
+        "activity_id": 11,
+        "quantity": 1
+    },
+    {
+        "id": 12,
+        "line_id": 11,
+        "activity_id": 12,
+        "quantity": 1
+    },
+    {
+        "id": 13,
+        "line_id": 11,
+        "activity_id": 13,
+        "quantity": 1
+    },
+    {
+        "id": 14,
+        "line_id": 11,
+        "activity_id": 14,
+        "quantity": 2
+    }
+]
