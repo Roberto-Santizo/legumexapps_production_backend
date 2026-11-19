@@ -20,6 +20,8 @@ class LineResource extends JsonResource
             'code' => $this->code,
             'shift' => $this->shift,
             'capture_type' => $this->capture_type,
+            'activities' => $this->lineActivities->sum('quantity'),
+            'positions' => $this->positions->count()
         ];
     }
 }
