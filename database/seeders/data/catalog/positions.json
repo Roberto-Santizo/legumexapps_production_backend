@@ -1,282 +1,254 @@
 [
     {
         "id": 1,
-        "code": "1PIQ1A001",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A001",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 12
     },
     {
         "id": 2,
-        "code": "1PIQ1A002",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A002",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 13
     },
     {
         "id": 3,
-        "code": "1PIQ1A003",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A003",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 1
     },
     {
         "id": 4,
-        "code": "1PIQ1A004",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A004",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 1
     },
     {
         "id": 5,
-        "code": "1PIQ1A005",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
-    },
-    {
-        "id": 6,
-        "code": "1PIQ1A006",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A005",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 7,
-        "code": "1PIQ1A007",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A006",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 8,
-        "code": "1PIQ1A008",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A007",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 9,
-        "code": "1PIQ1A009",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A008",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 10,
-        "code": "1PIQ1A010",
-        "activity": "RECORTADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A009",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 11,
-        "code": "1EMEMA001",
-        "activity": "EMBOTALLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A010",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 12,
-        "code": "1EMEMA002",
-        "activity": "EMBOTELLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A011",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 13,
-        "code": "1EMEMA003",
-        "activity": "EMBOTELLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A012",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 3
     },
     {
         "id": 14,
-        "code": "1EMEMA004",
-        "activity": "EMBOTELLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A013",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 15,
-        "code": "1EMEMA005",
-        "activity": "EMBOTELLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A014",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 16,
-        "code": "1EMEMA006",
-        "activity": "EMBOTELLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A015",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 17,
-        "code": "1EMEMA007",
-        "activity": "EMBOTELLADOR",
-        "line_id": 1,
-        "status": true
+        "code": "2REM5A016",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 18,
-        "code": "1EMEMA008",
-        "activity": "EMBOTELLADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A017",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 19,
-        "code": "1EMEMA009",
-        "activity": "EMBOTELLADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A018",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 20,
-        "code": "1EMEMA010",
-        "activity": "EMBOTELLADOR",
-        "line_id": 3,
-        "status": true
+        "code": "2REM5A019",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 21,
-        "code": "2EMPAA001",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A020",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 4
     },
     {
         "id": 22,
-        "code": "2EMPAA002",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A021",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 8
     },
     {
         "id": 23,
-        "code": "2EMPAA003",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A022",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 8
     },
     {
         "id": 24,
-        "code": "2EMPAA004",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A023",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 8
     },
     {
         "id": 25,
-        "code": "2EMPAA005",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A024",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 8
     },
     {
         "id": 26,
-        "code": "2EMPAA006",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A025",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 8
     },
     {
         "id": 27,
-        "code": "2EMPAA007",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A026",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 10
     },
     {
         "id": 28,
-        "code": "2EMPAA008",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A027",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 9
     },
     {
         "id": 29,
-        "code": "2EMPAA009",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A028",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 9
     },
     {
         "id": 30,
-        "code": "2EMPAA010",
-        "activity": "EMPACADOR",
-        "line_id": 7,
-        "status": true
+        "code": "2REM5A029",
+        "line_id": 11,
+        "status": true,
+        "activity_id": 5
     },
     {
         "id": 31,
-        "code": "2REM5A001",
-        "activity": "CANASTERO",
+        "code": "2REM5A030",
         "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 5
     },
     {
         "id": 32,
-        "code": "2REM5A002",
-        "activity": "CANASTERO",
+        "code": "2REM5A031",
         "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 5
     },
     {
         "id": 33,
-        "code": "2REM5A003",
-        "activity": "CANASTERO",
+        "code": "2REM5A032",
         "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 5
     },
     {
         "id": 34,
-        "code": "2REM5A004",
-        "activity": "CANASTERO",
+        "code": "2REM5A033",
         "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 6
     },
     {
         "id": 35,
-        "code": "2REM5A005",
-        "activity": "CANASTERO",
+        "code": "2REM5A034",
         "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 11
     },
     {
         "id": 36,
-        "code": "2REM5A006",
-        "activity": "CANASTERO",
+        "code": "2REM5A035",
         "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 14
     },
     {
         "id": 37,
-        "code": "2REM5A007",
-        "activity": "CANASTERO",
+        "code": "2REM5A036",
         "line_id": 11,
-        "status": true
-    },
-    {
-        "id": 38,
-        "code": "2REM5A008",
-        "activity": "CANASTERO",
-        "line_id": 11,
-        "status": true
-    },
-    {
-        "id": 39,
-        "code": "2REM5A009",
-        "activity": "CANASTERO",
-        "line_id": 11,
-        "status": true
-    },
-    {
-        "id": 40,
-        "code": "2REM5A010",
-        "activity": "CANASTERO",
-        "line_id": 11,
-        "status": true
+        "status": true,
+        "activity_id": 14
     }
 ]

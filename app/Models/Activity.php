@@ -12,4 +12,9 @@ class Activity extends Model
     {
         return $this->hasMany(LineActivity::class);
     }
+
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
+    }
 }

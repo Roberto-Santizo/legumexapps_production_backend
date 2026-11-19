@@ -22,7 +22,10 @@ class CatalogSeeder extends Seeder
         'sku_raw_materials',
         'sku_packing_materials',
         'lines',
+        'line_dependencies',
         'line_stock_keeping_units',
+        'activities',
+        'line_activities',
         'positions',
     ];
 

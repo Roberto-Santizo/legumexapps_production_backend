@@ -13,6 +13,7 @@ use App\Models\LineActivity;
 use App\Models\Position;
 use App\Models\WeeklyPlanTask;
 use App\Models\WeeklyPlanTaskEmployee;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Override;
 
@@ -41,7 +42,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     public function getTaskEmployees(string $taskId)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
-        $employees = $task->employees()->with(['position', 'lineActivity.activity'])->get();
+        $employees = $task->employees()->with(['position.activity', 'lineActivity.activity'])->get();
 
         return $employees;
     }
@@ -57,11 +58,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
 
         $lineActivityIds = array_map('intval', array_column($data['employees'], 'line_activity_id'));
         $lineActivities = LineActivity::with('activity')->whereIn('id', array_unique($lineActivityIds))->get()->keyBy('id');
-        $assignedCounts = $task->employees()
-            ->whereIn('line_activity_id', $lineActivities->keys())
-            ->selectRaw('line_activity_id, count(*) as total')
-            ->groupBy('line_activity_id')
-            ->pluck('total', 'line_activity_id');
+        $assignedCounts = $this->getAssignedCounts($task, $lineActivities->keys());
 
         $errors = [];
         $bulkData = [];
@@ -101,29 +98,90 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
             ];
         }
 
-        foreach (array_count_values($lineActivityIds) as $lineActivityId => $sentCount) {
-            $lineActivity = $lineActivities->get($lineActivityId);
-
-            if (! $lineActivity || $lineActivity->line_id !== $line->id) {
-                continue;
-            }
-
-            $assignedCount = (int) $assignedCounts->get($lineActivityId, 0);
-
-            if ($assignedCount + $sentCount > $lineActivity->quantity) {
-                $errors[] = "La actividad '{$lineActivity->activity->name}' admite {$lineActivity->quantity} personas; ya hay {$assignedCount} asignadas y se enviaron {$sentCount}";
-            }
-        }
+        $lineActivitiesOfTaskLine = $lineActivities->filter(fn (LineActivity $lineActivity) => $lineActivity->line_id === $line->id);
+        array_push($errors, ...$this->collectQuotaErrors($lineActivitiesOfTaskLine, array_count_values($lineActivityIds), $assignedCounts));
 
         if (! empty($errors)) {
             throw new BadRequestError(implode(PHP_EOL, $errors));
         }
 
-        DB::transaction(function () use ($task, $bulkData) {
-            WeeklyPlanTaskEmployee::insert($bulkData);
-            $task->status = 3;
-            $task->save();
-        });
+        $this->storeAssignments($task, $bulkData);
+
+        return null;
+    }
+
+    /**
+     * Same as confirmEmployees, but each employee's line activity is resolved from
+     * the task line and the activity of the position found by its code.
+     *
+     * @param  array{employees: array<int, array{code: string, name: string, position: string}>}  $data
+     */
+    #[Override]
+    public function confirmEmployeesByPosition(string $taskId, array $data)
+    {
+        $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
+        $line = $this->getTaskLine($task);
+
+        $codes = array_column($data['employees'], 'position');
+        $positions = Position::with('activity')->whereIn('code', $codes)->get()->keyBy('code');
+
+        $activityIds = $positions->pluck('activity_id')->filter()->unique()->values();
+        $lineActivities = LineActivity::with('activity')
+            ->where('line_id', $line->id)
+            ->whereIn('activity_id', $activityIds)
+            ->get()
+            ->keyBy('activity_id');
+
+        $errors = [];
+        $bulkData = [];
+        $sentCounts = [];
+        $now = now();
+
+        foreach ($data['employees'] as $employee) {
+            $position = $positions->get($employee['position']);
+
+            if (! $position) {
+                $errors[] = "La posición '{$employee['position']}' no existe";
+
+                continue;
+            }
+
+            if (! $position->activity_id) {
+                $errors[] = "La posición '{$position->code}' no tiene una actividad asignada";
+
+                continue;
+            }
+
+            $lineActivity = $lineActivities->get($position->activity_id);
+
+            if (! $lineActivity) {
+                $errors[] = "La actividad '{$position->activity?->name}' de la posición '{$position->code}' no está asignada a la línea de la tarea";
+
+                continue;
+            }
+
+            $sentCounts[$lineActivity->id] = ($sentCounts[$lineActivity->id] ?? 0) + 1;
+
+            $bulkData[] = [
+                'weekly_plan_task_id' => $task->id,
+                'code' => $employee['code'],
+                'name' => $employee['name'],
+                'position_id' => $position->id,
+                'line_activity_id' => $lineActivity->id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        $lineActivitiesById = $lineActivities->keyBy('id');
+        $assignedCounts = $this->getAssignedCounts($task, $lineActivitiesById->keys());
+        array_push($errors, ...$this->collectQuotaErrors($lineActivitiesById, $sentCounts, $assignedCounts));
+
+        if (! empty($errors)) {
+            throw new BadRequestError(implode(PHP_EOL, $errors));
+        }
+
+        $this->storeAssignments($task, $bulkData);
 
         return null;
     }
@@ -174,6 +232,64 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         $assignment->update(['line_activity_id' => $lineActivity->id]);
 
         return null;
+    }
+
+    /**
+     * Active assignments of the task per line activity.
+     *
+     * @param  Collection<int, int>  $lineActivityIds
+     * @return Collection<int, int>
+     */
+    private function getAssignedCounts(WeeklyPlanTask $task, Collection $lineActivityIds): Collection
+    {
+        return $task->employees()
+            ->whereIn('line_activity_id', $lineActivityIds)
+            ->selectRaw('line_activity_id, count(*) as total')
+            ->groupBy('line_activity_id')
+            ->pluck('total', 'line_activity_id');
+    }
+
+    /**
+     * Quota errors for line activities whose assigned plus sent employees exceed their quantity.
+     *
+     * @param  Collection<int, LineActivity>  $lineActivities  keyed by id
+     * @param  array<int, int>  $sentCounts  line_activity_id => employees sent
+     * @param  Collection<int, int>  $assignedCounts  line_activity_id => employees already assigned
+     * @return list<string>
+     */
+    private function collectQuotaErrors(Collection $lineActivities, array $sentCounts, Collection $assignedCounts): array
+    {
+        $errors = [];
+
+        foreach ($sentCounts as $lineActivityId => $sentCount) {
+            $lineActivity = $lineActivities->get($lineActivityId);
+
+            if (! $lineActivity) {
+                continue;
+            }
+
+            $assignedCount = (int) $assignedCounts->get($lineActivityId, 0);
+
+            if ($assignedCount + $sentCount > $lineActivity->quantity) {
+                $errors[] = "La actividad '{$lineActivity->activity->name}' admite {$lineActivity->quantity} personas; ya hay {$assignedCount} asignadas y se enviaron {$sentCount}";
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Inserts every assignment and moves the task to status 3 atomically: all rows or none.
+     *
+     * @param  list<array<string, mixed>>  $bulkData
+     */
+    private function storeAssignments(WeeklyPlanTask $task, array $bulkData): void
+    {
+        DB::transaction(function () use ($task, $bulkData) {
+            WeeklyPlanTaskEmployee::insert($bulkData);
+            $task->status = 3;
+            $task->save();
+        });
     }
 
     /**

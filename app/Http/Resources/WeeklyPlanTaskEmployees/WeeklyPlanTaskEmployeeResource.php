@@ -20,7 +20,7 @@ class WeeklyPlanTaskEmployeeResource extends JsonResource
             'code' => $this->code,
             'position_id' => $this->position_id,
             'position' => $this->position?->code,
-            'position_activity' => $this->position?->activity,
+            'position_activity' => $this->position?->activity?->name,
             'line_activity_id' => $this->line_activity_id,
             'activity' => $this->lineActivity?->activity?->name,
             'unit' => $this->lineActivity?->activity?->unit,

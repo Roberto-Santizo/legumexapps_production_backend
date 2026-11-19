@@ -1,0 +1,67 @@
+[
+    {
+        "id": 1,
+        "name": "ABASTECEDOR",
+        "unit": "LBS/H"
+    },
+    {
+        "id": 3,
+        "name": "LLENADOR",
+        "unit": "LBS/H"
+    },
+    {
+        "id": 4,
+        "name": "PESADOR",
+        "unit": "LBS/H"
+    },
+    {
+        "id": 5,
+        "name": "SELLADOR",
+        "unit": "CAJAS/H"
+    },
+    {
+        "id": 6,
+        "name": "FLEJADOR",
+        "unit": "CAJAS/H"
+    },
+    {
+        "id": 7,
+        "name": "ACOMODADOR",
+        "unit": "CAJAS/H"
+    },
+    {
+        "id": 8,
+        "name": "LLENADOR DE CAJA",
+        "unit": "LBS/H"
+    },
+    {
+        "id": 9,
+        "name": "ARMADO CAJAS",
+        "unit": "CAJAS/H"
+    },
+    {
+        "id": 10,
+        "name": "SELLADOR DE CAJAS",
+        "unit": "CAJAS/H"
+    },
+    {
+        "id": 11,
+        "name": "PALLETIZADO",
+        "unit": "PALLETS/H"
+    },
+    {
+        "id": 12,
+        "name": "SUPERVISOR",
+        "unit": "H"
+    },
+    {
+        "id": 13,
+        "name": "INSPECTOR CALIDAD",
+        "unit": "H"
+    },
+    {
+        "id": 14,
+        "name": "LIMPIEZA",
+        "unit": "H"
+    }
+]

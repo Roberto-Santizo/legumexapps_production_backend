@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['code', 'activity', 'line_id', 'status'])]
+#[Fillable(['code', 'activity_id', 'line_id', 'status'])]
 class Position extends Model
 {
     use HasFactory;
@@ -14,5 +14,10 @@ class Position extends Model
     public function line()
     {
         return $this->belongsTo(Line::class);
+    }
+
+    public function activity()
+    {
+        return $this->belongsTo(Activity::class);
     }
 }

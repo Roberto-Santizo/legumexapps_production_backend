@@ -512,7 +512,7 @@ paths:
         - { name: lineCode, in: query, schema: { type: string }, description: Código exacto de la línea }
         - { name: line, in: query, schema: { type: string }, description: Filtro parcial por nombre de línea }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
-        - { name: activity, in: query, schema: { type: string }, description: Filtro parcial por actividad }
+        - { name: activity, in: query, schema: { type: string }, description: 'Filtro parcial por nombre de la actividad del catálogo (`activities.name`), insensible a mayúsculas. Excluye posiciones sin actividad' }
       responses:
         '200':
           description: Puestos Obtenidos Correctamente
@@ -533,13 +533,28 @@ paths:
     post:
       tags: [Positions]
       summary: Crear puesto
+      description: |
+        `activity_id` debe existir en el catálogo (`422 La actividad no existe.`) y estar asignada a la línea
+        `line_id` en `line_activities` (`POST /lines/{code}/activities`).
+
+        Errores `400`: `La actividad 'RECORTADOR' no está asignada a la línea 'L01'`.
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/PositionInput' }
+            example: { code: '1PIQ1A001', activity_id: 4, line_id: 3, status: true }
       responses:
-        '201': { $ref: '#/components/responses/CreatedModel' }
+        '201':
+          description: Puesto Creado Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { $ref: '#/components/schemas/Position' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -548,6 +563,14 @@ paths:
     post:
       tags: [Positions]
       summary: Carga masiva de puestos (Excel)
+      description: |
+        Encabezados: `codigo`, `actividad`, `linea`. `actividad` es el **nombre** de una actividad del catálogo
+        (`activities.name`); se compara con `trim` y en mayúsculas. `linea` es `lines.code`.
+
+        Errores `400` (todos en un único mensaje, uno por línea del archivo; no se inserta nada):
+        - `Línea N: la actividad 'X' no existe`
+        - `Línea N: la actividad 'X' no está asignada a la línea 'L01'`
+        - además de los de campos obligatorios, códigos repetidos o existentes y línea inexistente.
       requestBody: { $ref: '#/components/requestBodies/UploadFile' }
       responses:
         '200': { $ref: '#/components/responses/UploadResult' }
@@ -578,6 +601,11 @@ paths:
     put:
       tags: [Positions]
       summary: Actualizar puesto
+      description: |
+        Mismas validaciones que al crear, con el `line_id` del body. `activity_id` es obligatorio también en
+        posiciones que aún tienen `activity_id = null`.
+
+        Errores `400`: `La actividad 'RECORTADOR' no está asignada a la línea 'L01'`.
       requestBody:
         required: true
         content:
@@ -585,6 +613,7 @@ paths:
             schema: { $ref: '#/components/schemas/PositionInput' }
       responses:
         '200': { $ref: '#/components/responses/TrueData' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -884,6 +913,7 @@ paths:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Page'
         - { name: name, in: query, schema: { type: string }, description: 'Filtro parcial por nombre, insensible a mayúsculas' }
+        - { name: line_id, in: query, schema: { type: integer }, description: 'Id exacto de la línea. Solo actividades asignadas a esa línea en `line_activities`; línea inexistente o sin actividades → lista vacía' }
       responses:
         '200':
           description: Actividades Obtenidas Correctamente
@@ -986,6 +1016,7 @@ paths:
       description: |
         Errores `400`:
         - `No se puede eliminar una actividad asignada a líneas`
+        - `No se puede eliminar una actividad asignada a posiciones`
       responses:
         '200': { $ref: '#/components/responses/NullData' }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -1074,8 +1105,11 @@ paths:
       description: |
         La actividad sigue en el catálogo.
 
-        Errores `400`: `No se puede quitar una actividad con personal asignado` (alguna asignación de
-        `weekly_plan_task_employees`, activa o retirada, apunta al cupo).
+        Errores `400`:
+        - `No se puede quitar una actividad con personal asignado` (alguna asignación de
+          `weekly_plan_task_employees`, activa o retirada, apunta al cupo).
+        - `No se puede quitar una actividad con posiciones asignadas` (alguna posición de esa línea tiene esa
+          actividad en `positions.activity_id`).
 
         Errores `404`: `La actividad de la línea no existe`.
       responses:
@@ -2785,6 +2819,79 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  /weekly-plan-tasks/{id}/confirmEmployeesByPosition:
+    post:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Confirmar asignación de personal resolviendo la actividad desde la posición
+      description: |
+        Igual que `POST /weekly-plan-tasks/{id}/confirmEmployees`, pero **sin** `line_activity_id` en el body.
+        El backend busca cada `position` por `positions.code`, toma su `activity_id` y resuelve el cupo
+        (`line_activities`) con `line_id` = **línea de la tarea** y `activity_id` = actividad de la posición.
+
+        Validaciones (posiciones, cupos y conteo de asignados se resuelven con un número fijo de consultas):
+
+        - Tarea sin línea → `400` `La tarea no tiene una línea asignada`.
+        - Por empleado: `La posición 'X' no existe`, `La posición 'X' no tiene una actividad asignada`,
+          `La actividad 'Y' de la posición 'X' no está asignada a la línea de la tarea`.
+        - Por actividad: asignaciones activas de la tarea + enviadas no pueden superar `quantity` →
+          `La actividad 'X' admite N personas; ya hay A asignadas y se enviaron S`.
+
+        Todos los errores se acumulan en un único `400` (separados por salto de línea) y no se inserta
+        nada ni cambia el status.
+
+        Todo o nada: si todo es válido, inserta todas las filas y pasa la tarea a status `3` en una única
+        transacción; cualquier fallo revierte todo.
+        No valida status de la tarea, personal previamente asignado ni que `positions.line_id` sea la línea de la tarea.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [employees]
+              properties:
+                employees:
+                  type: array
+                  minItems: 1
+                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista.
+                  items:
+                    type: object
+                    required: [code, name, position]
+                    properties:
+                      code: { type: string, description: Código del empleado (biométrico) }
+                      name: { type: string, description: Nombre completo }
+                      position: { type: string, description: Código de la posición (`positions.code`); debe existir y tener actividad asignada a la línea de la tarea }
+            example:
+              employees:
+                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001' }
+                - { code: 'E0002', name: 'María López', position: '1PIQ1A002' }
+                - { code: 'E0003', name: 'Pedro Gómez', position: '1PIQ1A011' }
+      responses:
+        '201':
+          description: Personal Asignado Correctamente (`data` = null)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data: { type: 'null' }
+        '400':
+          description: |
+            Tarea sin línea, o errores de posición, actividad o cupo (mensajes acumulados, uno por línea)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+              example:
+                statusCode: 400
+                message: "La posición 'X1' no existe\nLa posición '1PIQ1A009' no tiene una actividad asignada\nLa actividad 'EMPACADOR' de la posición '1PIQ1A005' no está asignada a la línea de la tarea\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   /weekly-plan-task-employees/{id}:
     parameters:
       - { name: id, in: path, required: true, schema: { type: integer }, description: ID de la asignación (weekly_plan_task_employees) }
@@ -3886,6 +3993,8 @@ components:
         code: { type: string }
         shift: { type: integer }
         capture_type: { $ref: '#/components/schemas/CaptureType' }
+        activities: { type: integer, description: 'Suma de `quantity` de las actividades asignadas a la línea (`line_activities`)' }
+        positions: { type: integer, description: 'Cantidad de posiciones de la línea' }
     LineInput:
       type: object
       required: [name, code, shift]
@@ -3902,16 +4011,18 @@ components:
       properties:
         id: { type: integer }
         code: { type: string }
-        activity: { type: string }
+        activity_id: { type: [integer, 'null'], description: 'FK a `activities`; null en posiciones sin actividad cargada' }
+        activity: { type: [string, 'null'], description: Nombre de la actividad del catálogo (`activities.name`) }
+        unit: { type: [string, 'null'], description: Unidad de la actividad (`activities.unit`) }
         line_id: { type: integer }
         line: { type: string, description: Nombre de la línea }
         status: { type: boolean }
     PositionInput:
       type: object
-      required: [code, activity, line_id]
+      required: [code, activity_id, line_id]
       properties:
         code: { type: string, maxLength: 255, description: Único }
-        activity: { type: string, maxLength: 255 }
+        activity_id: { type: integer, description: 'Id de `activities`; debe estar asignada a la línea `line_id` en `line_activities`' }
         line_id: { type: integer }
         status: { type: boolean }
     LineDependency:
@@ -4306,9 +4417,9 @@ components:
         code: { type: string }
         position_id: { type: [integer, 'null'], description: FK a `positions`; null solo en filas históricas sin posición coincidente }
         position: { type: [string, 'null'], description: Código de la posición (`positions.code`) }
-        position_activity: { type: [string, 'null'], description: 'Actividad de la posición (`positions.activity`), texto libre del biométrico' }
+        position_activity: { type: [string, 'null'], description: 'Actividad de la posición desde el catálogo (`positions.activity_id` → `activities.name`); null si la posición no tiene actividad' }
         line_activity_id: { type: [integer, 'null'], description: 'FK a `line_activities` (cupo de la línea que cubre el empleado); null en asignaciones anteriores a SPEC 16' }
-        activity: { type: [string, 'null'], description: 'Nombre de la actividad del catálogo (`activities.name`). Antes de SPEC 16 era `positions.activity`, hoy en `position_activity`' }
+        activity: { type: [string, 'null'], description: 'Nombre de la actividad del catálogo (`activities.name`). Antes de SPEC 16 era la actividad de la posición, hoy en `position_activity`' }
         unit: { type: [string, 'null'], description: Unidad de la actividad (`activities.unit`) }
     WeeklyPlanTaskObservation:
       type: object

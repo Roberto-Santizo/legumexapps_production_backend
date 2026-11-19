@@ -22,7 +22,6 @@ class PositionFactory extends Factory
     {
         return [
             'code' => fake()->unique()->bothify('POS-###'),
-            'activity' => fake()->words(3, true),
             'line_id' => Line::factory(),
             'status' => fake()->boolean(),
         ];

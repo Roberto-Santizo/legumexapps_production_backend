@@ -31,6 +31,10 @@ class ActivitiesService implements ActivitiesServiceInterface
             $query->where('name', 'LIKE', '%'.mb_strtoupper($request->query('name')).'%');
         }
 
+        if ($request->filled('line_id')) {
+            $query->whereHas('lineActivities', fn ($q) => $q->where('line_id', $request->query('line_id')));
+        }
+
         $query->orderBy('name');
 
         if ($limit) {
@@ -68,6 +72,10 @@ class ActivitiesService implements ActivitiesServiceInterface
 
         if ($activity->lineActivities()->exists()) {
             throw new BadRequestError('No se puede eliminar una actividad asignada a líneas');
+        }
+
+        if ($activity->positions()->exists()) {
+            throw new BadRequestError('No se puede eliminar una actividad asignada a posiciones');
         }
 
         $activity->delete();

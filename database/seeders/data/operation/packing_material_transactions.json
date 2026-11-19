@@ -76,5 +76,18 @@
         "weekly_plan_task_id": 8,
         "created_at": "2026-11-10 18:09:30",
         "updated_at": "2026-11-10 18:09:30"
+    },
+    {
+        "id": 9,
+        "reference": "REF-00125",
+        "responsable": "RESPONSABLE",
+        "observations": "OBSERVACIONES",
+        "responsable_signature": "packing-material-transactions/signatures/9be39a58-d8b9-4851-93f8-54a6ba1c064e.png",
+        "user_signature": "packing-material-transactions/signatures/45569cb9-1a21-4f16-958f-afb9dc9159d8.png",
+        "type": 1,
+        "user_id": 1,
+        "weekly_plan_task_id": 9,
+        "created_at": "2026-11-18 17:31:37",
+        "updated_at": "2026-11-18 17:31:37"
     }
 ]

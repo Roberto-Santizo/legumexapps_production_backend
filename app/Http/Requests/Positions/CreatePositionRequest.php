@@ -29,7 +29,7 @@ class CreatePositionRequest extends FormRequest
     {
         return [
             'code' => ['required', 'string', 'max:255', 'unique:positions,code'],
-            'activity' => ['required', 'string', 'max:255'],
+            'activity_id' => ['required', 'integer', 'exists:activities,id'],
             'line_id' => ['required', 'integer', 'exists:lines,id'],
             'status' => ['boolean'],
         ];
@@ -42,9 +42,9 @@ class CreatePositionRequest extends FormRequest
             'code.string' => 'El código debe ser una cadena de texto.',
             'code.max' => 'El código no puede tener más de 255 caracteres.',
             'code.unique' => 'El código ya existe.',
-            'activity.required' => 'La actividad es requerida.',
-            'activity.string' => 'La actividad debe ser una cadena de texto.',
-            'activity.max' => 'La actividad no puede tener más de 255 caracteres.',
+            'activity_id.required' => 'La actividad es requerida.',
+            'activity_id.integer' => 'La actividad debe ser un número entero.',
+            'activity_id.exists' => 'La actividad no existe.',
             'line_id.required' => 'La línea es requerida.',
             'line_id.integer' => 'La línea debe ser un número entero.',
             'line_id.exists' => 'La línea no existe.',

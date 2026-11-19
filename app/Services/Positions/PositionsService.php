@@ -6,7 +6,9 @@ use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Imports\PositionsImport;
 use App\Interfaces\Positions\PositionsServiceInterface;
+use App\Models\Activity;
 use App\Models\Line;
+use App\Models\LineActivity;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +20,8 @@ class PositionsService implements PositionsServiceInterface
     #[Override]
     public function createPosition(array $data)
     {
+        $this->ensureActivityAssignedToLine($data['line_id'], $data['activity_id']);
+
         $position = Position::create($data);
 
         return $position;
@@ -26,7 +30,7 @@ class PositionsService implements PositionsServiceInterface
     #[Override]
     public function getPositions(?string $limit, Request $request)
     {
-        $query = Position::query();
+        $query = Position::query()->with(['line', 'activity']);
 
         if ($request->query('lineCode')) {
             $query->whereHas('line', function ($p0) use ($request) {
@@ -45,7 +49,7 @@ class PositionsService implements PositionsServiceInterface
         }
 
         if ($request->query('activity')) {
-            $query->where('activity', 'LIKE', '%'.$request->query('activity').'%');
+            $query->whereHas('activity', fn ($q) => $q->where('name', 'LIKE', '%'.mb_strtoupper($request->query('activity')).'%'));
         }
 
         if ($limit) {
@@ -70,9 +74,31 @@ class PositionsService implements PositionsServiceInterface
     public function updatePositionById(array $data, string $id)
     {
         $position = $this->getPositionById($id);
+        $this->ensureActivityAssignedToLine($data['line_id'], $data['activity_id']);
         $position->update($data);
 
         return true;
+    }
+
+    /**
+     * A position's activity must be assigned to its line in line_activities.
+     *
+     * @throws BadRequestError
+     */
+    private function ensureActivityAssignedToLine(int $lineId, int $activityId): void
+    {
+        $isAssigned = LineActivity::where('line_id', $lineId)
+            ->where('activity_id', $activityId)
+            ->exists();
+
+        if ($isAssigned) {
+            return;
+        }
+
+        $activityName = Activity::whereKey($activityId)->value('name');
+        $lineCode = Line::whereKey($lineId)->value('code');
+
+        throw new BadRequestError("La actividad '{$activityName}' no está asignada a la línea '{$lineCode}'");
     }
 
     #[Override]
@@ -95,6 +121,9 @@ class PositionsService implements PositionsServiceInterface
 
         $existingCodes = Position::pluck('code')->flip();
         $lineIdsByCode = Line::pluck('id', 'code');
+        $activityIdsByName = Activity::pluck('id', 'name');
+        $assignedLineActivities = LineActivity::get(['line_id', 'activity_id'])
+            ->mapWithKeys(fn (LineActivity $lineActivity): array => ["{$lineActivity->line_id}|{$lineActivity->activity_id}" => true]);
 
         $now = now();
         $errors = [];
@@ -106,7 +135,7 @@ class PositionsService implements PositionsServiceInterface
             $rowErrors = [];
 
             $code = trim((string) ($row['codigo'] ?? ''));
-            $activity = trim((string) ($row['actividad'] ?? ''));
+            $activity = mb_strtoupper(trim((string) ($row['actividad'] ?? '')));
             $lineCode = trim((string) ($row['linea'] ?? ''));
 
             if ($code === '') {
@@ -121,8 +150,12 @@ class PositionsService implements PositionsServiceInterface
                 $codesInFile[$code] = true;
             }
 
+            $activityId = $activityIdsByName->get($activity);
+
             if ($activity === '') {
                 $rowErrors[] = "Línea {$lineNumber}: el campo 'actividad' es obligatorio";
+            } elseif (! $activityId) {
+                $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no existe";
             }
 
             $lineId = $lineIdsByCode->get($lineCode);
@@ -133,6 +166,10 @@ class PositionsService implements PositionsServiceInterface
                 $rowErrors[] = "Línea {$lineNumber}: la línea con código '{$lineCode}' no existe";
             }
 
+            if ($lineId && $activityId && ! $assignedLineActivities->has("{$lineId}|{$activityId}")) {
+                $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no está asignada a la línea '{$lineCode}'";
+            }
+
             if (! empty($rowErrors)) {
                 array_push($errors, ...$rowErrors);
 
@@ -141,7 +178,7 @@ class PositionsService implements PositionsServiceInterface
 
             $positionsToCreate[] = [
                 'code' => $code,
-                'activity' => $activity,
+                'activity_id' => $activityId,
                 'line_id' => $lineId,
                 'created_at' => $now,
                 'updated_at' => $now,
