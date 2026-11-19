@@ -412,6 +412,7 @@ paths:
         - { name: name, in: query, schema: { type: string }, description: Filtro parcial por nombre }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
         - { name: skuId, in: query, schema: { type: integer }, description: Solo líneas con rendimiento activo para este SKU }
+        - { name: isWildcard, in: query, schema: { type: boolean }, description: 'Filtra por líneas de comodines (`1`/`true`) o no comodines (`0`/`false`). Sin enviar, lista todas.' }
       responses:
         '200':
           description: Líneas Obtenidas Correctamente
@@ -3993,6 +3994,7 @@ components:
         code: { type: string }
         shift: { type: integer }
         capture_type: { $ref: '#/components/schemas/CaptureType' }
+        is_wildcard: { type: boolean, description: 'Línea de comodines' }
         activities: { type: integer, description: 'Suma de `quantity` de las actividades asignadas a la línea (`line_activities`)' }
         positions: { type: integer, description: 'Cantidad de posiciones de la línea' }
     LineInput:
@@ -4006,6 +4008,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/CaptureType'
           description: 'Opcional. Al crear, si no se envía queda `pallet`. No se puede cambiar si la línea tiene campos configurados.'
+        is_wildcard: { type: boolean, description: 'Opcional. Marca la línea como línea de comodines. Default `false`.' }
     Position:
       type: object
       properties:

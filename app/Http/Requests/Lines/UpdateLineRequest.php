@@ -29,6 +29,7 @@ class UpdateLineRequest extends FormRequest
             'code' => ['required', 'string', Rule::unique('lines', 'code')->ignore($this->route('line'), 'code')],
             'shift' => ['required', 'numeric'],
             'capture_type' => ['sometimes', Rule::enum(CaptureType::class)],
+            'is_wildcard' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -46,6 +47,8 @@ class UpdateLineRequest extends FormRequest
             'shift.numeric' => 'El turno debe ser un valor numérico.',
 
             'capture_type.enum' => 'La familia de captura no es válida.',
+
+            'is_wildcard.boolean' => 'El indicador de línea comodín debe ser verdadero o falso.',
         ];
     }
 }

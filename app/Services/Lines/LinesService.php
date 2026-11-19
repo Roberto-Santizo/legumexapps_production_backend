@@ -43,6 +43,10 @@ class LinesService implements LinesServiceInterface
             $query->where('code', 'LIKE', '%'.$request->query('code').'%');
         }
 
+        if ($request->has('isWildcard')) {
+            $query->where('is_wildcard', $request->boolean('isWildcard'));
+        }
+
         if ($limit) {
             return $query->paginate($limit);
         }
