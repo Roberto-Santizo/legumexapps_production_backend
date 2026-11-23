@@ -6,6 +6,7 @@ use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
 use App\Interfaces\BiometricQueries\BiometricQueriesServiceInterface;
 use App\Interfaces\LineActivities\LineActivitiesServiceInterface;
+use App\Interfaces\Lines\LinesServiceInterface;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 use App\Interfaces\WeeklyPlanTasks\WeeklyPlanTasksServiceInterface;
 use App\Models\Line;
@@ -23,6 +24,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService,
         private BiometricQueriesServiceInterface $biometricQueriesService,
         private LineActivitiesServiceInterface $lineActivitiesService,
+        private LinesServiceInterface $linesService,
     ) {}
 
     #[Override]
@@ -42,7 +44,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
     public function getTaskEmployees(string $taskId)
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
-        $employees = $task->employees()->with(['position.activity', 'lineActivity.activity'])->get();
+        $employees = $task->employees()->with(['catalogPosition.activity', 'lineActivity.activity'])->get();
 
         return $employees;
     }
@@ -61,9 +63,8 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         $assignedCounts = $this->getAssignedCounts($task, $lineActivities->keys());
         $firtPosition = $line->positions()->first();
 
-
-        if ($line->is_wildcard && !$firtPosition) {
-            throw new BadRequestError("La línea debería de tener por lo menos una posición");
+        if ($line->is_wildcard && ! $firtPosition) {
+            throw new BadRequestError('La línea debería de tener por lo menos una posición');
         }
 
         $errors = [];
@@ -76,7 +77,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
             $lineActivity = $lineActivities->get($lineActivityId);
             $hasErrors = false;
 
-            if (!$line->is_wildcard && ! $position) {
+            if (! $line->is_wildcard && ! $position) {
                 $errors[] = "La posición '{$employee['position']}' no existe";
                 $hasErrors = true;
             }
@@ -94,6 +95,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
                 'weekly_plan_task_id' => $task->id,
                 'code' => $employee['code'],
                 'name' => $employee['name'],
+                'position' => $employee['position'],
                 'position_id' => $line->is_wildcard ? $firtPosition->id : $position->id,
                 'line_activity_id' => $lineActivity->id,
                 'created_at' => $now,
@@ -101,7 +103,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
             ];
         }
 
-        $lineActivitiesOfTaskLine = $lineActivities->filter(fn(LineActivity $lineActivity) => $lineActivity->line_id === $line->id);
+        $lineActivitiesOfTaskLine = $lineActivities->filter(fn (LineActivity $lineActivity) => $lineActivity->line_id === $line->id);
         array_push($errors, ...$this->collectQuotaErrors($lineActivitiesOfTaskLine, array_count_values($lineActivityIds), $assignedCounts));
 
         if (! empty($errors)) {
@@ -111,6 +113,29 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         $this->storeAssignments($task, $bulkData);
 
         return null;
+    }
+
+    /**
+     * Active assignments of the line's last finished task, to be reused as a confirmEmployees request.
+     *
+     * @return Collection<int, WeeklyPlanTaskEmployee>
+     */
+    #[Override]
+    public function getLastEmployeesConfiguration(string $lineCode)
+    {
+        $line = $this->linesService->getLineByCode($lineCode);
+
+        $task = WeeklyPlanTask::whereNotNull('end_date')
+            ->whereHas('performance', fn ($query) => $query->where('line_id', $line->id))
+            ->latest('end_date')
+            ->latest('id')
+            ->first();
+
+        if (! $task) {
+            throw new NotFoundError('La línea no tiene tareas finalizadas');
+        }
+
+        return $task->employees()->with('catalogPosition')->orderBy('id')->get();
     }
 
     /**
@@ -125,8 +150,8 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
         $line = $this->getTaskLine($task);
 
-         if ($line->is_wildcard) {
-            throw new BadRequestError("La línea es de comodines, no se puede confirmar por posición");
+        if ($line->is_wildcard) {
+            throw new BadRequestError('La línea es de comodines, no se puede confirmar por posición');
         }
 
         $codes = array_column($data['employees'], 'position');
@@ -173,6 +198,7 @@ class WeeklyPlanTaskEmployeesService implements WeeklyPlanTaskEmployeesServiceIn
                 'weekly_plan_task_id' => $task->id,
                 'code' => $employee['code'],
                 'name' => $employee['name'],
+                'position' => $employee['position'],
                 'position_id' => $position->id,
                 'line_activity_id' => $lineActivity->id,
                 'created_at' => $now,

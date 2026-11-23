@@ -2820,6 +2820,58 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
+  /weekly-plan-tasks/lines/{code}/lastEmployeesConfiguration:
+    get:
+      tags: [WeeklyPlanTaskEmployees]
+      summary: Personal de la última tarea finalizada de la línea (cargar configuración anterior)
+      description: |
+        Busca la última tarea de la línea con `end_date` y devuelve su personal activo con la misma forma del
+        body de `POST /weekly-plan-tasks/{id}/confirmEmployees`, para reenviar `data` sin reconstruirlo.
+
+        - `employees` es `[]` si esa tarea no tiene personal activo.
+        - `position` es la posición enviada al confirmar; en asignaciones históricas sin ese dato es el código de
+          `position_id`, o `null` si tampoco existe.
+        - `line_activity_id` es `null` en asignaciones anteriores a SPEC 16; debe completarse antes de reenviar.
+
+        Errores `404`:
+        - `La línea no existe`
+        - `La línea no tiene tareas finalizadas`
+      parameters:
+        - $ref: '#/components/parameters/Code'
+      responses:
+        '200':
+          description: Configuración Anterior Obtenida Correctamente
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Envelope'
+                  - properties:
+                      data:
+                        type: object
+                        required: [employees]
+                        properties:
+                          employees:
+                            type: array
+                            items:
+                              type: object
+                              required: [code, name, position, line_activity_id]
+                              properties:
+                                code: { type: string, description: Código del empleado (biométrico) }
+                                name: { type: string, description: Nombre completo }
+                                position: { type: [string, 'null'], description: Posición enviada al confirmar }
+                                line_activity_id: { type: [integer, 'null'], description: ID del cupo (`line_activities`) que cubrió el empleado }
+              example:
+                statusCode: 200
+                message: Configuración Anterior Obtenida Correctamente
+                data:
+                  employees:
+                    - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001', line_activity_id: 4 }
+                    - { code: 'E0002', name: 'María López', position: '1PIQ1A002', line_activity_id: 4 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '500': { $ref: '#/components/responses/ServerError' }
+
   /weekly-plan-tasks/{id}/confirmEmployeesByPosition:
     post:
       tags: [WeeklyPlanTaskEmployees]

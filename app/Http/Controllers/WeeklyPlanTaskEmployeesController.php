@@ -7,6 +7,7 @@ use App\Http\Requests\WeeklyPlanTaskEmployees\ConfirmWeeklyPlanTaskEmployeesByPo
 use App\Http\Requests\WeeklyPlanTaskEmployees\ConfirmWeeklyPlanTaskEmployeesRequest;
 use App\Http\Requests\WeeklyPlanTaskEmployees\UpdateWeeklyPlanTaskEmployeeActivityRequest;
 use App\Http\Resources\BiometricQueries\BiometricLineEmployeeResource;
+use App\Http\Resources\WeeklyPlanTaskEmployees\LastEmployeesConfigurationResource;
 use App\Http\Resources\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeeResource;
 use App\Interfaces\WeeklyPlanTaskEmployees\WeeklyPlanTaskEmployeesServiceInterface;
 
@@ -41,6 +42,17 @@ class WeeklyPlanTaskEmployeesController extends Controller
             $result = $service->confirmEmployees($id, $data);
 
             return ResponseHandler::success($result, 'Personal Asignado Correctamente', 201);
+        } catch (\Throwable $th) {
+            return ResponseHandler::error($th);
+        }
+    }
+
+    public function lastEmployeesConfiguration(string $code, WeeklyPlanTaskEmployeesServiceInterface $service)
+    {
+        try {
+            $employees = $service->getLastEmployeesConfiguration($code);
+
+            return ResponseHandler::success(new LastEmployeesConfigurationResource($employees), 'Configuración Anterior Obtenida Correctamente', 200);
         } catch (\Throwable $th) {
             return ResponseHandler::error($th);
         }
