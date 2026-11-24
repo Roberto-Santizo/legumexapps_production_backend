@@ -32,6 +32,7 @@ class CaptureSummaryCalculator
             tasks: $tasks,
             totalColumns: ['boxes', 'liters', 'scale_weight', 'tare', 'net_weight', 'ticket_weight', 'difference'],
             producedColumn: 'net_weight',
+            producedKey: 'net_weight',
             percentages: ['difference_pct' => ['difference', 'ticket_weight']],
             groupKey: 'status',
             groupColumns: ['net_weight'],
@@ -54,6 +55,7 @@ class CaptureSummaryCalculator
             tasks: $tasks,
             totalColumns: ['intake_lbs', 'applied_raw_lbs', 'trimmed_lbs', 'overripe_lbs', 'grn_balance'],
             producedColumn: 'trimmed_lbs',
+            producedKey: 'produced_lbs',
             percentages: [
                 'recovery_pct' => ['trimmed_lbs', 'applied_raw_lbs'],
                 'overripe_pct' => ['overripe_lbs', 'applied_raw_lbs'],
@@ -84,6 +86,7 @@ class CaptureSummaryCalculator
             tasks: $tasks,
             totalColumns: ['raw_lbs', 'classified_lbs', 'trimmed_lbs', 'rejected_lbs', 'packed_lbs'],
             producedColumn: 'trimmed_lbs',
+            producedKey: 'produced_lbs',
             percentages: $percentages,
             groupKey: 'raw_material',
             groupColumns: ['raw_lbs', 'trimmed_lbs', 'rejected_lbs'],
@@ -97,10 +100,11 @@ class CaptureSummaryCalculator
      * @param  Collection<int, Model>  $records
      * @param  Collection<int, WeeklyPlanTask>  $tasks
      * @param  array<int, string>  $totalColumns
+     * @param  string  $producedKey  output key of the produced column sum, net_weight or produced_lbs
      * @param  array<string, array{0: string, 1: string}>  $percentages  name => [numerator column, denominator column]
      * @param  array<int, string>  $groupColumns
      * @param  array<string, array{0: string, 1: string}>  $groupPercentages
-     * @return array{capture_type: string, tasks_count: int, records_count: int, planned_pounds: ?float, produced_lbs: ?float, progress_pct: ?float, totals: array<string, ?float>, groups: array<int, array<string, mixed>>, by_task: array<int, array<string, mixed>>}
+     * @return array{capture_type: string, tasks_count: int, records_count: int, planned_pounds: ?float, net_weight?: ?float, produced_lbs?: ?float, progress_pct: ?float, totals: array<string, ?float>, groups: array<int, array<string, mixed>>, by_task: array<int, array<string, mixed>>}
      */
     private function summarize(
         CaptureType $captureType,
@@ -108,6 +112,7 @@ class CaptureSummaryCalculator
         Collection $tasks,
         array $totalColumns,
         string $producedColumn,
+        string $producedKey,
         array $percentages,
         string $groupKey,
         array $groupColumns,
@@ -131,11 +136,11 @@ class CaptureSummaryCalculator
             'tasks_count' => $tasks->count(),
             'records_count' => $records->count(),
             'planned_pounds' => $plannedPounds,
-            'produced_lbs' => $producedLbs,
+            $producedKey => $producedLbs,
             'progress_pct' => $this->progressPercentage($producedLbs, $plannedPounds),
             'totals' => $totals,
             'groups' => $this->groups($records, $groupKey, $groupColumns, $groupPercentages),
-            'by_task' => $this->byTask($records, $tasks, $producedColumn, $percentages),
+            'by_task' => $this->byTask($records, $tasks, $producedColumn, $producedKey, $percentages),
         ];
     }
 
@@ -179,12 +184,12 @@ class CaptureSummaryCalculator
      * @param  array<string, array{0: string, 1: string}>  $percentages
      * @return array<int, array<string, mixed>>
      */
-    private function byTask(Collection $records, Collection $tasks, string $producedColumn, array $percentages): array
+    private function byTask(Collection $records, Collection $tasks, string $producedColumn, string $producedKey, array $percentages): array
     {
         $recordsByTask = $records->groupBy('weekly_plan_task_id');
 
         return $tasks
-            ->map(function (WeeklyPlanTask $task) use ($recordsByTask, $producedColumn, $percentages) {
+            ->map(function (WeeklyPlanTask $task) use ($recordsByTask, $producedColumn, $producedKey, $percentages) {
                 $taskRecords = $recordsByTask->get($task->id, collect());
                 $producedLbs = $this->sumColumn($taskRecords, $producedColumn);
 
@@ -195,7 +200,7 @@ class CaptureSummaryCalculator
                     'operation_date' => $task->operation_date?->format('Y-m-d'),
                     'status' => $task->status,
                     'records_count' => $taskRecords->count(),
-                    'produced_lbs' => $producedLbs,
+                    $producedKey => $producedLbs,
                     'progress_pct' => $this->progressPercentage($producedLbs, $this->plannedPounds($task)),
                 ];
 

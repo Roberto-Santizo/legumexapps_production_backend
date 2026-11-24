@@ -68,5 +68,15 @@
         "pm_transaction_id": 9,
         "created_at": "2026-11-18 17:31:37",
         "updated_at": "2026-11-18 17:31:37"
+    },
+    {
+        "id": 10,
+        "quantity": 250.0,
+        "lote": "L-2026-24",
+        "destination": "REEMPAQUE 8",
+        "packing_material_id": 1,
+        "pm_transaction_id": 10,
+        "created_at": "2026-11-24 17:17:59",
+        "updated_at": "2026-11-24 17:17:59"
     }
 ]

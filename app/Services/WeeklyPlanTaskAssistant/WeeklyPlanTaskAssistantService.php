@@ -3,6 +3,7 @@
 namespace App\Services\WeeklyPlanTaskAssistant;
 
 use App\Calculators\CaptureSummaryCalculator;
+use App\Calculators\PalletKpiCalculator;
 use App\Enums\CaptureType;
 use App\Errors\BadRequestError;
 use App\Errors\NotFoundError;
@@ -16,6 +17,7 @@ use App\Models\WeeklyPlanTaskLotRecord;
 use App\Models\WeeklyPlanTaskPerformanceRecord;
 use App\Models\WeeklyPlanTaskProductRecord;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -36,13 +38,14 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     private const TASK_RELATIONS = ['performance.sku.client', 'performance.line.positions', 'openTimeout', 'weeklyPlan'];
 
     /**
-     * Keys accepted as task filters by the search and the filtered summaries.
+     * Keys accepted as task filters by the search, the filtered summaries and the pallet KPI report.
      */
-    private const TASK_FILTER_KEYS = ['weekly_plan_id', 'week', 'year', 'operation_date_from', 'operation_date_to', 'line_code', 'sku_code'];
+    private const TASK_FILTER_KEYS = ['weekly_plan_id', 'week', 'year', 'operation_date_from', 'operation_date_to', 'line_code', 'line_name', 'sku_code'];
 
     public function __construct(
         private WeeklyPlanTasksServiceInterface $weeklyPlanTasksService,
         private CaptureSummaryCalculator $captureSummaryCalculator,
+        private PalletKpiCalculator $palletKpiCalculator,
         private ConversationStore $conversationStore,
     ) {}
 
@@ -123,28 +126,8 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     #[Override]
     public function summarizeCaptureRecords(CaptureType $captureType, array $scope): array
     {
-        $hasTask = filled($scope['task_id'] ?? null);
-        $hasFilters = collect(self::TASK_FILTER_KEYS)->contains(fn (string $key) => filled($scope[$key] ?? null));
-
-        if ($hasTask === $hasFilters) {
-            throw new BadRequestError('Indica una tarea o filtros, no ambos');
-        }
-
-        if ($hasTask) {
-            $task = $this->getTask((string) $scope['task_id']);
-            $this->ensureTaskCapturesBy($task, $captureType);
-            $tasks = collect([$task]);
-        } else {
-            $tasks = $this->filteredTasksQuery($scope)
-                ->whereHas('performance.line', function (Builder $line) use ($captureType) {
-                    $line->where('capture_type', $captureType->value);
-                })
-                ->get();
-        }
-
-        $records = $tasks->isEmpty()
-            ? collect()
-            : $this->captureRecordsQuery($captureType, $tasks->pluck('id')->all())->get();
+        $tasks = $this->resolveScopeTasks($captureType, $scope);
+        $records = $this->getTasksCaptureRecords($captureType, $tasks);
 
         $summary = match ($captureType) {
             CaptureType::Pallet => $this->captureSummaryCalculator->pallet($records, $tasks),
@@ -152,11 +135,19 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
             CaptureType::Product => $this->captureSummaryCalculator->product($records, $tasks),
         };
 
-        if ($hasTask) {
+        if (filled($scope['task_id'] ?? null)) {
             unset($summary['by_task']);
         }
 
         return $summary;
+    }
+
+    #[Override]
+    public function getPalletKpiReport(array $scope): array
+    {
+        $tasks = $this->resolveScopeTasks(CaptureType::Pallet, $scope);
+
+        return $this->palletKpiCalculator->report($this->getTasksCaptureRecords(CaptureType::Pallet, $tasks), $tasks);
     }
 
     #[Override]
@@ -264,6 +255,50 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     }
 
     /**
+     * Tasks of the given family in scope: a single task or the ones matching the filters, never both.
+     *
+     * @param  array<string, mixed>  $scope  task_id or task filters
+     * @return Collection<int, WeeklyPlanTask>
+     */
+    private function resolveScopeTasks(CaptureType $captureType, array $scope): Collection
+    {
+        $hasTask = filled($scope['task_id'] ?? null);
+        $hasFilters = collect(self::TASK_FILTER_KEYS)->contains(fn (string $key) => filled($scope[$key] ?? null));
+
+        if ($hasTask === $hasFilters) {
+            throw new BadRequestError('Indica una tarea o filtros, no ambos');
+        }
+
+        if ($hasTask) {
+            $task = $this->getTask((string) $scope['task_id']);
+            $this->ensureTaskCapturesBy($task, $captureType);
+
+            return collect([$task]);
+        }
+
+        return $this->filteredTasksQuery($scope)
+            ->whereHas('performance.line', function (Builder $line) use ($captureType) {
+                $line->where('capture_type', $captureType->value);
+            })
+            ->get();
+    }
+
+    /**
+     * Capture records of the given family for the given tasks.
+     *
+     * @param  Collection<int, WeeklyPlanTask>  $tasks
+     * @return Collection<int, Model>
+     */
+    private function getTasksCaptureRecords(CaptureType $captureType, Collection $tasks): Collection
+    {
+        if ($tasks->isEmpty()) {
+            return collect();
+        }
+
+        return $this->captureRecordsQuery($captureType, $tasks->pluck('id')->all())->get();
+    }
+
+    /**
      * Read-only query of the capture records of the given family for the given tasks, oldest first.
      *
      * @param  array<int, int>  $taskIds
@@ -344,6 +379,12 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
         if (filled($filters['line_code'] ?? null)) {
             $query->whereHas('performance.line', function (Builder $line) use ($filters) {
                 $line->where('code', $filters['line_code']);
+            });
+        }
+
+        if (filled($filters['line_name'] ?? null)) {
+            $query->whereHas('performance.line', function (Builder $line) use ($filters) {
+                $line->whereLike('name', '%'.$filters['line_name'].'%');
             });
         }
 

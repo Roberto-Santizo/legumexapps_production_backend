@@ -249,9 +249,10 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     /**
      * End a task in progress: record its production, set its end date and move it from status 4 to 5.
      * Produced pallets are derived from the SKU boxes per pallet, or 0 when the SKU does not define it.
+     * Waste pounds keep the value the task already had when they are not sent.
      * The open timeout check runs under the task row lock so it cannot race with a timeout being started.
      *
-     * @param  array{produced_boxes: int, weighed_pounds: float}  $data
+     * @param  array{produced_boxes: int, weighed_pounds: float, waste_pounds?: ?float}  $data
      */
     #[Override]
     public function endWeeklyPlanTask(string $id, array $data)
@@ -267,6 +268,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
                 'produced_boxes' => $data['produced_boxes'],
                 'produced_pallets' => $boxesPerPallet ? $data['produced_boxes'] / $boxesPerPallet : 0,
                 'weighed_pounds' => $data['weighed_pounds'],
+                'waste_pounds' => array_key_exists('waste_pounds', $data) ? $data['waste_pounds'] : $task->waste_pounds,
                 'end_date' => now(),
             ];
         }, 'Solo se puede finalizar una tarea en progreso');
