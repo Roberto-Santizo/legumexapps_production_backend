@@ -1,6 +1,6 @@
 # SPEC 18 — Formato KPI de líneas `pallet` en el asistente IA
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 08, SPEC 09, SPEC 12
 > **Fecha:** 2026-11-24
 > **Objetivo:** Hacer que `WeeklyPlanTaskAssistant` responda los KPI de las líneas `pallet` con la tabla de 15 columnas de `templates/kpi_format_pallet.xlsx`, calculada en PHP a partir de las tomas y del desecho capturado al finalizar la tarea.
@@ -263,14 +263,14 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 **Desecho**
 
-- [ ] `php artisan migrate` agrega `weekly_plan_tasks.waste_pounds` nullable; las tareas existentes quedan en `null`.
-- [ ] `POST …/end` de una tarea `pallet` sin `waste_pounds` → 422 `Las libras de desecho son obligatorias.` y la tarea sigue en status 4.
-- [ ] `POST …/end` de una tarea `pallet` con `waste_pounds = 0` → 200 y guarda `0`.
-- [ ] `POST …/end` de una tarea `pallet` con `waste_pounds = -1` → 422 `Las libras de desecho no pueden ser negativas.`
-- [ ] `POST …/end` de una tarea `lot` o `product` sin `waste_pounds` → 200 y queda `null`; con `waste_pounds = 12.5` → 200 y guarda `12.5`.
-- [ ] `POST …/end` de una tarea inexistente → 404 `La tarea del plan semanal no existe`, con `waste_pounds` o sin él.
-- [ ] `PUT /weekly-plan-tasks/3` con `waste_pounds = 135` lo guarda; sin la key, conserva el valor.
-- [ ] `GET /weekly-plan-tasks/{id}` devuelve `waste_pounds`.
+- [X] `php artisan migrate` agrega `weekly_plan_tasks.waste_pounds` nullable; las tareas existentes quedan en `null`.
+- [X] `POST …/end` de una tarea `pallet` sin `waste_pounds` → 422 `Las libras de desecho son obligatorias.` y la tarea sigue en status 4.
+- [X] `POST …/end` de una tarea `pallet` con `waste_pounds = 0` → 200 y guarda `0`.
+- [X] `POST …/end` de una tarea `pallet` con `waste_pounds = -1` → 422 `Las libras de desecho no pueden ser negativas.`
+- [X] `POST …/end` de una tarea `lot` o `product` sin `waste_pounds` → 200 y queda `null`; con `waste_pounds = 12.5` → 200 y guarda `12.5`.
+- [X] `POST …/end` de una tarea inexistente → 404 `La tarea del plan semanal no existe`, con `waste_pounds` o sin él.
+- [X] `PUT /weekly-plan-tasks/3` con `waste_pounds = 135` lo guarda; sin la key, conserva el valor.
+- [X] `GET /weekly-plan-tasks/{id}` devuelve `waste_pounds`.
 
 **Cálculo**
 
