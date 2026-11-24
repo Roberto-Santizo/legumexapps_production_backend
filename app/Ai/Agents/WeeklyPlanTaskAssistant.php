@@ -3,6 +3,7 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Tools\GenerateAudioSummary;
+use App\Ai\Tools\GetPalletKpiReport;
 use App\Ai\Tools\GetWeeklyPlanTaskCaptureFields;
 use App\Ai\Tools\GetWeeklyPlanTaskDetail;
 use App\Ai\Tools\GetWeeklyPlanTaskEmployees;
@@ -43,6 +44,7 @@ class WeeklyPlanTaskAssistant implements Agent, Conversational, HasTools
         GetWeeklyPlanTaskObservations::class,
         ListPalletRecords::class,
         SummarizePalletRecords::class,
+        GetPalletKpiReport::class,
         ListLotRecords::class,
         SummarizeLotRecords::class,
         ListProductRecords::class,
