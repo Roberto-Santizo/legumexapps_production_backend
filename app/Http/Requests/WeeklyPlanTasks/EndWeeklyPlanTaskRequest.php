@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\WeeklyPlanTasks;
 
+use App\Enums\CaptureType;
+use App\Models\WeeklyPlanTask;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,6 +27,7 @@ class EndWeeklyPlanTaskRequest extends FormRequest
         return [
             'produced_boxes' => ['required', 'integer', 'min:0'],
             'weighed_pounds' => ['required', 'numeric', 'min:0'],
+            'waste_pounds' => [$this->capturesByPallet() ? 'required' : 'nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -38,6 +41,20 @@ class EndWeeklyPlanTaskRequest extends FormRequest
             'weighed_pounds.required' => 'Las libras pesadas son obligatorias.',
             'weighed_pounds.numeric' => 'Las libras pesadas deben ser un valor numérico.',
             'weighed_pounds.min' => 'Las libras pesadas no pueden ser negativas.',
+
+            'waste_pounds.required' => 'Las libras de desecho son obligatorias.',
+            'waste_pounds.numeric' => 'Las libras de desecho deben ser un valor numérico.',
+            'waste_pounds.min' => 'Las libras de desecho no pueden ser negativas.',
         ];
+    }
+
+    /**
+     * Waste is mandatory only on pallet lines. A missing task keeps it optional so the Service answers with a 404.
+     */
+    private function capturesByPallet(): bool
+    {
+        $task = WeeklyPlanTask::with('performance.line')->find($this->route('id'));
+
+        return $task?->performance?->line?->capture_type === CaptureType::Pallet;
     }
 }
