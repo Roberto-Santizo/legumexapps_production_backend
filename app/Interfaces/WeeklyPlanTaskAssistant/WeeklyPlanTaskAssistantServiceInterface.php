@@ -36,6 +36,12 @@ interface WeeklyPlanTaskAssistantServiceInterface
      */
     public function summarizeCaptureRecords(CaptureType $captureType, array $scope): array;
 
+    /**
+     * @param  array<string, mixed>  $scope  task_id or task filters, plus line_name
+     * @return array{tasks_count: int, tasks_without_records: int, rows: array<int, array<string, mixed>>, totals: ?array<string, ?float>}
+     */
+    public function getPalletKpiReport(array $scope): array;
+
     public function assertConversationBelongsTo(User $user, string $conversationId): void;
 
     public function getConversations(User $user, ?string $limit);
