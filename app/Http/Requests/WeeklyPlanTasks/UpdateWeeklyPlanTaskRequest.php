@@ -29,6 +29,7 @@ class UpdateWeeklyPlanTaskRequest extends FormRequest
                 'produced_pallets' =>   ['nullable', 'numeric'],
                 'hours' =>              ['required', 'numeric'],
                 'weighed_pounds' =>     ['nullable', 'numeric'],
+                'waste_pounds' =>       ['nullable', 'numeric', 'min:0'],
                 'destination' =>        ['required', 'string'],
                 'operation_date' =>     ['nullable', 'date'],
                 'start_date' =>         ['nullable', 'date'],
@@ -56,6 +57,9 @@ class UpdateWeeklyPlanTaskRequest extends FormRequest
 
             'weighed_pounds.required' => 'Las libras pesadas son obligatorias.',
             'weighed_pounds.numeric' => 'Las libras pesadas deben ser un valor numérico.',
+
+            'waste_pounds.numeric' => 'Las libras de desecho deben ser un valor numérico.',
+            'waste_pounds.min' => 'Las libras de desecho no pueden ser negativas.',
 
             'destination.required' => 'El destino es obligatorio.',
             'destination.string' => 'El destino debe ser una cadena de texto.',
