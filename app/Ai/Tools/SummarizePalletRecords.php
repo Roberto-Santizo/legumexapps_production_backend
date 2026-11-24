@@ -24,8 +24,10 @@ class SummarizePalletRecords implements Tool
     public function description(): Stringable|string
     {
         return 'Resume las tomas por tarima (familia pallet) de una tarea (task_id) o de las tareas que cumplen los filtros, nunca ambos. '
-            .'Devuelve libras planificadas, producidas (Σ neto) y % de avance; totales de cajas, litros, báscula, tara, neto, boleta y diferencial; '
-            .'difference_pct = Σ diferencial / Σ boleta × 100; grupos por status del registro; y, con filtros, desglose por tarea (by_task). Usa siempre esta tool para totales y porcentajes.';
+            .'Úsala para avance, báscula, tara, litros, peso neto y status del registro. '
+            .'Devuelve libras planificadas, net_weight (Σ peso neto, no son libras producidas) y % de avance; totales de cajas, litros, báscula, tara, neto, boleta y diferencial; '
+            .'difference_pct = Σ diferencial / Σ boleta × 100; grupos por status del registro; y, con filtros, desglose por tarea (by_task). '
+            .'Para producción, desecho o sobredosificación usa GetPalletKpiReport.';
     }
 
     /**
