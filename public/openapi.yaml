@@ -2545,6 +2545,7 @@ paths:
                 produced_pallets: { type: [number, 'null'] }
                 hours: { type: number }
                 weighed_pounds: { type: [number, 'null'] }
+                waste_pounds: { type: [number, 'null'], minimum: 0, description: 'Libras de desecho, en cualquier familia y status; sin la key conserva el valor actual y `null` lo borra' }
                 destination: { type: string }
                 operation_date: { type: [string, 'null'], format: date }
                 start_date: { type: [string, 'null'], format: date-time }
@@ -2616,10 +2617,15 @@ paths:
       tags: [WeeklyPlanTasks]
       summary: Finalizar tarea de plan semanal
       description: |
-        Solo tareas en status `4` (En Progreso). Guarda `produced_boxes` y `weighed_pounds`,
-        calcula `produced_pallets` = `produced_boxes / sku.boxes_per_pallet` (`0` si el SKU no
-        tiene `boxes_per_pallet`), registra `end_date` con la fecha/hora actual del servidor y
-        pasa la tarea a status `5` (Finalizada).
+        Solo tareas en status `4` (En Progreso). Guarda `produced_boxes`, `weighed_pounds` y
+        `waste_pounds`, calcula `produced_pallets` = `produced_boxes / sku.boxes_per_pallet` (`0` si
+        el SKU no tiene `boxes_per_pallet`), registra `end_date` con la fecha/hora actual del servidor
+        y pasa la tarea a status `5` (Finalizada).
+
+        `waste_pounds` (libras de desecho) es obligatorio si la línea de la tarea captura por tarima
+        (`capture_type = pallet`), con `0` válido; sin él responde `422`
+        `Las libras de desecho son obligatorias.`. En líneas `lot` y `product` es opcional; si no se
+        envía, la tarea conserva el valor que ya tenía.
 
         Si la tarea tiene un tiempo muerto abierto responde `400`
         `No se puede finalizar la tarea con un tiempo muerto abierto` y la tarea sigue en status `4`.
@@ -2635,6 +2641,7 @@ paths:
               properties:
                 produced_boxes: { type: integer, minimum: 0 }
                 weighed_pounds: { type: number, minimum: 0 }
+                waste_pounds: { type: [number, 'null'], minimum: 0, description: 'Libras de desecho; obligatorio y no nulo en líneas `pallet` (`0` = sin desecho), opcional en `lot` y `product`' }
       responses:
         '200':
           description: Tarea Finalizada Correctamente
@@ -4430,6 +4437,7 @@ components:
         produced_pallets: { type: [number, 'null'] }
         hours: { type: number }
         weighed_pounds: { type: [number, 'null'] }
+        waste_pounds: { type: [number, 'null'], description: 'Libras de desecho; `null` si no se han registrado, `0` si no hubo desecho' }
         recorded_pounds: { type: number, description: 'Avance ("cuánto lleva"): suma de `net_weight` de las tarimas + suma de `trimmed_lbs` de los lotes + suma de `trimmed_lbs` de los productos registrados; los `null` cuentan como `0`' }
         planned_pounds: { type: number, description: '`boxes × sku.presentation` ("cuánto es"); `0` si el SKU no tiene `presentation`' }
         timeout_hours: { type: number, description: 'Suma de `duration_hours` de los tiempos muertos cerrados (2 decimales)' }
