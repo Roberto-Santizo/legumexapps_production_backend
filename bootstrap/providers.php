@@ -6,6 +6,7 @@ use App\Providers\Auth\AuthProvider;
 use App\Providers\BiometricQueries\BiometricQueriesProvider;
 use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
+use App\Providers\DailyLineReports\DailyLineReportsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
 use App\Providers\LineActivities\LineActivitiesProvider;
@@ -43,6 +44,7 @@ return [
     BiometricQueriesProvider::class,
     CaptureFieldsProvider::class,
     ClientsProvider::class,
+    DailyLineReportsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
     LineActivitiesProvider::class,
