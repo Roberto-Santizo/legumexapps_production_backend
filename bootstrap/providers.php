@@ -22,6 +22,7 @@ use App\Providers\RawMaterials\RawMaterialsProvider;
 use App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider;
 use App\Providers\SkuRawMaterials\SkuRawMaterialsProvider;
 use App\Providers\Skus\SkusProvider;
+use App\Providers\Telegram\TelegramProvider;
 use App\Providers\Timeouts\TimeoutsProvider;
 use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
@@ -58,6 +59,7 @@ return [
     SkuPackingMaterialsProvider::class,
     SkuRawMaterialsProvider::class,
     SkusProvider::class,
+    TelegramProvider::class,
     TimeoutsProvider::class,
     UserPermissionProvider::class,
     UserProvider::class,
