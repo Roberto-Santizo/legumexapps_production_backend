@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             CaptureFieldsSeeder::class,
             CatalogSeeder::class,
             OperationSeeder::class,
+            WeeklyPlanTaskHistorySeeder::class,
         ]);
     }
 }

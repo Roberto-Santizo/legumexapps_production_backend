@@ -4,384 +4,494 @@
         "name": "EMPAQUE JUGOS",
         "code": "1EMEMA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 2,
         "name": "REEMPAQUE 6",
         "code": "2REM6A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 3,
         "name": "PROCESO IQF1A",
         "code": "1PIQ1A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 4,
         "name": "PROCESO IQF3A",
         "code": "2PIQFA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 5,
         "name": "REEMPAQUE 4",
         "code": "1REM4A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 6,
         "name": "REEMPAQUE 8",
         "code": "2REM8A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 7,
         "name": "EMPAQUE FRESCO",
         "code": "2EMPAA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 8,
         "name": "REEMPAQUE 1",
         "code": "1REM1A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 9,
         "name": "REEMPAQUE 3",
         "code": "1REM3A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 10,
         "name": "PROCESO IQF2A",
         "code": "1PIQ2A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 11,
         "name": "REEMPAQUE 5",
         "code": "2REM5A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 12,
         "name": "PROCESO IQF4A",
         "code": "2PIQF4A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 13,
         "name": "EMPAQUE JUGOS PM",
         "code": "1EMEMB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 14,
         "name": "REEMPAQUE 6 PM",
         "code": "2REM6B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 15,
         "name": "PROCESO IQF1B",
         "code": "1PIQ1B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 16,
         "name": "PROCESO IQF3B",
         "code": "2PIQFB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 17,
         "name": "REEMPAQUE 4 PM",
         "code": "1REM4B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 18,
         "name": "REEMPAQUE 8 PM",
         "code": "2REM8B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 19,
         "name": "EMPAQUE FRESCO PM",
         "code": "2EMPAB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 20,
         "name": "REEMPAQUE 1 PM",
         "code": "1REM1B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 21,
         "name": "REEMPAQUE 3 PM",
         "code": "1REM3B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 22,
         "name": "PROCESO IQF2B",
         "code": "1PIQ2B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 23,
         "name": "REEMPAQUE 5 PM",
         "code": "2REM5B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 24,
         "name": "PROCESO IQF4B",
         "code": "2PIQF4B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 25,
         "name": "LINEA RECORTE DIRECTO AM",
         "code": "1LNDTA",
         "shift": 1,
-        "capture_type": "product"
+        "capture_type": "product",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 26,
         "name": "LINEA RECORTE DIRECTO PM",
         "code": "1LNDTB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 27,
         "name": "LINEA DE CHOCOLATE",
         "code": "CHOCA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 28,
         "name": "LINEA RECORTE DIRECTO 3 AM",
         "code": "2LNDTA",
         "shift": 1,
-        "capture_type": "product"
+        "capture_type": "product",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 29,
         "name": "LINEA COMODINES FIJOS A",
         "code": "LDCFA",
         "shift": 1,
-        "capture_type": "product"
+        "capture_type": "product",
+        "is_wildcard": true,
+        "supervisor_code": null
     },
     {
         "id": 30,
         "name": "LINEA COMODINES TEMPORALES A",
         "code": "LDCTA",
         "shift": 1,
-        "capture_type": "product"
+        "capture_type": "product",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 31,
         "name": "URSHELL A",
         "code": "URSHELLA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 32,
         "name": "URSHELL B",
         "code": "URSHELLB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 33,
         "name": "REEMPAQUE 2",
         "code": "1REM2A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 34,
         "name": "REEMPAQUE 2 PM",
         "code": "1REM2B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 35,
         "name": "IQF1A V12",
         "code": "IQF1A12",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 36,
         "name": "PROCESO IQF2A V10",
         "code": "1PIQ2A V10",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 37,
         "name": "EJOTERA 1 MAQUINA (OP4)",
         "code": "EJOTERA-1",
         "shift": 1,
-        "capture_type": "lot"
+        "capture_type": "lot",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 38,
         "name": "EJOTERA 2 MAQUINA (OP4)",
         "code": "EJOTERA-2",
         "shift": 1,
-        "capture_type": "lot"
+        "capture_type": "lot",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 39,
         "name": "EJOTERA 2 MAQUINAS (OP8)",
         "code": "EJOTERA-2-(OP 8)",
         "shift": 1,
-        "capture_type": "lot"
+        "capture_type": "lot",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 40,
         "name": "EMPAQUE AGUACATE",
         "code": "2AGUAA",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 41,
         "name": "Linea Destajo PM",
         "code": "1LDCTB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 42,
         "name": "LINEA COMODINES TEMPORALES B",
         "code": "LDCFB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 43,
         "name": "CLASIFICACIÓN MANGO TEJAR",
         "code": "CMT",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 44,
         "name": "LINEA RECORTE DIRECTO 3 PM",
         "code": "2LNDTB",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 45,
         "name": "LINEA RECORTE DIRECTO 4 AM (14R)",
         "code": "2LND4A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 46,
         "name": "LINEA RECORTE DIRECTO 4 AM (25R)",
         "code": "LD4 (25R)",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 47,
         "name": "LINEA RECORTE DIRECTO 4 PM (14R)",
         "code": "2LND4B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 48,
         "name": "DESTAJO IQF3 AM",
         "code": "DESTAJO3",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 49,
         "name": "DESTAJO IQF3 PM",
         "code": "DESTAJO3B",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 50,
         "name": "RECORTE FRESCO",
         "code": "RFRESCO",
         "shift": 1,
-        "capture_type": "product"
+        "capture_type": "product",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 51,
         "name": "URSHELLOV",
         "code": "URSHELL OV",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 52,
         "name": "URSHELL OV PM",
         "code": "URSHELLOVPM",
         "shift": 0,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 53,
         "name": "REEMPAQUE 9",
         "code": "1REM9A",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 54,
         "name": "EJOTERA-3",
         "code": "EJOTERA 3 MAQUINAS (OP10)",
         "shift": 1,
-        "capture_type": "lot"
+        "capture_type": "lot",
+        "is_wildcard": false,
+        "supervisor_code": null
     },
     {
         "id": 55,
         "name": "LINEA CHOCOLATE SELMI SATURNIA A",
         "code": "CHOCA-SMS",
         "shift": 1,
-        "capture_type": "pallet"
+        "capture_type": "pallet",
+        "is_wildcard": false,
+        "supervisor_code": null
     }
 ]
