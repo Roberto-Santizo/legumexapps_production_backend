@@ -19,4 +19,14 @@ class LineSku extends Model
     {
         return $this->belongsTo(Line::class);
     }
+
+    public function lineSkuActivities()
+    {
+        return $this->hasMany(LineSkuActivity::class, 'line_sku_id');
+    }
+
+    public function positions()
+    {
+        return $this->hasMany(Position::class, 'line_sku_id');
+    }
 }

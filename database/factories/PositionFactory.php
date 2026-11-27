@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Line;
+use App\Models\LineSku;
 use App\Models\Position;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class PositionFactory extends Factory
     {
         return [
             'code' => fake()->unique()->bothify('POS-###'),
-            'line_id' => Line::factory(),
+            'line_sku_id' => fn () => LineSku::query()->inRandomOrder()->value('id'),
             'status' => fake()->boolean(),
         ];
     }

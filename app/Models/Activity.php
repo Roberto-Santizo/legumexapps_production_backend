@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'unit'])]
 class Activity extends Model
 {
-    public function lineActivities()
+    public function lineSkuActivities()
     {
-        return $this->hasMany(LineActivity::class);
+        return $this->hasMany(LineSkuActivity::class);
     }
 
     public function positions()
