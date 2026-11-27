@@ -10,3 +10,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::job(new SyncBiometricEmployees)->dailyAt('05:15')->timezone('America/Guatemala');
+
+Schedule::command('reports:daily-line-audio')
+    ->dailyAt(config('services.daily_line_reports.time'))
+    ->timezone(config('services.daily_line_reports.timezone'));

@@ -6,6 +6,7 @@ use App\Providers\Auth\AuthProvider;
 use App\Providers\BiometricQueries\BiometricQueriesProvider;
 use App\Providers\CaptureFields\CaptureFieldsProvider;
 use App\Providers\Clients\ClientsProvider;
+use App\Providers\DailyLineReports\DailyLineReportsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
 use App\Providers\LineActivities\LineActivitiesProvider;
@@ -22,6 +23,7 @@ use App\Providers\RawMaterials\RawMaterialsProvider;
 use App\Providers\SkuPackingMaterials\SkuPackingMaterialsProvider;
 use App\Providers\SkuRawMaterials\SkuRawMaterialsProvider;
 use App\Providers\Skus\SkusProvider;
+use App\Providers\Telegram\TelegramProvider;
 use App\Providers\Timeouts\TimeoutsProvider;
 use App\Providers\Users\UserPermissionProvider;
 use App\Providers\Users\UserProvider;
@@ -42,6 +44,7 @@ return [
     BiometricQueriesProvider::class,
     CaptureFieldsProvider::class,
     ClientsProvider::class,
+    DailyLineReportsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
     LineActivitiesProvider::class,
@@ -58,6 +61,7 @@ return [
     SkuPackingMaterialsProvider::class,
     SkuRawMaterialsProvider::class,
     SkusProvider::class,
+    TelegramProvider::class,
     TimeoutsProvider::class,
     UserPermissionProvider::class,
     UserProvider::class,
