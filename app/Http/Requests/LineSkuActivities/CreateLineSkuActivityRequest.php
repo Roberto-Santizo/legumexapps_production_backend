@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\LineActivities;
+namespace App\Http\Requests\LineSkuActivities;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateLineActivityRequest extends FormRequest
+class CreateLineSkuActivityRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

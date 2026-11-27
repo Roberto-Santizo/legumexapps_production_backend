@@ -9,10 +9,10 @@ use App\Providers\Clients\ClientsProvider;
 use App\Providers\DailyLineReports\DailyLineReportsProvider;
 use App\Providers\DraftWeeklyPlans\DraftWeeklyPlansProvider;
 use App\Providers\DraftWeeklyPlanTasks\DraftWeeklyPlanTasksProvider;
-use App\Providers\LineActivities\LineActivitiesProvider;
 use App\Providers\LineDependencies\LineDependenciesProvider;
 use App\Providers\LineFields\LineFieldsProvider;
 use App\Providers\Lines\LinesProvider;
+use App\Providers\LineSkuActivities\LineSkuActivitiesProvider;
 use App\Providers\LineSkus\LineSkusProvider;
 use App\Providers\PackingMaterials\PackingMaterialsProvider;
 use App\Providers\PackingMaterialTransactionItems\PackingMaterialTransactionItemsProvider;
@@ -47,9 +47,9 @@ return [
     DailyLineReportsProvider::class,
     DraftWeeklyPlanTasksProvider::class,
     DraftWeeklyPlansProvider::class,
-    LineActivitiesProvider::class,
     LineDependenciesProvider::class,
     LineFieldsProvider::class,
+    LineSkuActivitiesProvider::class,
     LineSkusProvider::class,
     LinesProvider::class,
     PackingMaterialTransactionItemsProvider::class,
