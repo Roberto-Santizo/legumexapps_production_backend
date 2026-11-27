@@ -20,8 +20,10 @@ class PositionResource extends JsonResource
             'activity_id' => $this->activity_id,
             'activity' => $this->activity?->name,
             'unit' => $this->activity?->unit,
-            'line_id' => $this->line_id,
-            'line' => $this->line->name,
+            'line_sku_id' => $this->line_sku_id,
+            'line_id' => $this->lineSku->line_id,
+            'line' => $this->lineSku->line->name,
+            'sku' => $this->lineSku->sku->code,
             'status' => $this->status,
         ];
     }

@@ -8,8 +8,10 @@ use App\Imports\PositionsImport;
 use App\Interfaces\Positions\PositionsServiceInterface;
 use App\Models\Activity;
 use App\Models\Line;
-use App\Models\LineActivity;
+use App\Models\LineSku;
+use App\Models\LineSkuActivity;
 use App\Models\Position;
+use App\Models\Sku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,7 +22,7 @@ class PositionsService implements PositionsServiceInterface
     #[Override]
     public function createPosition(array $data)
     {
-        $this->ensureActivityAssignedToLine($data['line_id'], $data['activity_id']);
+        $this->ensureActivityAssignedToLineSku($data['line_sku_id'], $data['activity_id']);
 
         $position = Position::create($data);
 
@@ -30,18 +32,28 @@ class PositionsService implements PositionsServiceInterface
     #[Override]
     public function getPositions(?string $limit, Request $request)
     {
-        $query = Position::query()->with(['line', 'activity']);
+        $query = Position::query()->with(['lineSku.line', 'lineSku.sku', 'activity']);
 
         if ($request->query('lineCode')) {
-            $query->whereHas('line', function ($p0) use ($request) {
+            $query->whereHas('lineSku.line', function ($p0) use ($request) {
                 $p0->where('code', '=', $request->query('lineCode'));
             });
         }
 
         if ($request->query('line')) {
-            $query->whereHas('line', function ($p0) use ($request) {
+            $query->whereHas('lineSku.line', function ($p0) use ($request) {
                 $p0->where('name', 'LIKE', '%'.$request->query('line').'%');
             });
+        }
+
+        if ($request->query('sku')) {
+            $query->whereHas('lineSku.sku', function ($p0) use ($request) {
+                $p0->where('code', 'LIKE', '%'.$request->query('sku').'%');
+            });
+        }
+
+        if ($request->filled('line_sku_id')) {
+            $query->where('line_sku_id', $request->query('line_sku_id'));
         }
 
         if ($request->query('code')) {
@@ -74,20 +86,20 @@ class PositionsService implements PositionsServiceInterface
     public function updatePositionById(array $data, string $id)
     {
         $position = $this->getPositionById($id);
-        $this->ensureActivityAssignedToLine($data['line_id'], $data['activity_id']);
+        $this->ensureActivityAssignedToLineSku($data['line_sku_id'], $data['activity_id']);
         $position->update($data);
 
         return true;
     }
 
     /**
-     * A position's activity must be assigned to its line in line_activities.
+     * A position's activity must be assigned to its line SKU in line_sku_activities.
      *
      * @throws BadRequestError
      */
-    private function ensureActivityAssignedToLine(int $lineId, int $activityId): void
+    private function ensureActivityAssignedToLineSku(int $lineSkuId, int $activityId): void
     {
-        $isAssigned = LineActivity::where('line_id', $lineId)
+        $isAssigned = LineSkuActivity::where('line_sku_id', $lineSkuId)
             ->where('activity_id', $activityId)
             ->exists();
 
@@ -96,9 +108,9 @@ class PositionsService implements PositionsServiceInterface
         }
 
         $activityName = Activity::whereKey($activityId)->value('name');
-        $lineCode = Line::whereKey($lineId)->value('code');
+        $lineSku = LineSku::with(['line', 'sku'])->find($lineSkuId);
 
-        throw new BadRequestError("La actividad '{$activityName}' no está asignada a la línea '{$lineCode}'");
+        throw new BadRequestError("La actividad '{$activityName}' no está asignada al SKU '{$lineSku->sku->code}' de la línea '{$lineSku->line->code}'");
     }
 
     #[Override]
@@ -119,11 +131,15 @@ class PositionsService implements PositionsServiceInterface
             throw new BadRequestError('El archivo no contiene filas');
         }
 
-        $existingCodes = Position::pluck('code')->flip();
         $lineIdsByCode = Line::pluck('id', 'code');
+        $skuIdsByCode = Sku::pluck('id', 'code');
+        $lineSkuIdsByPair = LineSku::get(['id', 'line_id', 'sku_id'])
+            ->mapWithKeys(fn (LineSku $lineSku): array => ["{$lineSku->line_id}|{$lineSku->sku_id}" => $lineSku->id]);
         $activityIdsByName = Activity::pluck('id', 'name');
-        $assignedLineActivities = LineActivity::get(['line_id', 'activity_id'])
-            ->mapWithKeys(fn (LineActivity $lineActivity): array => ["{$lineActivity->line_id}|{$lineActivity->activity_id}" => true]);
+        $assignedLineSkuActivities = LineSkuActivity::get(['line_sku_id', 'activity_id'])
+            ->mapWithKeys(fn (LineSkuActivity $lineSkuActivity): array => ["{$lineSkuActivity->line_sku_id}|{$lineSkuActivity->activity_id}" => true]);
+        $existingCodes = Position::get(['line_sku_id', 'code'])
+            ->mapWithKeys(fn (Position $position): array => ["{$position->line_sku_id}|{$position->code}" => true]);
 
         $now = now();
         $errors = [];
@@ -137,17 +153,22 @@ class PositionsService implements PositionsServiceInterface
             $code = trim((string) ($row['codigo'] ?? ''));
             $activity = mb_strtoupper(trim((string) ($row['actividad'] ?? '')));
             $lineCode = trim((string) ($row['linea'] ?? ''));
+            $skuCode = trim((string) ($row['sku'] ?? ''));
+
+            $lineId = $lineIdsByCode->get($lineCode);
+            $skuId = $skuIdsByCode->get($skuCode);
+            $lineSkuId = ($lineId && $skuId) ? $lineSkuIdsByPair->get("{$lineId}|{$skuId}") : null;
 
             if ($code === '') {
                 $rowErrors[] = "Línea {$lineNumber}: el campo 'codigo' es obligatorio";
-            } elseif ($existingCodes->has($code)) {
-                $rowErrors[] = "Línea {$lineNumber}: el código '{$code}' ya existe";
-            } elseif (isset($codesInFile[$code])) {
-                $rowErrors[] = "Línea {$lineNumber}: el código '{$code}' está repetido en el archivo";
+            } elseif ($lineSkuId && $existingCodes->has("{$lineSkuId}|{$code}")) {
+                $rowErrors[] = "Línea {$lineNumber}: el código '{$code}' ya existe en el sku '{$skuCode}' de la línea '{$lineCode}'";
+            } elseif ($lineSkuId && isset($codesInFile["{$lineSkuId}|{$code}"])) {
+                $rowErrors[] = "Línea {$lineNumber}: el código '{$code}' está repetido en el archivo para el sku '{$skuCode}' de la línea '{$lineCode}'";
             }
 
-            if ($code !== '') {
-                $codesInFile[$code] = true;
+            if ($code !== '' && $lineSkuId) {
+                $codesInFile["{$lineSkuId}|{$code}"] = true;
             }
 
             $activityId = $activityIdsByName->get($activity);
@@ -158,16 +179,22 @@ class PositionsService implements PositionsServiceInterface
                 $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no existe";
             }
 
-            $lineId = $lineIdsByCode->get($lineCode);
-
             if ($lineCode === '') {
                 $rowErrors[] = "Línea {$lineNumber}: el campo 'linea' es obligatorio";
             } elseif (! $lineId) {
                 $rowErrors[] = "Línea {$lineNumber}: la línea con código '{$lineCode}' no existe";
             }
 
-            if ($lineId && $activityId && ! $assignedLineActivities->has("{$lineId}|{$activityId}")) {
-                $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no está asignada a la línea '{$lineCode}'";
+            if ($skuCode === '') {
+                $rowErrors[] = "Línea {$lineNumber}: el campo 'sku' es obligatorio";
+            } elseif (! $skuId) {
+                $rowErrors[] = "Línea {$lineNumber}: el sku con código '{$skuCode}' no existe";
+            } elseif ($lineId && ! $lineSkuId) {
+                $rowErrors[] = "Línea {$lineNumber}: el sku '{$skuCode}' no está asignado a la línea '{$lineCode}'";
+            }
+
+            if ($lineSkuId && $activityId && ! $assignedLineSkuActivities->has("{$lineSkuId}|{$activityId}")) {
+                $rowErrors[] = "Línea {$lineNumber}: la actividad '{$activity}' no está asignada al sku '{$skuCode}' de la línea '{$lineCode}'";
             }
 
             if (! empty($rowErrors)) {
@@ -179,7 +206,7 @@ class PositionsService implements PositionsServiceInterface
             $positionsToCreate[] = [
                 'code' => $code,
                 'activity_id' => $activityId,
-                'line_id' => $lineId,
+                'line_sku_id' => $lineSkuId,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
