@@ -45,7 +45,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
     public function getWeeklyPlanTasks(?string $limit, Request $request)
     {
         $query = WeeklyPlanTask::query();
-        $query->with(['performance', 'performance.sku', 'performance.line', 'openTimeout']);
+        $query->with(['performance', 'performance.sku', 'performance.line', 'performance.positions', 'openTimeout']);
         $query->withSum('performanceRecords', 'net_weight');
         $query->withSum('lotRecords', 'trimmed_lbs');
         $query->withSum('productRecords', 'trimmed_lbs');
@@ -216,7 +216,7 @@ class WeeklyPlanTasksService implements WeeklyPlanTasksServiceInterface
             return $newTaskIds;
         });
 
-        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'openTimeout'])->withSum('performanceRecords', 'net_weight')->withSum('lotRecords', 'trimmed_lbs')->withSum('productRecords', 'trimmed_lbs')->withSum('timeouts', 'duration_hours')->get();
+        return WeeklyPlanTask::whereIn('id', $newTaskIds)->with(['performance.sku', 'performance.line', 'performance.positions', 'openTimeout'])->withSum('performanceRecords', 'net_weight')->withSum('lotRecords', 'trimmed_lbs')->withSum('productRecords', 'trimmed_lbs')->withSum('timeouts', 'duration_hours')->get();
     }
 
     /**

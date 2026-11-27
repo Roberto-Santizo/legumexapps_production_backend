@@ -17,7 +17,7 @@ class LineDependencyResource extends JsonResource
         return [
             'id' => $this->id,
             'line_dependant_name' => $this->dependantLine->name,
-            'positions' => $this->dependantLine->positions->count()
+            'positions' => $this->dependantLine->performances->sum('positions_count'),
         ];
     }
 }

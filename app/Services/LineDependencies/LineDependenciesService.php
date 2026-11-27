@@ -31,7 +31,7 @@ class LineDependenciesService implements LineDependenciesServiceInterface
         }
 
         $query->where('line_id', $lineId);
-        $query->with(['dependantLine', 'dependantLine.positions']);
+        $query->with(['dependantLine.performances' => fn ($performances) => $performances->withCount('positions')]);
 
         return $query->get();
     }
