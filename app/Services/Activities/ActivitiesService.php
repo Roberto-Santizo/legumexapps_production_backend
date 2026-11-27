@@ -31,8 +31,8 @@ class ActivitiesService implements ActivitiesServiceInterface
             $query->where('name', 'LIKE', '%'.mb_strtoupper($request->query('name')).'%');
         }
 
-        if ($request->filled('line_id')) {
-            $query->whereHas('lineActivities', fn ($q) => $q->where('line_id', $request->query('line_id')));
+        if ($request->filled('line_sku_id')) {
+            $query->whereHas('lineSkuActivities', fn ($q) => $q->where('line_sku_id', $request->query('line_sku_id')));
         }
 
         $query->orderBy('name');
@@ -70,8 +70,8 @@ class ActivitiesService implements ActivitiesServiceInterface
     {
         $activity = $this->getActivityById($id);
 
-        if ($activity->lineActivities()->exists()) {
-            throw new BadRequestError('No se puede eliminar una actividad asignada a líneas');
+        if ($activity->lineSkuActivities()->exists()) {
+            throw new BadRequestError('No se puede eliminar una actividad asignada a SKUs de línea');
         }
 
         if ($activity->positions()->exists()) {
