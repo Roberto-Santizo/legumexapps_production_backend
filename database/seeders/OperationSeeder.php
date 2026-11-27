@@ -2,100 +2,156 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CaptureType;
+use App\Models\Line;
+use App\Models\LineSku;
+use App\Models\WeeklyPlan;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Random\Engine\Mt19937;
+use Random\Randomizer;
 
+/**
+ * Weekly plan of the current week with tasks in status 2: packing material delivered, waiting for their crew to be
+ * confirmed. Nothing else is created (no employees, records, timeouts or observations). A line that already has tasks
+ * in the plan is skipped, so it can be run more than once.
+ *
+ * Requires the catalog to be seeded first.
+ */
 class OperationSeeder extends Seeder
 {
+    private const RANDOM_SEED = 48;
+
+    private const STATUS_AWAITING_EMPLOYEES = 2;
+
     /**
-     * Tables seeded by id, ordered so that foreign keys are always satisfied.
+     * Operation days (offset from Monday) of each line's tasks.
      *
-     * @var array<int, string>
+     * @var array<string, list<int>>
      */
-    private const TABLES = [
-        'weekly_plans',
-        'weekly_plan_tasks',
-        'weekly_plan_task_employees',
-        'weekly_plan_task_performance_records',
-        'weekly_plan_task_lot_records',
-        'weekly_plan_task_product_records',
-        'weekly_plan_task_logs',
-        'weekly_plan_task_observations',
-        'weekly_plan_task_timeouts',
-        'draft_weekly_plans',
-        'draft_weekly_plan_tasks',
-        'packing_material_transactions',
-        'packing_material_transaction_items',
+    private const LINE_DAYS = [
+        '2REM5A' => [0, 2, 4],
+        '2REM8A' => [1, 3, 5],
+        'EJOTERA-1' => [0, 3],
+        'EJOTERA-2' => [1, 4],
+        'LDCFA' => [0, 2],
+        'RFRESCO' => [2, 4],
     ];
 
-    private const CHUNK_SIZE = 500;
+    private const MAX_SKUS_PER_LINE = 6;
 
-    /**
-     * Seed the operational data (weekly plans, tasks and their records) from the JSON files in database/seeders/data/operation.
-     * Requires the catalog and the admin user to be seeded first.
-     */
+    private const DESTINATIONS = ['MIAMI', 'HOUSTON', 'PHILADELPHIA'];
+
+    private Randomizer $random;
+
     public function run(): void
     {
-        DB::transaction(function (): void {
-            foreach (self::TABLES as $table) {
-                $this->seedTable($table);
+        $this->random = new Randomizer(new Mt19937(self::RANDOM_SEED));
+
+        $monday = CarbonImmutable::now()->startOfWeek();
+        $weeklyPlan = WeeklyPlan::firstOrCreate(['week' => $monday->isoWeek(), 'year' => $monday->isoWeekYear()]);
+
+        $lines = Line::whereIn('code', array_keys(self::LINE_DAYS))->get()->keyBy('code');
+
+        DB::transaction(function () use ($lines, $weeklyPlan, $monday): void {
+            $sequence = 0;
+
+            foreach (self::LINE_DAYS as $code => $dayOffsets) {
+                $line = $lines->get($code);
+
+                if (! $line) {
+                    $this->command?->warn("La línea {$code} no existe, se omite.");
+
+                    continue;
+                }
+
+                $sequence = $this->seedLine($weeklyPlan, $line, $monday, $dayOffsets, $sequence);
             }
         });
     }
 
     /**
-     * Upsert a table keeping its original ids and timestamps, then move its id sequence past them.
+     * @param  list<int>  $dayOffsets
      */
-    private function seedTable(string $table): void
+    private function seedLine(WeeklyPlan $weeklyPlan, Line $line, CarbonImmutable $monday, array $dayOffsets, int $sequence): int
     {
-        $jsonColumns = $this->jsonColumns($table);
+        $alreadySeeded = $weeklyPlan->tasks()
+            ->whereHas('performance', fn ($query) => $query->where('line_id', $line->id))
+            ->exists();
 
-        $rows = array_map(function (array $row) use ($jsonColumns): array {
-            foreach ($jsonColumns as $column) {
-                if (isset($row[$column])) {
-                    $row[$column] = json_encode($row[$column], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        if ($alreadySeeded) {
+            return $sequence;
+        }
+
+        $lineSkus = $this->lineSkus($line);
+
+        if ($lineSkus->isEmpty()) {
+            $this->command?->warn("La línea {$line->code} no tiene SKUs utilizables, se omite.");
+
+            return $sequence;
+        }
+
+        foreach ($dayOffsets as $index => $dayOffset) {
+            $this->createTask($weeklyPlan, $line, $lineSkus[$index % $lineSkus->count()], $monday->addDays($dayOffset), $sequence);
+            $sequence++;
+        }
+
+        return $sequence;
+    }
+
+    /**
+     * Active SKUs of the line able to size a task, those with activity quotas first. Pallet lines also need boxes per pallet.
+     *
+     * @return Collection<int, LineSku>
+     */
+    private function lineSkus(Line $line): Collection
+    {
+        return LineSku::with('sku')
+            ->withCount('lineSkuActivities')
+            ->where('line_id', $line->id)
+            ->where('status', true)
+            ->where('lbs_performance', '>', 0)
+            ->whereHas('sku', function ($query) use ($line): void {
+                $query->where('presentation', '>', 0);
+
+                if ($line->capture_type === CaptureType::Pallet) {
+                    $query->where('boxes_per_pallet', '>', 0);
                 }
-            }
-
-            return $row;
-        }, $this->rows($table));
-
-        if ($rows === []) {
-            return;
-        }
-
-        $columnsToUpdate = array_values(array_diff(array_keys($rows[0]), ['id', 'created_at']));
-
-        foreach (array_chunk($rows, self::CHUNK_SIZE) as $chunk) {
-            DB::table($table)->upsert($chunk, ['id'], $columnsToUpdate);
-        }
-
-        if (DB::getDriverName() === 'pgsql') {
-            DB::statement("SELECT setval(pg_get_serial_sequence('{$table}', 'id'), (SELECT MAX(id) FROM {$table}))");
-        }
+            })
+            ->orderByDesc('line_sku_activities_count')
+            ->orderBy('id')
+            ->limit(self::MAX_SKUS_PER_LINE)
+            ->get();
     }
 
     /**
-     * @return array<int, string>
+     * Task sized for a 6–10 hour shift, computed as WeeklyPlanTasksService::createWeeklyPlanTask does.
      */
-    private function jsonColumns(string $table): array
+    private function createTask(WeeklyPlan $weeklyPlan, Line $line, LineSku $lineSku, CarbonImmutable $operationDate, int $sequence): void
     {
-        return collect(Schema::getColumns($table))
-            ->filter(fn (array $column): bool => in_array($column['type_name'], ['json', 'jsonb'], true))
-            ->pluck('name')
-            ->all();
-    }
+        $sku = $lineSku->sku;
+        $boxesPerPallet = (int) $sku->boxes_per_pallet;
+        $targetPounds = $this->random->getFloat(6, 10) * $lineSku->lbs_performance;
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function rows(string $table): array
-    {
-        return json_decode(
-            file_get_contents(database_path("seeders/data/operation/{$table}.json")),
-            true,
-            flags: JSON_THROW_ON_ERROR
-        );
+        $boxes = $line->capture_type === CaptureType::Pallet
+            ? max(1, (int) floor($targetPounds / ($boxesPerPallet * $sku->presentation))) * $boxesPerPallet
+            : max(1, (int) round($targetPounds / $sku->presentation));
+
+        $plannedAt = $operationDate->startOfWeek()->subDays(2)->setTime(15, 0);
+
+        DB::table('weekly_plan_tasks')->insert([
+            'boxes' => $boxes,
+            'pallets' => $boxesPerPallet ? $boxes / $boxesPerPallet : 0,
+            'hours' => $boxes * $sku->presentation / $lineSku->lbs_performance,
+            'destination' => self::DESTINATIONS[$sequence % count(self::DESTINATIONS)],
+            'operation_date' => $operationDate,
+            'weekly_plan_id' => $weeklyPlan->id,
+            'line_sku_id' => $lineSku->id,
+            'status' => self::STATUS_AWAITING_EMPLOYEES,
+            'created_at' => $plannedAt,
+            'updated_at' => $plannedAt,
+        ]);
     }
 }

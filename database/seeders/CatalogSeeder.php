@@ -25,7 +25,7 @@ class CatalogSeeder extends Seeder
         'line_dependencies',
         'line_stock_keeping_units',
         'activities',
-        'line_activities',
+        'line_sku_activities',
         'positions',
     ];
 

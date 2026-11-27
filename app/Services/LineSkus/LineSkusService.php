@@ -43,6 +43,12 @@ class LineSkusService implements LineSkusServiceInterface
             });
         }
 
+        if ($request->query('lineCode')) {
+            $query->whereHas('line', function ($p0) use ($request) {
+                $p0->where('code', 'LIKE', '%'.$request->query('lineCode').'%');
+            });
+        }
+
         if ($request->filled('payment_method')) {
             $query->where('payment_method', $request->boolean('payment_method'));
         }
