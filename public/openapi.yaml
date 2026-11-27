@@ -47,8 +47,8 @@ tags:
     description: Campos de captura configurados por línea (formulario de captura).
   - name: Activities
     description: Catálogo global de actividades (recortador, canastero, sellador…) con su unidad de medida.
-  - name: LineActivities
-    description: Cupos de personal por actividad configurados por línea (dotación de la línea).
+  - name: LineSkuActivities
+    description: Cupos de personal por actividad configurados por SKU de línea (dotación de cada `LineSku`).
   - name: Clients
   - name: Skus
   - name: Performances
@@ -512,6 +512,8 @@ paths:
         - $ref: '#/components/parameters/Page'
         - { name: lineCode, in: query, schema: { type: string }, description: Código exacto de la línea }
         - { name: line, in: query, schema: { type: string }, description: Filtro parcial por nombre de línea }
+        - { name: sku, in: query, schema: { type: string }, description: 'Filtro parcial por código del SKU (`stock_keeping_units.code`) del `LineSku` de la posición' }
+        - { name: line_sku_id, in: query, schema: { type: integer }, description: 'Id exacto del SKU de línea (`line_stock_keeping_units.id`)' }
         - { name: code, in: query, schema: { type: string }, description: Filtro parcial por código }
         - { name: activity, in: query, schema: { type: string }, description: 'Filtro parcial por nombre de la actividad del catálogo (`activities.name`), insensible a mayúsculas. Excluye posiciones sin actividad' }
       responses:
@@ -535,16 +537,19 @@ paths:
       tags: [Positions]
       summary: Crear puesto
       description: |
-        `activity_id` debe existir en el catálogo (`422 La actividad no existe.`) y estar asignada a la línea
-        `line_id` en `line_activities` (`POST /lines/{code}/activities`).
+        `activity_id` debe existir en el catálogo (`422 La actividad no existe.`) y estar asignada al SKU de línea
+        `line_sku_id` en `line_sku_activities` (`POST /performances/{id}/activities`).
 
-        Errores `400`: `La actividad 'RECORTADOR' no está asignada a la línea 'L01'`.
+        `code` es único por `line_sku_id` (`422 El código ya existe en el SKU de línea.`): el mismo código puede
+        repetirse entre SKUs de la misma línea.
+
+        Errores `400`: `La actividad 'RECORTADOR' no está asignada al SKU 'SKU01' de la línea 'L01'`.
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: '#/components/schemas/PositionInput' }
-            example: { code: '1PIQ1A001', activity_id: 4, line_id: 3, status: true }
+            example: { code: '1PIQ1A001', activity_id: 4, line_sku_id: 12, status: true }
       responses:
         '201':
           description: Puesto Creado Correctamente
@@ -565,13 +570,21 @@ paths:
       tags: [Positions]
       summary: Carga masiva de puestos (Excel)
       description: |
-        Encabezados: `codigo`, `actividad`, `linea`. `actividad` es el **nombre** de una actividad del catálogo
-        (`activities.name`); se compara con `trim` y en mayúsculas. `linea` es `lines.code`.
+        Encabezados: `codigo`, `actividad`, `linea`, `sku`. `actividad` es el **nombre** de una actividad del catálogo
+        (`activities.name`); se compara con `trim` y en mayúsculas. `linea` es `lines.code` y `sku` es
+        `stock_keeping_units.code`; el par (`linea`, `sku`) resuelve el `LineSku` de la posición.
 
         Errores `400` (todos en un único mensaje, uno por línea del archivo; no se inserta nada):
-        - `Línea N: la actividad 'X' no existe`
-        - `Línea N: la actividad 'X' no está asignada a la línea 'L01'`
-        - además de los de campos obligatorios, códigos repetidos o existentes y línea inexistente.
+        - `Línea N: el campo 'sku' es obligatorio`
+        - `Línea N: el sku con código 'X' no existe`
+        - `Línea N: el sku 'X' no está asignado a la línea 'L'`
+        - `Línea N: el código 'C' ya existe en el sku 'X' de la línea 'L'`
+        - `Línea N: el código 'C' está repetido en el archivo para el sku 'X' de la línea 'L'`
+        - `Línea N: la actividad 'A' no existe`
+        - `Línea N: la actividad 'A' no está asignada al sku 'X' de la línea 'L'`
+        - además de los de campos obligatorios (`codigo`, `actividad`, `linea`) y línea inexistente.
+
+        Usa un número fijo de consultas, sin importar cuántas filas lleguen.
       requestBody: { $ref: '#/components/requestBodies/UploadFile' }
       responses:
         '200': { $ref: '#/components/responses/UploadResult' }
@@ -603,10 +616,10 @@ paths:
       tags: [Positions]
       summary: Actualizar puesto
       description: |
-        Mismas validaciones que al crear, con el `line_id` del body. `activity_id` es obligatorio también en
-        posiciones que aún tienen `activity_id = null`.
+        Mismas validaciones que al crear, con el `line_sku_id` del body. Conservar el mismo `code` y `line_sku_id`
+        no falla por `unique`. `activity_id` es obligatorio también en posiciones que aún tienen `activity_id = null`.
 
-        Errores `400`: `La actividad 'RECORTADOR' no está asignada a la línea 'L01'`.
+        Errores `400`: `La actividad 'RECORTADOR' no está asignada al SKU 'SKU01' de la línea 'L01'`.
       requestBody:
         required: true
         content:
@@ -914,7 +927,7 @@ paths:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Page'
         - { name: name, in: query, schema: { type: string }, description: 'Filtro parcial por nombre, insensible a mayúsculas' }
-        - { name: line_id, in: query, schema: { type: integer }, description: 'Id exacto de la línea. Solo actividades asignadas a esa línea en `line_activities`; línea inexistente o sin actividades → lista vacía' }
+        - { name: line_sku_id, in: query, schema: { type: integer }, description: 'Id exacto del SKU de línea. Solo actividades asignadas a ese `LineSku` en `line_sku_activities`; `LineSku` inexistente o sin actividades → lista vacía' }
       responses:
         '200':
           description: Actividades Obtenidas Correctamente
@@ -1016,7 +1029,7 @@ paths:
       summary: Eliminar actividad
       description: |
         Errores `400`:
-        - `No se puede eliminar una actividad asignada a líneas`
+        - `No se puede eliminar una actividad asignada a SKUs de línea`
         - `No se puede eliminar una actividad asignada a posiciones`
       responses:
         '200': { $ref: '#/components/responses/NullData' }
@@ -1025,42 +1038,47 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
 
-  # ───────────────────────────── LINE ACTIVITIES ─────────────────────────────
-  /lines/{code}/activities:
+  # ───────────────────────────── LINE SKU ACTIVITIES ─────────────────────────────
+  /performances/{id}/activities:
     parameters:
-      - $ref: '#/components/parameters/Code'
+      - { name: id, in: path, required: true, schema: { type: integer }, description: ID del SKU de línea (`line_stock_keeping_units`) }
     get:
-      tags: [LineActivities]
-      summary: Cupos de personal por actividad de una línea
-      description: Ordenados por nombre de actividad. Sin paginación.
+      tags: [LineSkuActivities]
+      summary: Cupos de personal por actividad de un SKU de línea
+      description: |
+        Ordenados por nombre de actividad. Sin paginación.
+
+        Errores `404`: `El SKU de línea no existe`.
       responses:
         '200':
-          description: Actividades de la Línea Obtenidas Correctamente
+          description: Actividades del SKU de Línea Obtenidas Correctamente
           content:
             application/json:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/Envelope'
                   - properties:
-                      data: { type: array, items: { $ref: '#/components/schemas/LineActivity' } }
+                      data: { type: array, items: { $ref: '#/components/schemas/LineSkuActivity' } }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
     post:
-      tags: [LineActivities]
-      summary: Asignar una actividad del catálogo a la línea con su cantidad
+      tags: [LineSkuActivities]
+      summary: Asignar una actividad del catálogo al SKU de línea con su cantidad
       description: |
+        Cada `LineSku` tiene su propia dotación: la misma actividad puede asignarse a varios SKUs de la misma línea.
+
         Errores `400`:
-        - `La actividad ya está asignada a la línea`
+        - `La actividad ya está asignada al SKU de línea`
 
         Errores `404`:
-        - `La línea no existe`
+        - `El SKU de línea no existe`
         - `La actividad no existe`
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/LineActivityInput' }
+            schema: { $ref: '#/components/schemas/LineSkuActivityInput' }
       responses:
         '201':
           description: Actividad Asignada Correctamente
@@ -1070,30 +1088,30 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/Envelope'
                   - properties:
-                      data: { $ref: '#/components/schemas/LineActivity' }
+                      data: { $ref: '#/components/schemas/LineSkuActivity' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
-  /line-activities/{id}:
+  /line-sku-activities/{id}:
     parameters:
-      - { name: id, in: path, required: true, schema: { type: integer }, description: ID del cupo (line_activities) }
+      - { name: id, in: path, required: true, schema: { type: integer }, description: ID del cupo (`line_sku_activities`) }
     patch:
-      tags: [LineActivities]
-      summary: Editar la cantidad de un cupo de la línea
+      tags: [LineSkuActivities]
+      summary: Editar la cantidad de un cupo del SKU de línea
       description: |
         Solo cambia `quantity`. Para cambiar de actividad se quita y se asigna otra.
         Se permite bajar `quantity` por debajo de las personas ya asignadas en tareas; el cupo se valida
         al confirmar o editar personal, no retroactivamente.
 
-        Errores `404`: `La actividad de la línea no existe`.
+        Errores `404`: `La actividad del SKU de línea no existe`.
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/LineActivityUpdateInput' }
+            schema: { $ref: '#/components/schemas/LineSkuActivityUpdateInput' }
       responses:
         '200': { $ref: '#/components/responses/NullData' }
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1101,18 +1119,18 @@ paths:
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
     delete:
-      tags: [LineActivities]
-      summary: Quitar una actividad de la línea
+      tags: [LineSkuActivities]
+      summary: Quitar una actividad del SKU de línea
       description: |
         La actividad sigue en el catálogo.
 
         Errores `400`:
         - `No se puede quitar una actividad con personal asignado` (alguna asignación de
           `weekly_plan_task_employees`, activa o retirada, apunta al cupo).
-        - `No se puede quitar una actividad con posiciones asignadas` (alguna posición de esa línea tiene esa
+        - `No se puede quitar una actividad con posiciones asignadas` (alguna posición de ese `LineSku` tiene esa
           actividad en `positions.activity_id`).
 
-        Errores `404`: `La actividad de la línea no existe`.
+        Errores `404`: `La actividad del SKU de línea no existe`.
       responses:
         '200': { $ref: '#/components/responses/NullData' }
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -2756,26 +2774,29 @@ paths:
       summary: Confirmar asignación de personal de la tarea
       description: |
         Registra en `weekly_plan_task_employees` una fila por cada empleado enviado
-        (`code`, `name`, `position`, `line_activity_id`), tomados normalmente de
-        `GET /weekly-plan-tasks/{id}/availableEmployees` y `GET /lines/{code}/activities`.
+        (`code`, `name`, `position`, `line_sku_activity_id`), tomados normalmente de
+        `GET /weekly-plan-tasks/{id}/availableEmployees` y `GET /performances/{id}/activities`.
 
-        `position` es el **código** de una posición (`positions.code`); el backend guarda la FK `position_id`.
-        `line_activity_id` es el id del cupo de la **línea de la tarea** (`line_activities`) que cubre el empleado.
+        `position` es el **código** de una posición (`positions.code`) del **SKU de línea de la tarea**
+        (`line_sku_id` de la tarea); el backend guarda la FK `position_id`.
+        `line_sku_activity_id` es el id del cupo del **SKU de línea de la tarea** (`line_sku_activities`) que cubre el empleado.
 
         Validaciones (posiciones, actividades y conteo de asignados se resuelven con un número fijo de consultas):
 
         - Tarea sin línea → `400` `La tarea no tiene una línea asignada`.
-        - Por empleado: `La posición 'X' no existe`, `La actividad de la línea 'N' no existe`,
-          `La actividad 'X' no pertenece a la línea de la tarea`.
+        - Línea comodín cuyo `LineSku` no tiene posiciones → `400` `El SKU de línea debería de tener por lo menos una posición`.
+          En líneas comodín no se valida `position`; se guarda la primera posición del `LineSku`.
+        - Por empleado: `La posición 'X' no existe` (un código que solo existe en otro `LineSku` cuenta como inexistente),
+          `La actividad de la línea 'N' no existe`.
         - Por actividad: asignaciones activas de la tarea + enviadas no pueden superar `quantity` →
           `La actividad 'X' admite N personas; ya hay A asignadas y se enviaron S`. Las asignaciones
-          retiradas no cuentan.
+          retiradas no cuentan. Solo se valida el cupo de los `line_sku_activities` del `LineSku` de la tarea.
 
         Todos los errores se acumulan en un único `400` (separados por salto de línea) y no se inserta
         nada ni cambia el status.
 
         Si todo es válido, inserta las filas y pasa la tarea a status `3` en una transacción.
-        No valida status de la tarea, personal previamente asignado ni que la posición pertenezca a la línea de la tarea.
+        No valida status de la tarea ni personal previamente asignado.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -2789,20 +2810,20 @@ paths:
                 employees:
                   type: array
                   minItems: 1
-                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista; `line_activity_id` sí.
+                  description: Empleados a asignar. `code`, `name` y `position` no pueden repetirse dentro de la lista; `line_sku_activity_id` sí.
                   items:
                     type: object
-                    required: [code, name, position, line_activity_id]
+                    required: [code, name, position, line_sku_activity_id]
                     properties:
                       code: { type: string, description: Código del empleado (biométrico) }
                       name: { type: string, description: Nombre completo }
-                      position: { type: string, description: Código de la posición (`positions.code`); debe existir }
-                      line_activity_id: { type: integer, description: ID del cupo (`line_activities`) de la línea de la tarea que cubre el empleado }
+                      position: { type: string, description: Código de la posición (`positions.code`); debe existir en el SKU de línea de la tarea }
+                      line_sku_activity_id: { type: integer, description: ID del cupo (`line_sku_activities`) del SKU de línea de la tarea que cubre el empleado }
             example:
               employees:
-                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001', line_activity_id: 4 }
-                - { code: 'E0002', name: 'María López', position: '1PIQ1A002', line_activity_id: 4 }
-                - { code: 'E0003', name: 'Pedro Gómez', position: '1PIQ1A011', line_activity_id: 5 }
+                - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001', line_sku_activity_id: 4 }
+                - { code: 'E0002', name: 'María López', position: '1PIQ1A002', line_sku_activity_id: 4 }
+                - { code: 'E0003', name: 'Pedro Gómez', position: '1PIQ1A011', line_sku_activity_id: 5 }
       responses:
         '201':
           description: Personal Asignado Correctamente (`data` = null)
@@ -2821,30 +2842,33 @@ paths:
               schema: { $ref: '#/components/schemas/ApiError' }
               example:
                 statusCode: 400
-                message: "La posición 'X1' no existe\nLa actividad 'EMPACADOR' no pertenece a la línea de la tarea\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
+                message: "La posición 'X1' no existe\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '500': { $ref: '#/components/responses/ServerError' }
 
-  /weekly-plan-tasks/lines/{code}/lastEmployeesConfiguration:
+  /weekly-plan-tasks/performances/{id}/lastEmployeesConfiguration:
     get:
       tags: [WeeklyPlanTaskEmployees]
-      summary: Personal de la última tarea finalizada de la línea (cargar configuración anterior)
+      summary: Personal de la última tarea finalizada del SKU de línea (cargar configuración anterior)
       description: |
-        Busca la última tarea de la línea con `end_date` y devuelve su personal activo con la misma forma del
-        body de `POST /weekly-plan-tasks/{id}/confirmEmployees`, para reenviar `data` sin reconstruirlo.
+        Busca la última tarea con `end_date` y `line_sku_id = {id}` y devuelve su personal activo con la misma
+        forma del body de `POST /weekly-plan-tasks/{id}/confirmEmployees`, para reenviar `data` sin reconstruirlo.
+        Las posiciones y cupos devueltos son del mismo `LineSku`, válidos para reconfirmar.
+
+        Reemplaza a `GET /weekly-plan-tasks/lines/{code}/lastEmployeesConfiguration` (eliminada en SPEC 20).
 
         - `employees` es `[]` si esa tarea no tiene personal activo.
         - `position` es la posición enviada al confirmar; en asignaciones históricas sin ese dato es el código de
           `position_id`, o `null` si tampoco existe.
-        - `line_activity_id` es `null` en asignaciones anteriores a SPEC 16; debe completarse antes de reenviar.
+        - `line_sku_activity_id` puede ser `null`; debe completarse antes de reenviar.
 
         Errores `404`:
-        - `La línea no existe`
-        - `La línea no tiene tareas finalizadas`
+        - `El SKU de línea no existe`
+        - `El SKU de línea no tiene tareas finalizadas`
       parameters:
-        - $ref: '#/components/parameters/Code'
+        - { name: id, in: path, required: true, schema: { type: integer }, description: ID del SKU de línea (`line_stock_keeping_units`) }
       responses:
         '200':
           description: Configuración Anterior Obtenida Correctamente
@@ -2862,19 +2886,19 @@ paths:
                             type: array
                             items:
                               type: object
-                              required: [code, name, position, line_activity_id]
+                              required: [code, name, position, line_sku_activity_id]
                               properties:
                                 code: { type: string, description: Código del empleado (biométrico) }
                                 name: { type: string, description: Nombre completo }
                                 position: { type: [string, 'null'], description: Posición enviada al confirmar }
-                                line_activity_id: { type: [integer, 'null'], description: ID del cupo (`line_activities`) que cubrió el empleado }
+                                line_sku_activity_id: { type: [integer, 'null'], description: ID del cupo (`line_sku_activities`) que cubrió el empleado }
               example:
                 statusCode: 200
                 message: Configuración Anterior Obtenida Correctamente
                 data:
                   employees:
-                    - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001', line_activity_id: 4 }
-                    - { code: 'E0002', name: 'María López', position: '1PIQ1A002', line_activity_id: 4 }
+                    - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001', line_sku_activity_id: 4 }
+                    - { code: 'E0002', name: 'María López', position: '1PIQ1A002', line_sku_activity_id: 4 }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/ServerError' }
@@ -2884,15 +2908,17 @@ paths:
       tags: [WeeklyPlanTaskEmployees]
       summary: Confirmar asignación de personal resolviendo la actividad desde la posición
       description: |
-        Igual que `POST /weekly-plan-tasks/{id}/confirmEmployees`, pero **sin** `line_activity_id` en el body.
-        El backend busca cada `position` por `positions.code`, toma su `activity_id` y resuelve el cupo
-        (`line_activities`) con `line_id` = **línea de la tarea** y `activity_id` = actividad de la posición.
+        Igual que `POST /weekly-plan-tasks/{id}/confirmEmployees`, pero **sin** `line_sku_activity_id` en el body.
+        El backend busca cada `position` por `positions.code` dentro del **SKU de línea de la tarea**, toma su
+        `activity_id` y resuelve el cupo (`line_sku_activities`) con `line_sku_id` = SKU de línea de la tarea y
+        `activity_id` = actividad de la posición.
 
         Validaciones (posiciones, cupos y conteo de asignados se resuelven con un número fijo de consultas):
 
         - Tarea sin línea → `400` `La tarea no tiene una línea asignada`.
+        - Línea comodín → `400` `La línea es de comodines, no se puede confirmar por posición`.
         - Por empleado: `La posición 'X' no existe`, `La posición 'X' no tiene una actividad asignada`,
-          `La actividad 'Y' de la posición 'X' no está asignada a la línea de la tarea`.
+          `La actividad 'Y' de la posición 'X' no está asignada al SKU de línea de la tarea`.
         - Por actividad: asignaciones activas de la tarea + enviadas no pueden superar `quantity` →
           `La actividad 'X' admite N personas; ya hay A asignadas y se enviaron S`.
 
@@ -2901,7 +2927,7 @@ paths:
 
         Todo o nada: si todo es válido, inserta todas las filas y pasa la tarea a status `3` en una única
         transacción; cualquier fallo revierte todo.
-        No valida status de la tarea, personal previamente asignado ni que `positions.line_id` sea la línea de la tarea.
+        No valida status de la tarea ni personal previamente asignado.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -2922,7 +2948,7 @@ paths:
                     properties:
                       code: { type: string, description: Código del empleado (biométrico) }
                       name: { type: string, description: Nombre completo }
-                      position: { type: string, description: Código de la posición (`positions.code`); debe existir y tener actividad asignada a la línea de la tarea }
+                      position: { type: string, description: Código de la posición (`positions.code`); debe existir en el SKU de línea de la tarea y tener actividad asignada a ese SKU de línea }
             example:
               employees:
                 - { code: 'E0001', name: 'Juan Pérez', position: '1PIQ1A001' }
@@ -2946,7 +2972,7 @@ paths:
               schema: { $ref: '#/components/schemas/ApiError' }
               example:
                 statusCode: 400
-                message: "La posición 'X1' no existe\nLa posición '1PIQ1A009' no tiene una actividad asignada\nLa actividad 'EMPACADOR' de la posición '1PIQ1A005' no está asignada a la línea de la tarea\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
+                message: "La posición 'X1' no existe\nLa posición '1PIQ1A009' no tiene una actividad asignada\nLa actividad 'EMPACADOR' de la posición '1PIQ1A005' no está asignada al SKU de línea de la tarea\nLa actividad 'RECORTADOR' admite 10 personas; ya hay 3 asignadas y se enviaron 8"
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '422': { $ref: '#/components/responses/ValidationError' }
@@ -2959,14 +2985,13 @@ paths:
       tags: [WeeklyPlanTaskEmployees]
       summary: Cambiar la actividad de una asignación
       description: |
-        Cambia `line_activity_id` de la asignación. Solo con la tarea en status `3` o `4`.
-        Sirve también para asignar actividad a asignaciones históricas con `line_activity_id = null`.
+        Cambia `line_sku_activity_id` de la asignación. Solo con la tarea en status `3` o `4`.
+        Sirve también para asignar actividad a asignaciones con `line_sku_activity_id = null`.
 
         - `404` `La asignación no existe` (inexistente o retirada).
         - `400` `Solo se puede modificar el personal de una tarea lista para ejecución o en progreso`.
-        - `400` `La tarea no tiene una línea asignada`.
-        - `404` `La actividad de la línea no existe`.
-        - `400` `La actividad 'X' no pertenece a la línea de la tarea`.
+        - `404` `La actividad del SKU de línea no existe`.
+        - `400` `La actividad 'X' no pertenece al SKU de línea de la tarea`.
         - `400` `La actividad 'X' admite N personas y ya tiene N asignadas` (cuenta asignaciones activas
           de la tarea con esa actividad, sin contar esta; enviar la misma actividad que ya tiene es válido).
       requestBody:
@@ -2975,10 +3000,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [line_activity_id]
+              required: [line_sku_activity_id]
               properties:
-                line_activity_id: { type: integer, description: ID del cupo (`line_activities`) de la línea de la tarea }
-            example: { line_activity_id: 5 }
+                line_sku_activity_id: { type: integer, description: ID del cupo (`line_sku_activities`) del SKU de línea de la tarea }
+            example: { line_sku_activity_id: 5 }
       responses:
         '200':
           description: Actividad del Empleado Actualizada Correctamente (`data` = null)
@@ -4055,8 +4080,6 @@ components:
         capture_type: { $ref: '#/components/schemas/CaptureType' }
         is_wildcard: { type: boolean, description: 'Línea de comodines' }
         supervisor_code: { type: string, nullable: true, description: 'Código del supervisor (puede repetirse entre líneas)' }
-        activities: { type: integer, description: 'Suma de `quantity` de las actividades asignadas a la línea (`line_activities`)' }
-        positions: { type: integer, description: 'Cantidad de posiciones de la línea' }
     LineInput:
       type: object
       required: [name, code, shift]
@@ -4078,23 +4101,25 @@ components:
         activity_id: { type: [integer, 'null'], description: 'FK a `activities`; null en posiciones sin actividad cargada' }
         activity: { type: [string, 'null'], description: Nombre de la actividad del catálogo (`activities.name`) }
         unit: { type: [string, 'null'], description: Unidad de la actividad (`activities.unit`) }
-        line_id: { type: integer }
+        line_sku_id: { type: integer, description: 'FK a `line_stock_keeping_units` (SKU de línea del puesto)' }
+        line_id: { type: integer, description: 'Línea del `LineSku` (`lineSku.line_id`)' }
         line: { type: string, description: Nombre de la línea }
+        sku: { type: string, description: Código del SKU del `LineSku` }
         status: { type: boolean }
     PositionInput:
       type: object
-      required: [code, activity_id, line_id]
+      required: [code, activity_id, line_sku_id]
       properties:
-        code: { type: string, maxLength: 255, description: Único }
-        activity_id: { type: integer, description: 'Id de `activities`; debe estar asignada a la línea `line_id` en `line_activities`' }
-        line_id: { type: integer }
+        code: { type: string, maxLength: 255, description: 'Único por `line_sku_id`' }
+        activity_id: { type: integer, description: 'Id de `activities`; debe estar asignada al SKU de línea `line_sku_id` en `line_sku_activities`' }
+        line_sku_id: { type: integer, description: 'Id de `line_stock_keeping_units`' }
         status: { type: boolean }
     LineDependency:
       type: object
       properties:
         id: { type: integer }
         line_dependant_name: { type: string }
-        positions: { type: integer, description: Cantidad de puestos de la línea dependiente }
+        positions: { type: integer, description: 'Cantidad de puestos de la línea dependiente (suma de las posiciones de todos sus `LineSku`)' }
     CaptureType:
       type: string
       enum: [pallet, lot, product]
@@ -4190,22 +4215,22 @@ components:
       properties:
         name: { type: string, maxLength: 100, description: 'Se guarda con `trim` y en mayúsculas' }
         unit: { type: string, maxLength: 50, description: 'Se guarda con `trim`' }
-    LineActivity:
+    LineSkuActivity:
       type: object
       properties:
         id: { type: integer }
-        line_id: { type: integer }
+        line_sku_id: { type: integer }
         activity_id: { type: integer }
         activity: { type: string, description: Nombre de la actividad }
         unit: { type: string, description: Unidad de medida de la actividad }
-        quantity: { type: integer, description: Cuántas personas de esa actividad necesita la línea }
-    LineActivityInput:
+        quantity: { type: integer, description: Cuántas personas de esa actividad necesita el SKU de línea }
+    LineSkuActivityInput:
       type: object
       required: [activity_id, quantity]
       properties:
         activity_id: { type: integer }
         quantity: { type: integer, minimum: 1 }
-    LineActivityUpdateInput:
+    LineSkuActivityUpdateInput:
       type: object
       required: [quantity]
       properties:
@@ -4251,6 +4276,8 @@ components:
         accepted_percentage: { type: number }
         payment_method: { type: integer, enum: [0, 1] }
         status: { type: boolean }
+        activities: { type: integer, description: 'Suma de `quantity` de las actividades asignadas al SKU de línea (`line_sku_activities`)' }
+        positions: { type: integer, description: 'Cantidad de posiciones del SKU de línea' }
     LineSkuInput:
       type: object
       required: [sku_id, line_id, lbs_performance, accepted_percentage, payment_method]
@@ -4483,7 +4510,7 @@ components:
         position_id: { type: [integer, 'null'], description: FK a `positions`; null solo en filas históricas sin posición coincidente }
         position: { type: [string, 'null'], description: Código de la posición (`positions.code`) }
         position_activity: { type: [string, 'null'], description: 'Actividad de la posición desde el catálogo (`positions.activity_id` → `activities.name`); null si la posición no tiene actividad' }
-        line_activity_id: { type: [integer, 'null'], description: 'FK a `line_activities` (cupo de la línea que cubre el empleado); null en asignaciones anteriores a SPEC 16' }
+        line_sku_activity_id: { type: [integer, 'null'], description: 'FK a `line_sku_activities` (cupo del SKU de línea que cubre el empleado); nullable' }
         activity: { type: [string, 'null'], description: 'Nombre de la actividad del catálogo (`activities.name`). Antes de SPEC 16 era la actividad de la posición, hoy en `position_activity`' }
         unit: { type: [string, 'null'], description: Unidad de la actividad (`activities.unit`) }
     WeeklyPlanTaskObservation:
