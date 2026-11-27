@@ -24,6 +24,8 @@ class LineSkuResource extends JsonResource
             'accepted_percentage' => $this->accepted_percentage,
             'payment_method' => $this->payment_method ? 1 : 0,
             'status' => $this->status,
+            'activities' => (int) $this->line_sku_activities_sum_quantity,
+            'positions' => $this->positions_count,
         ];
     }
 }

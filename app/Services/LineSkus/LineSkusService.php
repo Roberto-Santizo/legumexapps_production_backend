@@ -27,7 +27,9 @@ class LineSkusService implements LineSkusServiceInterface
     #[Override]
     public function getLineSkus(?string $limit, Request $request)
     {
-        $query = LineSku::query();
+        $query = LineSku::query()
+            ->withSum('lineSkuActivities', 'quantity')
+            ->withCount('positions');
 
         if ($request->query('sku')) {
             $query->whereHas('sku', function ($p0) use ($request) {
@@ -59,7 +61,9 @@ class LineSkusService implements LineSkusServiceInterface
     #[Override]
     public function getLineSkuById(string $id)
     {
-        $lineSku = LineSku::find($id, ['*']);
+        $lineSku = LineSku::withSum('lineSkuActivities', 'quantity')
+            ->withCount('positions')
+            ->find($id, ['*']);
         if (! $lineSku) {
             throw new NotFoundError('El SKU de línea no existe');
         }
