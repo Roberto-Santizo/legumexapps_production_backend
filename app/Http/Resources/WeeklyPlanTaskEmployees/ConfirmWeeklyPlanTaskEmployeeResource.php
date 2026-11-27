@@ -18,7 +18,7 @@ class ConfirmWeeklyPlanTaskEmployeeResource extends JsonResource
             'code' => $this->code,
             'name' => $this->name,
             'position' => $this->position ?? $this->catalogPosition?->code,
-            'line_activity_id' => $this->line_activity_id,
+            'line_sku_activity_id' => $this->line_sku_activity_id,
         ];
     }
 }

@@ -47,10 +47,10 @@ class WeeklyPlanTaskEmployeesController extends Controller
         }
     }
 
-    public function lastEmployeesConfiguration(string $code, WeeklyPlanTaskEmployeesServiceInterface $service)
+    public function lastEmployeesConfiguration(string $id, WeeklyPlanTaskEmployeesServiceInterface $service)
     {
         try {
-            $employees = $service->getLastEmployeesConfiguration($code);
+            $employees = $service->getLastEmployeesConfiguration($id);
 
             return ResponseHandler::success(new LastEmployeesConfigurationResource($employees), 'Configuración Anterior Obtenida Correctamente', 200);
         } catch (\Throwable $th) {

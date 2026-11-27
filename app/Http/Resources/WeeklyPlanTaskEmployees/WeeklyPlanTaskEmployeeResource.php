@@ -21,9 +21,9 @@ class WeeklyPlanTaskEmployeeResource extends JsonResource
             'position_id' => $this->position_id,
             'position' => $this->catalogPosition?->code,
             'position_activity' => $this->catalogPosition?->activity?->name,
-            'line_activity_id' => $this->line_activity_id,
-            'activity' => $this->lineActivity?->activity?->name,
-            'unit' => $this->lineActivity?->activity?->unit,
+            'line_sku_activity_id' => $this->line_sku_activity_id,
+            'activity' => $this->lineSkuActivity?->activity?->name,
+            'unit' => $this->lineSkuActivity?->activity?->unit,
         ];
     }
 }

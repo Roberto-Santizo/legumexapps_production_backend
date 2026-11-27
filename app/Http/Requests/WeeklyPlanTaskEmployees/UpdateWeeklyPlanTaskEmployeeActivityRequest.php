@@ -23,15 +23,15 @@ class UpdateWeeklyPlanTaskEmployeeActivityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'line_activity_id' => ['required', 'integer'],
+            'line_sku_activity_id' => ['required', 'integer'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'line_activity_id.required' => 'La actividad es requerida',
-            'line_activity_id.integer' => 'La actividad debe ser un número entero',
+            'line_sku_activity_id.required' => 'La actividad es requerida',
+            'line_sku_activity_id.integer' => 'La actividad debe ser un número entero',
         ];
     }
 }

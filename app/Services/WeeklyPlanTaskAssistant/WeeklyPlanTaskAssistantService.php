@@ -87,7 +87,7 @@ class WeeklyPlanTaskAssistantService implements WeeklyPlanTaskAssistantServiceIn
     {
         $task = $this->weeklyPlanTasksService->getWeeklyPlanTaskById($taskId);
 
-        return $task->employees()->with(['catalogPosition.activity', 'lineActivity.activity'])->orderBy('name')->get();
+        return $task->employees()->with(['catalogPosition.activity', 'lineSkuActivity.activity'])->orderBy('name')->get();
     }
 
     #[Override]
