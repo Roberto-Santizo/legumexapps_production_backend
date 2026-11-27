@@ -1,6 +1,6 @@
 # SPEC 19 — Resumen diario en audio por línea vía Telegram
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 12, SPEC 13, SPEC 18
 > **Fecha:** 2026-11-24
 > **Objetivo:** Enviar cada día a las 06:00 (America/Guatemala), a un chat de Telegram configurado por `.env`, un audio por cada línea con el resumen de las tareas que ejecutó el día anterior.
@@ -188,28 +188,28 @@ Cada paso deja el sistema funcional y es commiteable por separado.
 
 ## Criterios de aceptación
 
-- [ ] `php artisan schedule:list` muestra `reports:daily-line-audio` diario a las 06:00 de `America/Guatemala`.
-- [ ] Sin `--date`, a las 20:00 de Guatemala (ya es el día siguiente en UTC), la fecha usada es ayer de Guatemala.
-- [ ] Con dos líneas con tomas en la fecha, llegan dos documentos a `TELEGRAM_CHAT_ID`, uno por línea, con nombre de línea y fecha en el caption.
-- [ ] Con Gemini, cada documento es `.wav` y se reproduce.
-- [ ] El guion de cada línea empieza con su nombre y su fecha, y no menciona otras líneas.
-- [ ] Guion `pallet`: incluye desecho y sobredosificación. `lot`: recuperación y sobremadurez. `product`: recuperación y rechazo. Los valores coinciden con la tool de la familia.
-- [ ] Una tarea con observaciones aparece con ellas resumidas; sin observaciones no se mencionan.
-- [ ] El guion no contiene `|`, `#`, `*`, `lbs` ni `%`, no supera `audio.max_chars` y no menciona ids de tareas.
-- [ ] Una línea con tareas ejecutadas sin tomas no genera job.
-- [ ] Una línea con tareas solo en status 1–3 no genera job.
-- [ ] Una fecha sin líneas no envía nada, no llama al LLM ni al TTS y sale con exit code 0.
-- [ ] Con `GEMINI_API_KEY` inválida, llega el guion como texto, no llega documento y el job no queda en `failed_jobs`.
-- [ ] Con la key del LLM inválida, llega `Hubo un error al generar el reporte diario: {línea} — {fecha}` una sola vez por línea y el job queda en `failed_jobs`.
-- [ ] Si una línea falla, las demás se envían.
-- [ ] Telegram con 500 dos veces y luego 200 → un envío exitoso (`Http::fake`). Con 400 → un solo intento.
-- [ ] Con `TELEGRAM_BOT_TOKEN` o `TELEGRAM_CHAT_ID` vacío, el comando sale con exit code 1 y no despacha jobs.
-- [ ] `--date=2026-13-40` y una fecha futura → error y exit code 1.
-- [ ] El token no aparece en `storage/logs` ni en `failed_jobs` tras simular un error de conexión.
-- [ ] No se crean filas en `agent_conversations`, `agent_conversation_messages` ni `assistant_audio_summaries`, ni archivos en S3.
-- [ ] `WeeklyPlanTaskAssistant` y `GenerateAudioSummary` no tienen cambios.
-- [ ] `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` están vacíos en `.env.example`.
-- [ ] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
+- [X] `php artisan schedule:list` muestra `reports:daily-line-audio` diario a las 06:00 de `America/Guatemala`.
+- [X] Sin `--date`, a las 20:00 de Guatemala (ya es el día siguiente en UTC), la fecha usada es ayer de Guatemala.
+- [X] Con dos líneas con tomas en la fecha, llegan dos documentos a `TELEGRAM_CHAT_ID`, uno por línea, con nombre de línea y fecha en el caption.
+- [X] Con Gemini, cada documento es `.wav` y se reproduce.
+- [X] El guion de cada línea empieza con su nombre y su fecha, y no menciona otras líneas.
+- [X] Guion `pallet`: incluye desecho y sobredosificación. `lot`: recuperación y sobremadurez. `product`: recuperación y rechazo. Los valores coinciden con la tool de la familia.
+- [X] Una tarea con observaciones aparece con ellas resumidas; sin observaciones no se mencionan.
+- [X] El guion no contiene `|`, `#`, `*`, `lbs` ni `%`, no supera `audio.max_chars` y no menciona ids de tareas.
+- [X] Una línea con tareas ejecutadas sin tomas no genera job.
+- [X] Una línea con tareas solo en status 1–3 no genera job.
+- [X] Una fecha sin líneas no envía nada, no llama al LLM ni al TTS y sale con exit code 0.
+- [X] Con `GEMINI_API_KEY` inválida, llega el guion como texto, no llega documento y el job no queda en `failed_jobs`.
+- [X] Con la key del LLM inválida, llega `Hubo un error al generar el reporte diario: {línea} — {fecha}` una sola vez por línea y el job queda en `failed_jobs`.
+- [X] Si una línea falla, las demás se envían.
+- [X] Telegram con 500 dos veces y luego 200 → un envío exitoso (`Http::fake`). Con 400 → un solo intento.
+- [X] Con `TELEGRAM_BOT_TOKEN` o `TELEGRAM_CHAT_ID` vacío, el comando sale con exit code 1 y no despacha jobs.
+- [X] `--date=2026-13-40` y una fecha futura → error y exit code 1.
+- [X] El token no aparece en `storage/logs` ni en `failed_jobs` tras simular un error de conexión.
+- [X] No se crean filas en `agent_conversations`, `agent_conversation_messages` ni `assistant_audio_summaries`, ni archivos en S3.
+- [X] `WeeklyPlanTaskAssistant` y `GenerateAudioSummary` no tienen cambios.
+- [X] `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` están vacíos en `.env.example`.
+- [X] `vendor/bin/pint --dirty --format agent` no reporta cambios pendientes.
 
 ---
 
